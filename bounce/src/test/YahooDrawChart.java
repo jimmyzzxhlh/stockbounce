@@ -21,7 +21,7 @@ import yahoo.YahooParser;
 //e = toDay (two digits)
 //f = toYear
 //g = d for day, m for month, y for yearly
-public class YahooMain {
+public class YahooDrawChart {
 
 	public StockFrame stockFrame;
 	public ArrayList<StockPrice> stockPriceArray = new ArrayList<StockPrice>();
@@ -29,16 +29,21 @@ public class YahooMain {
 	public static final String filename = "D:\\CAMT.csv";
 	
 	public static void main(String args[]) throws Exception {
+		drawChart();
+		
+		
+	}
+	
+	private static void drawChart() throws Exception {
 		String line;
 		StockPrice stockPrice = null;
 		YahooParser parser = new YahooParser(filename);
-		YahooMain mainProgram = new YahooMain();
+		YahooDrawChart mainProgram = new YahooDrawChart();
 		int frameWidth;
 		
 		parser.startReadFile();
 		
 		while ((line = parser.nextLine()) != null) {
-//			System.out.println(line);
 			stockPrice = new StockPrice();
 			parser.parseLine(line, stockPrice);
 			mainProgram.stockPriceArray.add(stockPrice);
@@ -50,7 +55,6 @@ public class YahooMain {
 				return 1;
 			}
 		});
-		//Sorting is not needed.
 		mainProgram.normalizeStockPrice();
 		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
 			System.out.println(mainProgram.stockPriceArray.get(i).toString());
@@ -61,10 +65,7 @@ public class YahooMain {
 		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray;
 		mainProgram.stockFrame.setVisible(true);
 		mainProgram.stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		
-		
 	}
-	
 	private void normalizeStockPrice() {
 		StockPrice stockPrice;
 		double max = 0;
