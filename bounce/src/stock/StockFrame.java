@@ -1,17 +1,22 @@
 package stock;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
-public class StockFrame extends JFrame {
+public class StockFrame extends JFrame implements ActionListener {
 	static final int CANDLE_WIDTH = 5;
 	public ArrayList<StockPrice> stockPriceArray;
 	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
 	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
+	private JTextField textField;
 	
 	public StockFrame() {
 		super();
@@ -22,12 +27,14 @@ public class StockFrame extends JFrame {
 	public StockFrame(int width, int height) {
 		super();
 		this.setSize(width, height);
+		this.setLayout(new BorderLayout());
+		addTextField();
+		
 	}
 	
 	public void paint(Graphics g) {
 		paintCandles(g);
-		paintTextBox(g);
-		paintButton(g);		
+				
 	}
 	
 	public void paintCandles(Graphics g) {
@@ -97,12 +104,31 @@ public class StockFrame extends JFrame {
 		
 	}
 	
-	public void paintTextBox(Graphics g) {
 		
+	public void addTextField() {
+		textField = new JTextField();
+		this.add(textField, BorderLayout.NORTH);
+		
+		textField.addActionListener(this);
 	}
-	
-	public void paintButton(Graphics g) {
-		
+
+	@Override
+	public void actionPerformed(ActionEvent ae) {
+		try {
+			String textFieldStr[] = textField.getText().split(",");
+			candleDays = Integer.parseInt(textFieldStr[0]);
+			candleDaysOffset = Integer.parseInt(textFieldStr[1]);
+			if (candleDaysOffset >= candleDays) {
+				candleDaysOffset = 0;
+			}
+		}
+		catch (Exception e) {
+			candleDays = 1;
+			candleDaysOffset = 0;
+		}
+		this.setVisible(false);
+		this.repaint();
+		this.setVisible(true);
 	}
 
 	

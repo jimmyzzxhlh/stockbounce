@@ -63,7 +63,7 @@ public class YahooDrawChart {
 //		}
 		
 		frameWidth = (mainProgram.stockPriceArray.size() + 1) * 5;
-		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT);
+		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
 		mainProgram.stockFrame.candleDays = CANDLE_DAYS;
 		mainProgram.stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
 		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray;
