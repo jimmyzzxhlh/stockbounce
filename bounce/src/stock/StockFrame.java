@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 public class StockFrame extends JFrame {
 	static final int CANDLE_WIDTH = 5;
 	public ArrayList<StockPrice> stockPriceArray;
+	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
+	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
 	
 	public StockFrame() {
 		super();
@@ -23,13 +25,37 @@ public class StockFrame extends JFrame {
 	}
 	
 	public void paint(Graphics g) {
-		StockPrice stockPrice;
-		if (stockPriceArray == null) return;
-		for (int i = 0; i < stockPriceArray.size(); i++) {
-			stockPrice = stockPriceArray.get(i);
-			paintCandle(g, CANDLE_WIDTH * i + 3, stockPrice);
-		}
+		paintCandles(g);
+		paintTextBox(g);
+		paintButton(g);		
 	}
+	
+	public void paintCandles(Graphics g) {
+		StockPrice currentStockPrice;
+		StockPrice formattedStockPrice;
+		if (stockPriceArray == null) return;
+		int i = candleDaysOffset;
+		while (i < stockPriceArray.size()) {
+			formattedStockPrice = new StockPrice();
+			for (int j = i; j < i + candleDays; j++) {
+				if (j >= stockPriceArray.size()) break;
+				currentStockPrice = stockPriceArray.get(j);
+				if (j == i) {
+					formattedStockPrice.setDate(currentStockPrice.getDate());
+					formattedStockPrice.setOpen(currentStockPrice.getOpen());					
+				}
+				formattedStockPrice.setClose(currentStockPrice.getClose());
+				formattedStockPrice.setLowOverride(currentStockPrice.getLow());
+				formattedStockPrice.setHighOverride(currentStockPrice.getHigh());
+				formattedStockPrice.setVolume(formattedStockPrice.getVolume() + currentStockPrice.getVolume());				
+			}
+			System.out.println(i + " " + formattedStockPrice.toString());
+			paintCandle(g, CANDLE_WIDTH * i + 3, formattedStockPrice);
+			i += candleDays;
+			
+		}	
+	}
+	
 	public void paintCandle(Graphics g, int x, StockPrice stockPrice) {
 		int frameHeight = 0;
 		int bodyHeight;
@@ -70,5 +96,14 @@ public class StockFrame extends JFrame {
 		g.drawLine(x, lowerShadowStart, x, lowerShadowEnd);
 		
 	}
+	
+	public void paintTextBox(Graphics g) {
+		
+	}
+	
+	public void paintButton(Graphics g) {
+		
+	}
 
+	
 }

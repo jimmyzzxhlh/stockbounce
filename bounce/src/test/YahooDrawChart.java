@@ -26,7 +26,9 @@ public class YahooDrawChart {
 	public StockFrame stockFrame;
 	public ArrayList<StockPrice> stockPriceArray = new ArrayList<StockPrice>();
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\CAMT.csv";
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\ATHM.csv";
+	public static final int CANDLE_DAYS = 2;
+	public static final int CANDLE_DAYS_OFFSET = 0;
 	
 	public static void main(String args[]) throws Exception {
 		drawChart();
@@ -56,12 +58,14 @@ public class YahooDrawChart {
 			}
 		});
 		mainProgram.normalizeStockPrice();
-		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
-			System.out.println(mainProgram.stockPriceArray.get(i).toString());
-		}
+//		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
+//			System.out.println(mainProgram.stockPriceArray.get(i).toString());
+//		}
 		
 		frameWidth = (mainProgram.stockPriceArray.size() + 1) * 5;
 		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT);
+		mainProgram.stockFrame.candleDays = CANDLE_DAYS;
+		mainProgram.stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
 		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray;
 		mainProgram.stockFrame.setVisible(true);
 		mainProgram.stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
