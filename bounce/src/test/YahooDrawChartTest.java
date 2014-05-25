@@ -1,14 +1,13 @@
 package test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 
 import javax.swing.WindowConstants;
 
 import stock.StockFrame;
 import stock.StockPrice;
+import stock.StockPriceArray;
 import yahoo.YahooParser;
 
 //To get historical price:
@@ -21,13 +20,13 @@ import yahoo.YahooParser;
 //e = toDay (two digits)
 //f = toYear
 //g = d for day, m for month, y for yearly
-public class YahooDrawChart {
+public class YahooDrawChartTest {
 
 	public StockFrame stockFrame;
-	public ArrayList<StockPrice> stockPriceArray = new ArrayList<StockPrice>();
+	public StockPriceArray stockPriceArray;
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\ATHM.csv";
-	public static final int CANDLE_DAYS = 2;
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\WBAI.csv";
+	public static final int CANDLE_DAYS = 1;
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	
 	public static void main(String args[]) throws Exception {
@@ -40,7 +39,9 @@ public class YahooDrawChart {
 		String line;
 		StockPrice stockPrice = null;
 		YahooParser parser = new YahooParser(filename);
-		YahooDrawChart mainProgram = new YahooDrawChart();
+		YahooDrawChartTest mainProgram = new YahooDrawChartTest();
+		mainProgram.stockPriceArray = new StockPriceArray();
+
 		int frameWidth;
 		
 		parser.startReadFile();
@@ -48,52 +49,24 @@ public class YahooDrawChart {
 		while ((line = parser.nextLine()) != null) {
 			stockPrice = new StockPrice();
 			parser.parseLine(line, stockPrice);
-			mainProgram.stockPriceArray.add(stockPrice);
+			mainProgram.stockPriceArray.getStockPriceArray().add(stockPrice);
 		}
 		parser.closeFile();
-		Collections.sort(mainProgram.stockPriceArray, new Comparator<StockPrice>() {
-			public int compare(StockPrice a, StockPrice b) {
-				if (a.date.before(b.date)) return -1;
-				return 1;
-			}
-		});
-		mainProgram.normalizeStockPrice();
+		mainProgram.stockPriceArray.sortByDate();
+		mainProgram.stockPriceArray.normalizeStockPrice(FRAME_HEIGHT);
 //		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
 //			System.out.println(mainProgram.stockPriceArray.get(i).toString());
 //		}
 		
-		frameWidth = (mainProgram.stockPriceArray.size() + 1) * 5;
+		frameWidth = (mainProgram.stockPriceArray.getStockPriceArray().size() + 1) * 5;
 		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
 		mainProgram.stockFrame.candleDays = CANDLE_DAYS;
 		mainProgram.stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
-		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray;
+		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray.getStockPriceArray();
 		mainProgram.stockFrame.setVisible(true);
 		mainProgram.stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
-	private void normalizeStockPrice() {
-		StockPrice stockPrice;
-		double max = 0;
-		double min = 1e10;
-		double scale = 1;
-		for (int i = 0; i < stockPriceArray.size(); i++) {
-			stockPrice = stockPriceArray.get(i);
-			if (stockPrice.low < min) {
-				min = stockPrice.low;
-			}
-			if (stockPrice.high > max) {
-				max = stockPrice.high;
-			}
-		}
-		scale = FRAME_HEIGHT / (max - min);
-		for (int i = 0; i < stockPriceArray.size(); i++) {
-			stockPrice = stockPriceArray.get(i);
-			stockPrice.open = (stockPrice.open - min) * scale;
-			stockPrice.close = (stockPrice.close - min) * scale;
-			stockPrice.high = (stockPrice.high - min) * scale;
-			stockPrice.low = (stockPrice.low - min) * scale;			
-		}
-		
-	}
+	
 	
 		
 	

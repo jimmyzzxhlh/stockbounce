@@ -56,7 +56,7 @@ public class StockFrame extends JFrame implements ActionListener {
 				formattedStockPrice.setHighOverride(currentStockPrice.getHigh());
 				formattedStockPrice.setVolume(formattedStockPrice.getVolume() + currentStockPrice.getVolume());				
 			}
-			System.out.println(i + " " + formattedStockPrice.toString());
+			//System.out.println(i + " " + formattedStockPrice.toString());
 			paintCandle(g, CANDLE_WIDTH * i + 3, formattedStockPrice);
 			i += candleDays;
 			
