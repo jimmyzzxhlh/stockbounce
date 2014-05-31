@@ -14,6 +14,13 @@ public class SimpleLinearRegression {
 		
 	}
 	
+	/**
+	 * Given a list of data points (x[i],y[i]) i=1..n. Find a straight line such that 
+	 * y = a + b * x
+	 * where sigma((y[i] - a - b * x[i])^2) is minimum.
+	 * b = ((Average of x*y) - (Average of x) * (Average * y)) / (Average of (x^2) - (Average of x)^2)  
+	 * @return b (slope)
+	 */
 	public double getSlope() {
 		double xAverage, yAverage, xyAverage, xSquareAverage;
 		double x,y;

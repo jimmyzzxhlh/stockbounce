@@ -11,7 +11,7 @@ public class StockPrice {
 	public int volume = 0;
 	public Date date;
 	
-	public enum StockPriceDataPoint {
+	public enum StockPriceDataType {
 		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE
 	}
 	

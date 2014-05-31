@@ -1,8 +1,5 @@
 package test;
 
-import java.util.Collections;
-import java.util.Comparator;
-
 import javax.swing.WindowConstants;
 
 import stock.StockFrame;
@@ -25,7 +22,7 @@ public class YahooDrawChartTest {
 	public StockFrame stockFrame;
 	public StockPriceArray stockPriceArray;
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\WBAI.csv";
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\NQ.csv";
 	public static final int CANDLE_DAYS = 1;
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	
@@ -35,6 +32,10 @@ public class YahooDrawChartTest {
 		
 	}
 	
+	/**
+	 * Read a chart CSV file and draw the chart.
+	 * @throws Exception
+	 */
 	private static void drawChart() throws Exception {
 		String line;
 		StockPrice stockPrice = null;

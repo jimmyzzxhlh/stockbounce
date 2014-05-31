@@ -11,6 +11,18 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
+/**
+ * 
+ * Frame to paint the candle chart.
+ * In the text box of at the top, enter two numbers delimited by comma.
+ * The first number represents the number of candles being combined together. If set to 1, then it will be the daily chart.
+ * The second number represents is between 0 to first number - 1. When combining X candles together, we will have X number of
+ * different charts, based on which candle to start with at the beginning.
+ * TODO:
+ * 1. Paint components instead of painting the charts directly on the frame.
+ * 2. Enhance the UI to show volume.
+ * 3. Enhance the UI to show X number of different charts using a button instead of a text box.
+ */
 public class StockFrame extends JFrame implements ActionListener {
 	static final int CANDLE_WIDTH = 5;
 	public ArrayList<StockPrice> stockPriceArray;
@@ -37,6 +49,11 @@ public class StockFrame extends JFrame implements ActionListener {
 				
 	}
 	
+	/**
+	 * Paint each candle on the frame.
+	 * 
+	 * @param g
+	 */
 	public void paintCandles(Graphics g) {
 		StockPrice currentStockPrice;
 		StockPrice formattedStockPrice;
@@ -44,6 +61,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		int i = candleDaysOffset;
 		while (i < stockPriceArray.size()) {
 			formattedStockPrice = new StockPrice();
+			//Combine several candles together
 			for (int j = i; j < i + candleDays; j++) {
 				if (j >= stockPriceArray.size()) break;
 				currentStockPrice = stockPriceArray.get(j);
@@ -70,6 +88,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		int upperShadowEnd;
 		int lowerShadowStart;
 		int lowerShadowEnd;
+		//TODO: Do we really need to convert them to integer to paint?
 		int openInt = (int) Math.floor(stockPrice.open);
 		int highInt = (int) Math.floor(stockPrice.high);
 		int lowInt = (int) Math.floor(stockPrice.low);

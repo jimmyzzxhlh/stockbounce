@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import stock.StockPrice.StockPriceDataPoint;
+import stock.StockPrice.StockPriceDataType;
 
+/**
+ * Main class for a list of stock prices.
+ * Algorithm implementation will also be here.
+ */
 public class StockPriceArray {
 	private ArrayList<StockPrice> stockPriceArray;
 	private static final double TREND_UP_SLOPE = 0.5;
 	private static final double TREND_DOWN_SLOPE = -0.5;
+	private static final double MIN_UPPER_SHADOW_LENGTH = 15;
+	private static final double MAX_BODY_LENGTH = 3;
+	
 	
 	public ArrayList<StockPrice> getStockPriceArray() {
 		return stockPriceArray;
@@ -58,14 +65,14 @@ public class StockPriceArray {
 		});
 	}
 	
-	public boolean IsTrendUp(int start, int end, StockPriceDataPoint dataPoint) {
+	public boolean IsTrendUp(int start, int end, StockPriceDataType dataPoint) {
 		SimpleLinearRegression slr = new SimpleLinearRegression();
 		double slope;
 		for (int i = start; i < end; i++) {
-			if (dataPoint == StockPriceDataPoint.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
-			else if (dataPoint == StockPriceDataPoint.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
-			else if (dataPoint == StockPriceDataPoint.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
-			else if (dataPoint == StockPriceDataPoint.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
+			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
+			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
+			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
+			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
 		}
 		
 		slope = slr.getSlope();
@@ -73,14 +80,14 @@ public class StockPriceArray {
 		else return false;
 	}
 	
-	public boolean IsTrendDown(int start, int end, StockPriceDataPoint dataPoint) {
+	public boolean IsTrendDown(int start, int end, StockPriceDataType dataPoint) {
 		SimpleLinearRegression slr = new SimpleLinearRegression();
 		double slope;
 		for (int i = start; i < end; i++) {
-			if (dataPoint == StockPriceDataPoint.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
-			else if (dataPoint == StockPriceDataPoint.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
-			else if (dataPoint == StockPriceDataPoint.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
-			else if (dataPoint == StockPriceDataPoint.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
+			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
+			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
+			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
+			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
 		}
 		
 		slope = slr.getSlope();
@@ -118,6 +125,23 @@ public class StockPriceArray {
 		return combinedStockPriceArray;
 		
 	}
+
+//	public boolean HasLongUpperShadow(int position) {
+//		if ((position < 0) || (position >= stockPriceArray.size())) return false;
+//		StockPrice stockPrice;
+//		double bodyLength;
+//		double upperShadowLength;
+//		stockPrice = stockPriceArray.get(position);
+//		
+//		bodyLength = Math.abs(stockPrice.close - stockPrice.open);
+//		upperShadowLength = stockPrice.high - Math.max(stockPrice.open, stockPrice.close);
+//		//Shouldn't happen
+//		if (upperShadowLength < 0) upperShadowLength = 0;
+//		 
+//		
+//		//if (upperShadowLength > LONG_UPPER_SHADOW_LENGTH)
+//		return false;
+//	}
 }
 			
 		
