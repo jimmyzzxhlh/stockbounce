@@ -2,6 +2,7 @@ package pattern;
 
 import java.util.ArrayList;
 
+import stock.StockEnum.StockPriceDataType;
 import stock.StockPrice;
 
 public class StockPattern {
@@ -10,7 +11,15 @@ public class StockPattern {
 	//<Function Name>_<Constant Name>
 	private static final double WHITE_LONG_DAY_MIN_BODY_LENGTH = 10;
 	
-	private static final double BLACK_LONG_DAY_MIN_BODY_LENGTH = 10;
+	private static final double BLACK_LONG_DAY_MIN_BODY_LENGTH = WHITE_LONG_DAY_MIN_BODY_LENGTH;
+	
+	private static final double WHITE_SHORT_DAY_MAX_BODY_LENGTH = 5;
+	
+	private static final double BLACK_SHORT_DAY_MAX_BODY_LENGTH = WHITE_SHORT_DAY_MAX_BODY_LENGTH;
+	
+	private static final double WHITE_MARUBOZU_MAX_SHADOW_LENGTH = 1;
+	
+	private static final double BLACK_MARUBOZU_MAX_SHADOW_LENGTH = WHITE_MARUBOZU_MAX_SHADOW_LENGTH;
 	
 	private ArrayList<StockPrice> stockPriceArray;
 	
@@ -35,6 +44,53 @@ public class StockPattern {
 		this.stockPriceArray = stockPriceArray;
 	}
 	
+	/**
+	 * Return true if the current candle is a white candle.
+	 * Definition:
+	 * 1. Close > Open
+	 * @param index The subscript in the stock price array.
+	 * @return True if the current candle is a white candle.
+	 */
+	public boolean isWhite(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		return isWhite(stockPrice);
+	}
+	
+	/**
+	 * Return true if the current candle is a white candle.
+	 * Definition:
+	 * 1. Close > Open
+	 * @param stockPrice Stock price object. Assume not null.
+	 * @return true if the current candle is a white candle.
+	 */
+	public boolean isWhite(StockPrice stockPrice) {
+		return ((stockPrice.close > stockPrice.open) ? true : false);
+	}
+	
+	/**
+	 * Return true if the current candle is a black candle.
+	 * Definition:
+	 * 1. Open > Close
+	 * @param index The subscript in the stock price array.
+	 * @return True if the current candle is a black candle.
+	 */
+	public boolean isBlack(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		return isBlack(stockPrice);
+	}
+	
+	/**
+	 * Return true if the current candle is a black candle.
+	 * Definition:
+	 * 1. Close < Open
+	 * @param stockPrice Stock price object. Assume not null.
+	 * @return true if the current candle is a black candle.
+	 */
+	public boolean isBlack(StockPrice stockPrice) {
+		return ((stockPrice.close < stockPrice.open) ? true : false);
+	}
 	
 	/**
 	 * Return true if the current candle is a white long day.
@@ -44,9 +100,11 @@ public class StockPattern {
 	 * @param index The subscript in the stock price array.
 	 * @return True if the current candle is a white long day.
 	 */
-	public boolean whiteLongDay(int index) {
-		double bodyLength = stockPriceArray.get(index).close - stockPriceArray.get(index).open;
-		if (bodyLength >= WHITE_LONG_DAY_MIN_BODY_LENGTH) return true;
+	public boolean isWhiteLongDay(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isWhite(stockPrice)) return false;
+		if (stockPrice.getBodyLength() >= WHITE_LONG_DAY_MIN_BODY_LENGTH) return true;
 		return false;		
 	}
 	
@@ -58,11 +116,102 @@ public class StockPattern {
 	 * @param index The subscript in the stock price array.
 	 * @return True if the current candle is a black long day.
 	 */
-	public boolean blackLongDay(int index) {
-		double bodyLength = stockPriceArray.get(index).open - stockPriceArray.get(index).close;
-		if (bodyLength >= BLACK_LONG_DAY_MIN_BODY_LENGTH) return true;
+	public boolean isBlackLongDay(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isBlack(stockPrice)) return false;
+		if (stockPrice.getBodyLength() >= BLACK_LONG_DAY_MIN_BODY_LENGTH) return true;
 		return false;
 	}
+	
+	/**
+	 * Return true if the current candle is a white short day.
+	 * Definition:
+	 * 1. Close > Open.
+	 * 2. Body length <= WHITE_SHORT_DAY_MAX_BODY_LENGTH
+	 * @param index The subscript in the stock price array.
+	 * @return True if the current candle is a white short day.
+	 */
+	public boolean isWhiteShortDay(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isWhite(stockPrice)) return false;
+		if (stockPrice.getBodyLength() <= WHITE_SHORT_DAY_MAX_BODY_LENGTH) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle is a black short day.
+	 * Definition:
+	 * 1. Close < Open.
+	 * 2. Body length <= BLACK_SHORT_DAY_MAX_BODY_LENGTH
+	 * @param index The subscript in the stock price array.
+	 * @return True if the current candle is a black short day.
+	 */
+	public boolean isBlackShortDay(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isBlack(stockPrice)) return false;
+		if (stockPrice.getBodyLength() <= BLACK_SHORT_DAY_MAX_BODY_LENGTH) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle is a white marubozu.
+	 * Example (white marubozu for open price):
+	 *  |
+	 *  |
+	 *  ¡õ
+	 *  ¡õ
+	 *  ¡õ
+	 *  ¡õ
+	 * Definition:
+	 * 1. White candle.
+	 * 2. Upper shadow length or lower shadow length <= WHITE_MARUBOZU_MAX_SHADOW_LENGTH
+	 * @param index The subscript in the stock price array.
+	 * @param dataTypes Should either be Open or Close. Can pass both.
+	 * @return True if the current candle is a white marubozu.
+	 */
+	public boolean isWhiteMarubozu(int index, StockPriceDataType... dataTypes) {
+		
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isWhite(stockPrice)) return false;
+		for (StockPriceDataType dataType : dataTypes) {
+			if ((dataType == StockPriceDataType.OPEN) && (stockPrice.getLowerShadowLength() > WHITE_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
+			if ((dataType == StockPriceDataType.CLOSE) && (stockPrice.getUpperShadowLength() > WHITE_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Return true if the current candle is a black marubozu.
+	 * Example (black marubozu for open price):
+	 *  |
+	 *  |
+	 *  ¡ö
+	 *  ¡ö
+	 *  ¡ö
+	 *  ¡ö
+	 * Definition:
+	 * 1. Black candle.
+	 * 2. Upper shadow length or lower shadow length <= BLACK_MARUBOZU_MAX_SHADOW_LENGTH
+	 * @param index The subscript in the stock price array.
+	 * @param dataTypes Should either be Open or Close. Can pass both.
+	 * @return True if the current candle is a black marubozu.
+	 */
+	public boolean isBlackMarubozu(int index, StockPriceDataType... dataTypes) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		if (!isBlack(stockPrice)) return false;
+		for (StockPriceDataType dataType : dataTypes) {
+			if ((dataType == StockPriceDataType.OPEN) && (stockPrice.getLowerShadowLength() > BLACK_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
+			if ((dataType == StockPriceDataType.CLOSE) && (stockPrice.getUpperShadowLength() > BLACK_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
+		}
+		return true;
+	}
+	
+
 	
 	
 }

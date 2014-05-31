@@ -10,10 +10,7 @@ public class StockPrice {
 	public double low = 0;
 	public int volume = 0;
 	public Date date;
-	
-	public enum StockPriceDataType {
-		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE
-	}
+
 	
 	public StockPrice() {
 			
@@ -91,7 +88,25 @@ public class StockPrice {
 			this.high = high;
 		}
 	}
+	
+	public double getBodyLength() {
+		return Math.abs(close - open);
+	}
+	
+	public double getTotalLength() {
+		return high - low;
+	}
 
+	public double getUpperShadowLength() {
+		if (close > open) return high - close;
+		return high - open;
+	}
+	
+	public double getLowerShadowLength() {
+		if (close > open) return open - low;
+		return close - low;
+	}
+	
 }
 
 

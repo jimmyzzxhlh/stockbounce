@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import stock.StockPrice.StockPriceDataType;
+import stock.StockEnum.StockPriceDataType;
 
 /**
  * Main class for a list of stock prices.
