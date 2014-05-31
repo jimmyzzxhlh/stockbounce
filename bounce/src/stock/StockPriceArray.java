@@ -9,6 +9,9 @@ import stock.StockPrice.StockPriceDataType;
 /**
  * Main class for a list of stock prices.
  * Algorithm implementation will also be here.
+ * Glossary:
+ * White Candle - Close > Open
+ * Black Candle - Close < Open 
  */
 public class StockPriceArray {
 	private ArrayList<StockPrice> stockPriceArray;
@@ -31,7 +34,7 @@ public class StockPriceArray {
 		stockPriceArray = new ArrayList<StockPrice>(); 
 	}
 	
-	public void normalizeStockPrice(int maxHeight) {
+	public static void normalizeStockPrice(ArrayList<StockPrice> stockPriceArray, int maxHeight) {
 		StockPrice stockPrice;
 		double max = 0;
 		double min = 1e10;
@@ -126,6 +129,9 @@ public class StockPriceArray {
 		
 	}
 
+	
+	
+	
 //	public boolean HasLongUpperShadow(int position) {
 //		if ((position < 0) || (position >= stockPriceArray.size())) return false;
 //		StockPrice stockPrice;

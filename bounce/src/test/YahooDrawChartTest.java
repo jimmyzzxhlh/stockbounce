@@ -54,7 +54,7 @@ public class YahooDrawChartTest {
 		}
 		parser.closeFile();
 		mainProgram.stockPriceArray.sortByDate();
-		mainProgram.stockPriceArray.normalizeStockPrice(FRAME_HEIGHT);
+		StockPriceArray.normalizeStockPrice(mainProgram.stockPriceArray.getStockPriceArray(), FRAME_HEIGHT);
 //		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
 //			System.out.println(mainProgram.stockPriceArray.get(i).toString());
 //		}
