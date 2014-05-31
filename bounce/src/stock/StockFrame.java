@@ -131,7 +131,6 @@ public class StockFrame extends JFrame implements ActionListener {
 		textField.addActionListener(this);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent ae) {
 		try {
 			String textFieldStr[] = textField.getText().split(",");
