@@ -108,8 +108,8 @@ public class StockFrame extends JFrame implements ActionListener {
 		//Decreasing
 		else {
 			g.setColor(Color.RED);
-			upperShadowEnd = frameHeight - openInt;
-			lowerShadowStart = frameHeight - closeInt;
+			upperShadowEnd =  frameHeight - openInt;
+			lowerShadowStart =  frameHeight - closeInt;
 			bodyHeight = openInt - closeInt;
 		}
 		//Draw the upper shadow of the candle

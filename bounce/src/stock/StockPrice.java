@@ -25,6 +25,7 @@ public class StockPrice {
 		this.volume = volume;
 	}
 	
+	@Override
 	public String toString() {
 		return "Date: " + this.date + " Open: " + this.open + " Close: " + this.close + " High: " + this.high + " Low: " + this.low + " Volume: " + this.volume;
 	}

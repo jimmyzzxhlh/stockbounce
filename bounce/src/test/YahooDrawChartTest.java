@@ -1,5 +1,11 @@
 package test;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
 import javax.swing.WindowConstants;
 
 import stock.StockFrame;
@@ -32,6 +38,16 @@ public class YahooDrawChartTest {
 		
 	}
 	
+	private static void downloadChart() throws Exception{
+		File file = new File(filename);
+		file.createNewFile();
+		
+		URL website = new URL("http://ichart.finance.yahoo.com/table.csv?s=MSFT&d=0&e=28&f=2013&g=d&a=3&b=12&c=2009&ignore=.csv");
+		ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+		FileOutputStream fos = new FileOutputStream(filename);
+		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+		fos.close();
+	}
 	/**
 	 * Read a chart CSV file and draw the chart.
 	 * @throws Exception
