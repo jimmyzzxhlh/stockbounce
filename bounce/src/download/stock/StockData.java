@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -71,6 +72,8 @@ public class StockData {
 	
 	private void downloadStock(String stock) throws Exception{
 		String fileStock = "D:\\zzx\\Stock\\CSV\\"+stock+".csv";
+		int retry = 0; //Retry if IOException (i.e., HTTP 400)
+		
 		File file = new File(fileStock);
 		if (!file.exists()) {
 			file.createNewFile();
@@ -103,6 +106,15 @@ public class StockData {
         }
 		catch (Exception e) {
 			e.printStackTrace();
+			if (e instanceof IOException)
+				if (retry == 0){
+					lineNumber = lineNumber - 1;
+					retry ++;
+				}
+				else{
+					retry = 0;
+				}
+					
 		}
 		
 	}
