@@ -107,6 +107,35 @@ public class StockPrice {
 		return close - low;
 	}
 	
+	/**
+	 * Return the gap between two adjacent stock prices.
+	 * Use open / close price to compute the gap.
+	 * Gap above example (ÏòÉÏÌø¿Õ):
+	 * 
+	 *    ¡ö
+	 *    ¡ö
+	 * 
+	 * |
+	 * ¡õ
+	 * ¡õ
+	 * ¡õ
+	 * ¡õ
+	 * |
+	 * 
+	 * Here the gap length will be 3.
+	 * @param lastStockPrice Last stock price object.
+	 * @param currentStockPrice Current stock price object.
+	 * @return
+	 */
+	public static double getGapLength(StockPrice lastStockPrice, StockPrice currentStockPrice) {
+		if (lastStockPrice.close > lastStockPrice.open) {
+			if (currentStockPrice.open > lastStockPrice.close) return currentStockPrice.open - lastStockPrice.close;
+		}
+		else {
+			if (currentStockPrice.open < lastStockPrice.close) return lastStockPrice.close - currentStockPrice.open;
+		}
+		return 0;
+	}
 }
 
 
