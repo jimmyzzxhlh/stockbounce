@@ -638,6 +638,69 @@ public class StockPattern {
 		return false;
 	}
 	
+	/**
+	 * Return true if the recent three candles has a form of three outside up.
+	 * Example:
+	 * 
+	 *        |
+	 *     |  ¡õ
+	 *  |  ¡õ  ¡õ
+	 *  ¡ö  ¡õ  ¡õ
+	 *  ¡ö  ¡õ  |
+	 *  ¡ö  ¡õ
+	 *  |  ¡õ
+	 *     |  
+	 * 
+	 * Definition:
+	 * 1. Current candle is a white candle.
+	 * 2. Current candle's close > Previous candle's close.
+	 * 3. The two candles before the current candle has a form of bullish engulfing. 
+	 * @param index The subscript in the stock candle array.
+	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
+	 * @return True if the recent three candles has a form of three outside up.
+	 */
+	public boolean isThreeOutsideUp(int index, boolean engulfShadows) {
+		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
+		StockCandle currentCandle, previousCandle;
+		currentCandle = stockCandleArray.get(index);
+		previousCandle = stockCandleArray.get(index - 1);
+		if ((currentCandle == null) || (previousCandle == null)) return false;
+		if (!isWhite(currentCandle)) return false;
+		if (currentCandle.getClose() <= previousCandle.getClose()) return false;
+		return isBullishEngulfing(index - 1, engulfShadows);		
+	}
+	
+	/**
+	 * Return true if the recent three candles has a form of three outside down.
+	 * Example:
+	 *
+	 *     |
+	 *  |  ¡ö
+	 *  ¡õ  ¡ö
+	 *  ¡õ  ¡ö  |
+	 *  ¡õ  ¡ö  ¡ö
+	 *  |  ¡ö  ¡ö
+	 *     |  ¡ö
+	 *        |
+	 *     
+	 * Definition:
+	 * 1. Current candle is a black candle.
+	 * 2. Current candle's close < Previous candle's close.
+	 * 3. The two candles before the current candle has a form of bearish engulfing. 
+	 * @param index The subscript in the stock candle array.
+	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
+	 * @return True if the recent three candles has a form of three outside down.
+	 */
+	public boolean isThreeOutsideDown(int index, boolean engulfShadows) {
+		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
+		StockCandle currentCandle, previousCandle;
+		currentCandle = stockCandleArray.get(index);
+		previousCandle = stockCandleArray.get(index - 1);
+		if ((currentCandle == null) || (previousCandle == null)) return false;
+		if (!isBlack(currentCandle)) return false;
+		if (currentCandle.getClose() >= previousCandle.getClose()) return false;
+		return isBearishEngulfing(index - 1, engulfShadows);	
+	}
 	
 	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
 		SimpleLinearRegression slr = new SimpleLinearRegression();
@@ -665,7 +728,7 @@ public class StockPattern {
 		}
 		
 		slope = slr.getSlope();
-		if (slope <= TREND_UP_SLOPE) return true;
+		if (slope <= TREND_DOWN_SLOPE) return true;
 		else return false;
 	}
 }
