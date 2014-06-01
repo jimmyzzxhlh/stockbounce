@@ -81,7 +81,7 @@ public class StockPattern {
 	 * Return true if the current candle is a white candle.
 	 * Definition:
 	 * 1. Close > Open
-	 * @param stockCandle Stock price object. Assume not null.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return true if the current candle is a white candle.
 	 */
 	public boolean isWhite(StockCandle stockCandle) {
@@ -101,7 +101,7 @@ public class StockPattern {
 	 * Return true if the current candle is a black candle.
 	 * Definition:
 	 * 1. Close < Open
-	 * @param stockCandle Stock price object. Assume not null.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return true if the current candle is a black candle.
 	 */
 	public boolean isBlack(StockCandle stockCandle) {
@@ -247,7 +247,7 @@ public class StockPattern {
 	 *  |
 	 * Definition:
 	 * 1. Body Length <= DOJI_MAX_BODY_LENGTH
-	 * @param stockCandle Stock price object. Assume not null.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return True if the candle is a doji (Ê®×ÖÏß).
 	 */
 	public boolean isDoji(StockCandle stockCandle) {
@@ -376,7 +376,7 @@ public class StockPattern {
 	 * 1. Body length <= PAPER_UMBRELLA_MAX_BODY_LENGTH.
 	 * 2. Upper shadow length <= PAPER_UMBRELLA_MAX_UPPER_SHADOW_LENGTH.
 	 * 3. Lower shadow length >= PAPER_UMBRELLA_MIN_LOWER_SHADOW_LENGTH.
-	 * @param StockCandle Stock price object. Assume not null.
+	 * @param StockCandle Stock candle object. Assume not null.
 	 * @return True if the candle is a paper umbrella candle.
 	 */
 	public boolean isPaperUmbrella(StockCandle stockCandle) {
