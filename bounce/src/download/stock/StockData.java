@@ -1,25 +1,16 @@
 package download.stock;
 
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.nio.ByteBuffer;
+import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.net.MalformedURLException;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class StockData {
 
@@ -110,7 +101,7 @@ public class StockData {
 		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 		fos.close();
         }
-		catch (FileNotFoundException e) {
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		
