@@ -42,7 +42,7 @@ public class StockPattern {
 	
 	private static final double ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE = 0.8;  
 	private static final double ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE = 1.5; 
-	private static final double ENGULF_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final int ENGULF_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
 	
 	
 	private ArrayList<StockCandle> stockCandleArray;
@@ -109,19 +109,35 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a white long day.
-	 * Definition:
-	 * 1. Close > Open.
-	 * 2. Body length >= WHITE_LONG_DAY_MIN_BODY_LENGTH
-	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle is a white long day.
+	 * @see isWhiteLongDay(stockCandle)
 	 */
 	public boolean isWhiteLongDay(int index) {
 		StockCandle stockCandle = stockCandleArray.get(index);
 		if (stockCandle == null) return false;
+		return isWhiteLongDay(stockCandle);		
+	}
+	
+	/**
+	 * Return true if the current candle is a white long day.
+	 * Definition:
+	 * 1. Close > Open.
+	 * 2. Body length >= WHITE_LONG_DAY_MIN_BODY_LENGTH
+	 * @param stockCandle Stock candle object. Assume not null.
+	 * @return True if the current candle is a white long day.
+	 */
+	public boolean isWhiteLongDay(StockCandle stockCandle) {
 		if (!isWhite(stockCandle)) return false;
 		if (stockCandle.getBodyLength() >= WHITE_LONG_DAY_MIN_BODY_LENGTH) return true;
 		return false;		
+	}
+	
+	/**
+	 * @see isBlackLongDay(stockCandle)
+	 */
+	public boolean isBlackLongDay(int index) {
+		StockCandle stockCandle = stockCandleArray.get(index);
+		if (stockCandle == null) return false;
+		return isBlackLongDay(stockCandle);
 	}
 	
 	/**
@@ -129,15 +145,22 @@ public class StockPattern {
 	 * Definition:
 	 * 1. Close < Open.
 	 * 2. Body length >= BLACK_LONG_DAY_MIN_BODY_LENGTH
-	 * @param index The subscript in the stock candle array.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return True if the current candle is a black long day.
 	 */
-	public boolean isBlackLongDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
-		if (stockCandle == null) return false;
+	public boolean isBlackLongDay(StockCandle stockCandle) {
 		if (!isBlack(stockCandle)) return false;
 		if (stockCandle.getBodyLength() >= BLACK_LONG_DAY_MIN_BODY_LENGTH) return true;
 		return false;
+	}
+	
+	/**
+	 * @see isWhiteShortDay(stockCandle)
+	 */
+	public boolean isWhiteShortDay(int index) {
+		StockCandle stockCandle = stockCandleArray.get(index);
+		if (stockCandle == null) return false;
+		return isWhiteShortDay(stockCandle);
 	}
 	
 	/**
@@ -145,15 +168,22 @@ public class StockPattern {
 	 * Definition:
 	 * 1. Close > Open.
 	 * 2. Body length <= WHITE_SHORT_DAY_MAX_BODY_LENGTH
-	 * @param index The subscript in the stock candle array.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return True if the current candle is a white short day.
 	 */
-	public boolean isWhiteShortDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
-		if (stockCandle == null) return false;
+	public boolean isWhiteShortDay(StockCandle stockCandle) {
 		if (!isWhite(stockCandle)) return false;
 		if (stockCandle.getBodyLength() <= WHITE_SHORT_DAY_MAX_BODY_LENGTH) return true;
 		return false;
+	}
+	
+	/**
+	 * @see isBlackShortDay(stockCandle)
+	 */
+	public boolean isBlackShortDay(int index) {
+		StockCandle stockCandle = stockCandleArray.get(index);
+		if (stockCandle == null) return false;
+		return isBlackShortDay(stockCandle);
 	}
 	
 	/**
@@ -161,12 +191,10 @@ public class StockPattern {
 	 * Definition:
 	 * 1. Close < Open.
 	 * 2. Body length <= BLACK_SHORT_DAY_MAX_BODY_LENGTH
-	 * @param index The subscript in the stock candle array.
+	 * @param stockCandle Stock candle object. Assume not null.
 	 * @return True if the current candle is a black short day.
 	 */
-	public boolean isBlackShortDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
-		if (stockCandle == null) return false;
+	public boolean isBlackShortDay(StockCandle stockCandle) {
 		if (!isBlack(stockCandle)) return false;
 		if (stockCandle.getBodyLength() <= BLACK_SHORT_DAY_MAX_BODY_LENGTH) return true;
 		return false;
@@ -525,7 +553,7 @@ public class StockPattern {
 	 *     |  
 	 *     
 	 * Definition:
-	 * 1. First candle is a black candle. Second candle is a white candle.
+	 * 1. First candle is a black candle. Second candle is a white candle, and it is not a short day (should it be a long day?).
 	 * 2. Second candle engulfs the first candle. If the body of the second candle engulfs the shadows of the first candle as well,
 	 * then it is more likely to reverse the trend.
 	 * 3. First candle body length <= ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * second candle body length.
@@ -536,12 +564,13 @@ public class StockPattern {
 	 * @return True if the current candle is a white candle and it engulfs the previous black candle.
 	 */
 	public boolean isBullishEngulfing(int index, boolean engulfShadows) {
-		if (index < 1) return false;
+		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
 		StockCandle currentStockCandle, previousStockCandle;
 		currentStockCandle = stockCandleArray.get(index);
 		previousStockCandle = stockCandleArray.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isWhite(currentStockCandle)) return false;
+		if (isWhiteShortDay(currentStockCandle)) return false; //Should it be replaced by long day check?
 		if (!isBlack(previousStockCandle)) return false;
 		if (engulfShadows) {
 			if (!((currentStockCandle.open < previousStockCandle.low) && (currentStockCandle.close > previousStockCandle.high))) return false;
@@ -549,7 +578,10 @@ public class StockPattern {
 		else {
 			if (!((currentStockCandle.open < previousStockCandle.close) && (currentStockCandle.close > previousStockCandle.open))) return false;
 		}
-		//if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle
+		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
+		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
+		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
 		return false;
 	}
 	
@@ -574,7 +606,7 @@ public class StockPattern {
 	 *     |
 	 *       
 	 * Definition:
-	 * 1. First candle is a white candle. Second candle is a black candle.
+	 * 1. First candle is a white candle. Second candle is a black candle, and it is not a short day (should it be a long day?).
 	 * 2. Second candle engulfs the first candle. If the body of the second candle engulfs the shadows of the first candle as well,
 	 * then it is more likely to reverse the trend.
 	 * 3. First candle body length <= ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * second candle body length.
@@ -585,10 +617,26 @@ public class StockPattern {
 	 * @return True if the current candle is a black candle and it engulfs the previous white candle.
 	 */
 	public boolean isBearishEngulfing(int index, boolean engulfShadows) {
+		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isBlack(currentStockCandle)) return false;
+		if (isBlackShortDay(currentStockCandle)) return false; //Should it be replaced by long day check?
+		if (!isWhite(previousStockCandle)) return false;
+		if (engulfShadows) {
+			if (!((currentStockCandle.open > previousStockCandle.high) && (currentStockCandle.close < previousStockCandle.low))) return false;
+		}
+		else {
+			if (!((currentStockCandle.open > previousStockCandle.close) && (currentStockCandle.close < previousStockCandle.open))) return false;
+		}
+		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
+		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
+		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
 		return false;
 	}
-	
-	
 	
 	
 	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
