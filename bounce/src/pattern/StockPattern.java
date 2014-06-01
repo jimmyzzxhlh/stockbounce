@@ -3,6 +3,7 @@ package pattern;
 import java.util.ArrayList;
 
 import stock.StockEnum.StockPriceDataType;
+import stock.SimpleLinearRegression;
 import stock.StockPrice;
 
 public class StockPattern {
@@ -31,6 +32,13 @@ public class StockPattern {
 	private static final double PAPER_UMBRELLA_MIN_LOWER_SHADOW_LENGTH = 8;
 	private static final double PAPER_UMBRELLA_MAX_UPPER_SHADOW_LENGTH = 1;
 	
+	private static final int HAMMER_MIN_CANDLE_NUMBER = 5;
+	private static final int HANGING_MAN_MIN_CANDLE_NUMBER = HAMMER_MIN_CANDLE_NUMBER;
+	
+	private static final double TREND_UP_SLOPE = 0.5;
+	private static final double TREND_DOWN_SLOPE = -0.5;
+	private static final StockPriceDataType TREND_DEFAULT_DATA_TYPE = StockPriceDataType.CLOSE;
+	
 	private ArrayList<StockPrice> stockPriceArray;
 	
 	public ArrayList<StockPrice> getStockPriceArray() {
@@ -55,11 +63,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a white candle.
-	 * Definition:
-	 * 1. Close > Open
-	 * @param index The subscript in the stock price array.
-	 * @return True if the current candle is a white candle.
+	 * @see isWhite(stockPrice)
 	 */
 	public boolean isWhite(int index) {
 		StockPrice stockPrice = stockPriceArray.get(index);
@@ -79,11 +83,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a black candle.
-	 * Definition:
-	 * 1. Open > Close
-	 * @param index The subscript in the stock price array.
-	 * @return True if the current candle is a black candle.
+	 * @see isBlack(stockPrice)
 	 */
 	public boolean isBlack(int index) {
 		StockPrice stockPrice = stockPriceArray.get(index);
@@ -183,7 +183,6 @@ public class StockPattern {
 	 * @return True if the current candle is a white marubozu.
 	 */
 	public boolean isWhiteMarubozu(int index, StockPriceDataType... dataTypes) {
-		
 		StockPrice stockPrice = stockPriceArray.get(index);
 		if (stockPrice == null) return false;
 		if (!isWhite(stockPrice)) return false;
@@ -222,19 +221,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the candle is a doji (十字线).
-	 * Example:
-	 *  |
-	 *  |
-	 *  |
-	 * -+-
-	 *  |
-	 *  |
-	 *  |
-	 * Definition:
-	 * 1. Body Length <= DOJI_MAX_BODY_LENGTH
-	 * @param index The subscript in the stock price array.
-	 * @return True if the candle is a doji (十字线).
+	 * @see isDoji(stockPrice)
 	 */
 	public boolean isDoji(int index) {
 		StockPrice stockPrice = stockPriceArray.get(index);
@@ -320,7 +307,7 @@ public class StockPattern {
 	 * 1. Candle is a doji.
 	 * 2. Upper shadow length <= DRAGONFLY_DOJI_MAX_UPPER_SHADOW_LENGTH.
 	 * 3. Lower shadow Length <= DRAGONFLY_DOJI_MIN_LOWER_SHADOW_LENGTH.
-	 * @param index
+	 * @param index The subscript in the stock price array.
 	 * @return True if the candle is a dragonfly doji (蜻蜓十字线).
 	 */
 	public boolean isDragonflyDoji(int index) {
@@ -348,7 +335,7 @@ public class StockPattern {
 	 * Definition:
 	 * 1. Current candle body length <= STAR_MAX_BODY_LENGTH.
 	 * 2. Gap length between the current candle and the last candle >= STAR_MIN_GAP_LENGTH.
-	 * @param index
+	 * @param index The subscript in the stock price array.
 	 * @return True if the candle is a star to the last candle (星线).
 	 */
 	public boolean isStar(int index) {
@@ -362,6 +349,15 @@ public class StockPattern {
 	}
 	
 	/**
+	 * @see isPaperUmbrella(stockPrice)
+	 */
+	public boolean isPaperUmbrella(int index) {
+		StockPrice stockPrice = stockPriceArray.get(index);
+		if (stockPrice == null) return false;
+		return isPaperUmbrella(stockPrice);
+	}
+	
+	/**
 	 * Return true if the candle is a paper umbrella candle.
 	 * Example:
 	 * □
@@ -372,18 +368,105 @@ public class StockPattern {
 	 * 
 	 * Definition:
 	 * 1. Body length <= PAPER_UMBRELLA_MAX_BODY_LENGTH.
-	 * 2. Upper shadow length <= 
-	 * @param index
-	 * @return
+	 * 2. Upper shadow length <= PAPER_UMBRELLA_MAX_UPPER_SHADOW_LENGTH.
+	 * 3. Lower shadow length >= PAPER_UMBRELLA_MIN_LOWER_SHADOW_LENGTH.
+	 * @param StockPrice Stock price object. Assume not null.
+	 * @return True if the candle is a paper umbrella candle.
 	 */
-	public boolean isPaperUmbrella(int index) {
-		StockPrice stockPrice = stockPriceArray.get(index);
-		if (stockPrice == null) return false;
+	public boolean isPaperUmbrella(StockPrice stockPrice) {
 		if ((stockPrice.getBodyLength() <= PAPER_UMBRELLA_MAX_BODY_LENGTH)
 		 && (stockPrice.getUpperShadowLength() <= PAPER_UMBRELLA_MAX_UPPER_SHADOW_LENGTH)
 		 && (stockPrice.getLowerShadowLength() >= PAPER_UMBRELLA_MIN_LOWER_SHADOW_LENGTH))
 			return true;
 		return false;
 	}
+	
+	/**
+	 * Return true if the candle is a hammer. The trend before the hammer should be bearish.
+	 * Example:
+	 * □
+	 * |
+	 * |
+	 * |
+	 * |  
+	 * 
+	 * Definition:
+	 * 1. The candle is a paper umbrella.
+	 * 2. Trend before the candle is bearish.
+	 * @param index The subscript in the stock price array.
+	 * @return True if the candle is a hammer. The trend before the hammer should be bearish.
+	 */
+	public boolean isHammer(int index) {
+		if (!isPaperUmbrella(index)) return false;
+		int start = index - HAMMER_MIN_CANDLE_NUMBER + 1;
+		if (start < 0) return false;
+		return isTrendUp(start, index, TREND_DEFAULT_DATA_TYPE);
+	}
+	
+	/**
+	 * Return true if the candle is a white hammer. The trend before the hammer should be bearish.
+	 * White hammer is more likely to reverse the trend than black hammer.
+	 * Example:
+	 * □
+	 * |
+	 * |
+	 * |
+	 * |  
+	 * 
+	 * @param index The subscript in the stock price array.
+	 * @return True if the candle is a white hammer. The trend before the hammer should be bearish.
+	 */
+	public boolean isWhiteHammer(int index) {
+		if (!isWhite(index)) return false;
+		return isHammer(index);
+	}
+	
+	/**
+	 * Return true if the candle is a black hammer. The trend before the hammer should be bearish.
+	 * Black hammer is less likely to reverse the trend than white hammer.
+	 * Example:
+	 * ■
+	 * |
+	 * |
+	 * |
+	 * |  
+	 * 
+	 * @param index The subscript in the stock price array.
+	 * @return True if the candle is a black hammer. The trend before the hammer should be bearish.
+	 */
+	public boolean isBlackHammer(int index) {
+		if (!isBlack(index)) return false;
+		return isHammer(index);
+	}
 
+	
+	public boolean isTrendUp(int start, int end, StockPriceDataType dataPoint) {
+		SimpleLinearRegression slr = new SimpleLinearRegression();
+		double slope;
+		for (int i = start; i < end; i++) {
+			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
+			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
+			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
+			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
+		}
+		
+		slope = slr.getSlope();
+		if (slope >= TREND_UP_SLOPE) return true;
+		else return false;
+	}
+	
+	public boolean isTrendDown(int start, int end, StockPriceDataType dataPoint) {
+		SimpleLinearRegression slr = new SimpleLinearRegression();
+		double slope;
+		for (int i = start; i < end; i++) {
+			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
+			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
+			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
+			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
+		}
+		
+		slope = slr.getSlope();
+		if (slope <= TREND_UP_SLOPE) return true;
+		else return false;
+	}
 }

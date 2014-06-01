@@ -9,9 +9,6 @@ import stock.StockEnum.StockPriceDataType;
 /**
  * Main class for a list of stock prices.
  * Algorithm implementation will also be here.
- * Glossary:
- * White Candle - Close > Open
- * Black Candle - Close < Open 
  */
 public class StockPriceArray {
 	private ArrayList<StockPrice> stockPriceArray;
@@ -68,35 +65,6 @@ public class StockPriceArray {
 		});
 	}
 	
-	public boolean IsTrendUp(int start, int end, StockPriceDataType dataPoint) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
-		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
-			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
-			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
-			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
-		}
-		
-		slope = slr.getSlope();
-		if (slope >= TREND_UP_SLOPE) return true;
-		else return false;
-	}
-	
-	public boolean IsTrendDown(int start, int end, StockPriceDataType dataPoint) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
-		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataPoint == StockPriceDataType.OPEN) slr.data.add(stockPriceArray.get(i).getOpen());
-			else if (dataPoint == StockPriceDataType.CLOSE) slr.data.add(stockPriceArray.get(i).getClose());
-			else if (dataPoint == StockPriceDataType.HIGH) slr.data.add(stockPriceArray.get(i).getHigh());
-			else if (dataPoint == StockPriceDataType.LOW) slr.data.add(stockPriceArray.get(i).getLow());			
-		}
-		
-		slope = slr.getSlope();
-		if (slope <= TREND_UP_SLOPE) return true;
-		else return false;
-	}
 	
 	public ArrayList<StockPrice> combineCandles(int candleDays, boolean overrideOriginalData) {
 		ArrayList<StockPrice> combinedStockPriceArray = new ArrayList<StockPrice>();
