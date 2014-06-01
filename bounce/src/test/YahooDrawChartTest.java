@@ -8,7 +8,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.swing.WindowConstants;
 
-import download.stock.StockData;
+import download.StockData;
 
 import stock.StockFrame;
 import stock.StockPrice;
@@ -30,7 +30,7 @@ public class YahooDrawChartTest {
 	public StockFrame stockFrame;
 	public StockPriceArray stockPriceArray;
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\NQ.csv";
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\MSFT.csv";
 	public static final int CANDLE_DAYS = 1;
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	

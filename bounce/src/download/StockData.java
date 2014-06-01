@@ -1,4 +1,4 @@
-package download.stock;
+package download;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,10 +43,10 @@ public class StockData {
 		return line;		
 	}
 	
-	/*
-	 startDate and endDate are strings of the form "MM/dd/yyyy"
-	Download csv files from startDate to endDate. Input null, null to use the default dates. 
-	startDate is 4/1/2010 by default. endDate is today by default.
+	/**
+	 * startDate and endDate are strings of the form "MM/dd/yyyy"
+	 * Download csv files from startDate to endDate. Input null, null to use the default dates. 
+	 * startDate is 4/1/2010 by default. endDate is today by default.
 	 */
 	public StockData(String startDate, String endDate){		
 		this.startDate = startDate;
