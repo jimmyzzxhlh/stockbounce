@@ -2,7 +2,7 @@ package stock;
 
 import java.util.Date;
 
-public class StockPrice {
+public class StockCandle {
 	
 	public double open = 0;
 	public double close = 0;
@@ -12,11 +12,11 @@ public class StockPrice {
 	public Date date;
 
 	
-	public StockPrice() {
+	public StockCandle() {
 			
 	}
 	
-	public StockPrice(Date date, double open, double close, double high, double low, int volume) {
+	public StockCandle(Date date, double open, double close, double high, double low, int volume) {
 		this.date = date;
 		this.open = open;
 		this.close = close;
@@ -124,16 +124,16 @@ public class StockPrice {
 	 * |
 	 * 
 	 * Here the gap length will be 3.
-	 * @param lastStockPrice Last stock price object.
-	 * @param currentStockPrice Current stock price object.
+	 * @param lastStockCandle Last stock price object.
+	 * @param currentStockCandle Current stock price object.
 	 * @return
 	 */
-	public static double getGapLength(StockPrice lastStockPrice, StockPrice currentStockPrice) {
-		if (lastStockPrice.close > lastStockPrice.open) {
-			if (currentStockPrice.open > lastStockPrice.close) return currentStockPrice.open - lastStockPrice.close;
+	public static double getGapLength(StockCandle lastStockCandle, StockCandle currentStockCandle) {
+		if (lastStockCandle.close > lastStockCandle.open) {
+			if (currentStockCandle.open > lastStockCandle.close) return currentStockCandle.open - lastStockCandle.close;
 		}
 		else {
-			if (currentStockPrice.open < lastStockPrice.close) return lastStockPrice.close - currentStockPrice.open;
+			if (currentStockCandle.open < lastStockCandle.close) return lastStockCandle.close - currentStockCandle.open;
 		}
 		return 0;
 	}

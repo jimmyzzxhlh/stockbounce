@@ -11,8 +11,8 @@ import javax.swing.WindowConstants;
 import download.StockData;
 
 import stock.StockFrame;
-import stock.StockPrice;
-import stock.StockPriceArray;
+import stock.StockCandle;
+import stock.StockCandleArray;
 import yahoo.YahooParser;
 
 //To get historical price:
@@ -28,7 +28,7 @@ import yahoo.YahooParser;
 public class YahooDrawChartTest {
 
 	public StockFrame stockFrame;
-	public StockPriceArray stockPriceArray;
+	public StockCandleArray stockCandleArray;
 	public static final int FRAME_HEIGHT = 500;
 	public static final String filename = "D:\\zzx\\Stock\\CSV\\MSFT.csv";
 	public static final int CANDLE_DAYS = 1;
@@ -58,32 +58,32 @@ public class YahooDrawChartTest {
 	 */
 	private static void drawChart() throws Exception {
 		String line;
-		StockPrice stockPrice = null;
+		StockCandle stockCandle = null;
 		YahooParser parser = new YahooParser(filename);
 		YahooDrawChartTest mainProgram = new YahooDrawChartTest();
-		mainProgram.stockPriceArray = new StockPriceArray();
+		mainProgram.stockCandleArray = new StockCandleArray();
 
 		int frameWidth;
 		
 		parser.startReadFile();
 		
 		while ((line = parser.nextLine()) != null) {
-			stockPrice = new StockPrice();
-			parser.parseLine(line, stockPrice);
-			mainProgram.stockPriceArray.getStockPriceArray().add(stockPrice);
+			stockCandle = new StockCandle();
+			parser.parseLine(line, stockCandle);
+			mainProgram.stockCandleArray.getStockCandleArray().add(stockCandle);
 		}
 		parser.closeFile();
-		mainProgram.stockPriceArray.sortByDate();
-		StockPriceArray.normalizeStockPrice(mainProgram.stockPriceArray.getStockPriceArray(), FRAME_HEIGHT);
-//		for (int i = 0; i < mainProgram.stockPriceArray.size(); i++) {
-//			System.out.println(mainProgram.stockPriceArray.get(i).toString());
+		mainProgram.stockCandleArray.sortByDate();
+		StockCandleArray.normalizeStockCandle(mainProgram.stockCandleArray.getStockCandleArray(), FRAME_HEIGHT);
+//		for (int i = 0; i < mainProgram.stockCandleArray.size(); i++) {
+//			System.out.println(mainProgram.stockCandleArray.get(i).toString());
 //		}
 		
-		frameWidth = (mainProgram.stockPriceArray.getStockPriceArray().size() + 1) * 5;
+		frameWidth = (mainProgram.stockCandleArray.getStockCandleArray().size() + 1) * 5;
 		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
 		mainProgram.stockFrame.candleDays = CANDLE_DAYS;
 		mainProgram.stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
-		mainProgram.stockFrame.stockPriceArray = mainProgram.stockPriceArray.getStockPriceArray();
+		mainProgram.stockFrame.stockCandleArray = mainProgram.stockCandleArray.getStockCandleArray();
 		mainProgram.stockFrame.setVisible(true);
 		mainProgram.stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}

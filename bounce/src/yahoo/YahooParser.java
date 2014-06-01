@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import stock.StockParser;
-import stock.StockPrice;
+import stock.StockCandle;
 
 public class YahooParser extends StockParser {
 
@@ -25,19 +25,19 @@ public class YahooParser extends StockParser {
 		super(filename);
 	}
 	@Override
-	public void parseLine(String line, StockPrice stockPrice) {
+	public void parseLine(String line, StockCandle stockCandle) {
 		String lineArray[] = line.split(DELIMITER);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		try {
-			stockPrice.date = formatter.parse(lineArray[DATE_PIECE]);
+			stockCandle.date = formatter.parse(lineArray[DATE_PIECE]);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		stockPrice.open = Double.parseDouble(lineArray[OPEN_PIECE]);
-		stockPrice.high = Double.parseDouble(lineArray[HIGH_PIECE]);
-		stockPrice.low = Double.parseDouble(lineArray[LOW_PIECE]);
-		stockPrice.close = Double.parseDouble(lineArray[CLOSE_PIECE]);
-		stockPrice.volume = Integer.parseInt(lineArray[VOLUME_PIECE]);
+		stockCandle.open = Double.parseDouble(lineArray[OPEN_PIECE]);
+		stockCandle.high = Double.parseDouble(lineArray[HIGH_PIECE]);
+		stockCandle.low = Double.parseDouble(lineArray[LOW_PIECE]);
+		stockCandle.close = Double.parseDouble(lineArray[CLOSE_PIECE]);
+		stockCandle.volume = Integer.parseInt(lineArray[VOLUME_PIECE]);
 		
 	}
 	

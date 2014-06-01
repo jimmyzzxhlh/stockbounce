@@ -41,6 +41,6 @@ public abstract class StockParser {
 		br.close();
 	}
 	
-	public abstract void parseLine(String line, StockPrice stockPrice);
+	public abstract void parseLine(String line, StockCandle stockCandle);
 		
 }

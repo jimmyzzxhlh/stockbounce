@@ -25,7 +25,7 @@ import javax.swing.JTextField;
  */
 public class StockFrame extends JFrame implements ActionListener {
 	static final int CANDLE_WIDTH = 5;
-	public ArrayList<StockPrice> stockPriceArray;
+	public ArrayList<StockCandle> stockCandleArray;
 	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
 	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
 	private JTextField textField;
@@ -55,33 +55,33 @@ public class StockFrame extends JFrame implements ActionListener {
 	 * @param g
 	 */
 	public void paintCandles(Graphics g) {
-		StockPrice currentStockPrice;
-		StockPrice formattedStockPrice;
-		if (stockPriceArray == null) return;
+		StockCandle currentStockCandle;
+		StockCandle formattedStockCandle;
+		if (stockCandleArray == null) return;
 		int i = candleDaysOffset;
-		while (i < stockPriceArray.size()) {
-			formattedStockPrice = new StockPrice();
+		while (i < stockCandleArray.size()) {
+			formattedStockCandle = new StockCandle();
 			//Combine several candles together
 			for (int j = i; j < i + candleDays; j++) {
-				if (j >= stockPriceArray.size()) break;
-				currentStockPrice = stockPriceArray.get(j);
+				if (j >= stockCandleArray.size()) break;
+				currentStockCandle = stockCandleArray.get(j);
 				if (j == i) {
-					formattedStockPrice.setDate(currentStockPrice.getDate());
-					formattedStockPrice.setOpen(currentStockPrice.getOpen());					
+					formattedStockCandle.setDate(currentStockCandle.getDate());
+					formattedStockCandle.setOpen(currentStockCandle.getOpen());					
 				}
-				formattedStockPrice.setClose(currentStockPrice.getClose());
-				formattedStockPrice.setLowOverride(currentStockPrice.getLow());
-				formattedStockPrice.setHighOverride(currentStockPrice.getHigh());
-				formattedStockPrice.setVolume(formattedStockPrice.getVolume() + currentStockPrice.getVolume());				
+				formattedStockCandle.setClose(currentStockCandle.getClose());
+				formattedStockCandle.setLowOverride(currentStockCandle.getLow());
+				formattedStockCandle.setHighOverride(currentStockCandle.getHigh());
+				formattedStockCandle.setVolume(formattedStockCandle.getVolume() + currentStockCandle.getVolume());				
 			}
-			//System.out.println(i + " " + formattedStockPrice.toString());
-			paintCandle(g, CANDLE_WIDTH * i + 3, formattedStockPrice);
+			//System.out.println(i + " " + formattedStockCandle.toString());
+			paintCandle(g, CANDLE_WIDTH * i + 3, formattedStockCandle);
 			i += candleDays;
 			
 		}	
 	}
 	
-	public void paintCandle(Graphics g, int x, StockPrice stockPrice) {
+	public void paintCandle(Graphics g, int x, StockCandle stockCandle) {
 		int frameHeight = 0;
 		int bodyHeight;
 		int upperShadowStart;
@@ -89,17 +89,17 @@ public class StockFrame extends JFrame implements ActionListener {
 		int lowerShadowStart;
 		int lowerShadowEnd;
 		//TODO: Do we really need to convert them to integer to paint?
-		int openInt = (int) Math.floor(stockPrice.open);
-		int highInt = (int) Math.floor(stockPrice.high);
-		int lowInt = (int) Math.floor(stockPrice.low);
-		int closeInt = (int) Math.floor(stockPrice.close);
+		int openInt = (int) Math.floor(stockCandle.open);
+		int highInt = (int) Math.floor(stockCandle.high);
+		int lowInt = (int) Math.floor(stockCandle.low);
+		int closeInt = (int) Math.floor(stockCandle.close);
 		
 		frameHeight = this.getHeight();
 		if (frameHeight == 0) return;
 		upperShadowStart = frameHeight - highInt;
 		lowerShadowEnd = frameHeight - lowInt;
 		//Increasing
-		if (stockPrice.close > stockPrice.open) {
+		if (stockCandle.close > stockCandle.open) {
 			g.setColor(Color.GREEN);
 			upperShadowEnd = frameHeight - closeInt;
 			lowerShadowStart = frameHeight - openInt; 

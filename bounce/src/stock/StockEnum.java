@@ -2,7 +2,7 @@ package stock;
 
 public class StockEnum {
 	
-	public enum StockPriceDataType {
+	public enum StockCandleDataType {
 		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE
 	}
 }
