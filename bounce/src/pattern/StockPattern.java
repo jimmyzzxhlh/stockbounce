@@ -43,6 +43,10 @@ public class StockPattern {
 	private static final double ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE = 0.8;  
 	private static final double ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE = 1.5; 
 	private static final int ENGULF_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final double HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE = ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE;
+	private static final double HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE = ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE;
+	private static final int HARAMI_MIN_TREND_CANDLE_NUMBER = ENGULF_MIN_TREND_CANDLE_NUMBER;
+	
 	
 	
 	private ArrayList<StockCandle> stockCandleArray;
@@ -700,6 +704,175 @@ public class StockPattern {
 		if (!isBlack(currentCandle)) return false;
 		if (currentCandle.getClose() >= previousCandle.getClose()) return false;
 		return isBearishEngulfing(index - 1, engulfShadows);	
+	}
+	
+	/**
+	 * Return true if the previous candle is a black candle and harami the current white candle.
+	 * Example:
+	 * 
+	 *  |  
+	 *  ¡ö  |
+	 *  ¡ö  ¡õ
+	 *  ¡ö  ¡õ
+	 *  ¡ö  ¡õ
+	 *  ¡ö  |
+	 *  |  
+	 * 
+	 * Definition:
+	 * 1. First candle is a black candle. Second candle is a white candle. (Should the first candle be a long day?)
+	 * 2. First candle harami the second candle. (TODO: If the first candle harami the second candle's shadows
+	 * as well, is it more likely to reverse the trend?)
+	 * 3. First candle body length * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE >= Second candle body length.
+	 * 4. Second candle volume > first candle volume. (TODO: Is this really possible?)
+	 * 5. Trend before the second candle is bearish (Not counting the second day itself).
+	 * @param index The subscript in the stock candle array.
+	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
+	 * @param haramiDoji True if the second candle is a doji.
+	 * @return True if the previous candle is a black candle and harami the current white candle.
+	 */
+	public boolean isBullishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
+		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
+		StockCandle currentCandle, previousCandle;
+		currentCandle = stockCandleArray.get(index);
+		previousCandle = stockCandleArray.get(index - 1);
+		if ((currentCandle == null) || (previousCandle == null)) return false;
+		if (!isBlackLongDay(previousCandle)) return false;
+		if (!isWhite(currentCandle)) return false;
+		if (haramiShadows) {
+			if (!((previousCandle.open > currentCandle.high) && (previousCandle.close < currentCandle.low))) return false;
+		}
+		else {
+			if (!((previousCandle.open > currentCandle.close) && (previousCandle.close < currentCandle.open))) return false;
+		}
+		if (haramiDoji) {
+			if (!isDoji(currentCandle)) return false;
+		}
+		else {
+			if (previousCandle.getBodyLength() * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE < currentCandle.getBodyLength()) return false;
+		}
+		if (currentCandle.volume <= previousCandle.volume) return false;
+		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		return false;
+	}
+	
+	
+	/**
+	 * Return true if the previous candle is a white candle and it harami the current black candle.
+	 * Example:
+	 * 
+	 *  |  
+	 *  ¡õ  |
+	 *  ¡õ  ¡ö
+	 *  ¡õ  ¡ö
+	 *  ¡õ  ¡ö
+	 *  ¡õ  |
+	 *  |  
+	 * 
+	 * Definition:
+	 * 1. First candle is a white candle. Second candle is a black candle. (Should the first candle be a long day?)
+	 * 2. First candle harami the second candle. (TODO: If the first candle harami the second candle's shadows
+	 * as well, is it more likely to reverse the trend?)
+	 * 3. First candle body length * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE >= Second candle body length.
+	 * 4. Second candle volume <= HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE * first candle volume.
+	 * 5. Trend before the second candle is bullish (Not counting the second day itself).
+	 * @param index The subscript in the stock candle array.
+	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
+	 * @param haramiDoji True if the second candle is a doji.
+	 * @return True if the previous candle is a white candle and it harami the current black candle.
+	 */
+	public boolean isBearishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
+		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
+		StockCandle currentCandle, previousCandle;
+		currentCandle = stockCandleArray.get(index);
+		previousCandle = stockCandleArray.get(index - 1);
+		if ((currentCandle == null) || (previousCandle == null)) return false;
+		if (!isWhiteLongDay(previousCandle)) return false;
+		if (!isBlack(currentCandle)) return false;
+		if (haramiShadows) {
+			if (!((previousCandle.open < currentCandle.low) && (previousCandle.close > currentCandle.high))) return false;
+		}
+		else {
+			if (!((previousCandle.open < currentCandle.close) && (previousCandle.close > currentCandle.open))) return false;
+		}
+		if (haramiDoji) {
+			if (!isDoji(currentCandle)) return false;
+		}
+		else {
+			if (previousCandle.getBodyLength() * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE < currentCandle.getBodyLength()) return false;
+		}
+		if (currentCandle.volume > HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE * previousCandle.volume) return false;
+		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles has a form of three inside up.
+	 * Example:
+	 * 
+	 *        |
+	 *  |     ¡õ
+	 *  ¡ö  |  ¡õ
+	 *  ¡ö  ¡õ  ¡õ
+	 *  ¡ö  ¡õ  ¡õ
+	 *  ¡ö  ¡õ  |
+	 *  ¡ö  |
+	 *  |  
+	 * 
+	 * Definition:
+	 * 1. Current candle is a white candle.
+	 * 2. Current candle's close > First candle's open
+	 * 3. The two candles before the current candle has a form of bullish harami. 
+	 * @param index The subscript in the stock candle array.
+	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
+	 * @param haramiDoji True if the second candle is a doji.
+	 * @return True if the recent three candles has a form of three inside up.
+	 */
+	public boolean isThreeInsideUp(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
+		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
+		StockCandle currentCandle, secondPreviousCandle;
+		currentCandle = stockCandleArray.get(index);
+		secondPreviousCandle = stockCandleArray.get(index - 2);
+		if ((currentCandle == null) || (secondPreviousCandle == null)) return false;
+		if (!isWhite(currentCandle)) return false;
+		if (currentCandle.close <= secondPreviousCandle.open) return false;
+		if (isBullishHarami(index - 1, haramiShadows, haramiDoji)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles has a form of three inside down.
+	 * Example:
+	 * 
+	 *  |  
+	 *  ¡õ  |
+	 *  ¡õ  ¡ö  |
+	 *  ¡õ  ¡ö  ¡ö
+	 *  ¡õ  ¡ö  ¡ö
+	 *  ¡õ  |  ¡ö
+	 *  |     ¡ö
+	 *        |
+	 *        
+	 * Definition:
+	 * 1. Current candle is a black candle.
+	 * 2. Current candle's close < First candle's open
+	 * 3. The two candles before the current candle has a form of bearish harami. 
+	 * @param index The subscript in the stock candle array.
+	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
+	 * @param haramiDoji True if the second candle is a doji.
+	 * @return True if the recent three candles has a form of three inside down.
+	 */
+	public boolean isThreeInsideDown(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
+		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
+		StockCandle currentCandle, secondPreviousCandle;
+		currentCandle = stockCandleArray.get(index);
+		secondPreviousCandle = stockCandleArray.get(index - 2);
+		if ((currentCandle == null) || (secondPreviousCandle == null)) return false;
+		if (!isBlack(currentCandle)) return false;
+		if (currentCandle.close > secondPreviousCandle.open) return false;
+		if (isBearishHarami(index - 1, haramiShadows, haramiDoji)) return true;
+		return false;
 	}
 	
 	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
