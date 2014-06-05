@@ -10,6 +10,9 @@ public class StockPattern {
 	//=============Constant Definition=============
 	//The constant name should follow the below naming convention:
 	//<Function Name>_<Constant Name>
+	private static final double GAP_UP_MIN_LENGTH = 3;
+	private static final double GAP_DOWN_MIN_LENGTH = GAP_UP_MIN_LENGTH;
+	
 	private static final double TREND_UP_SLOPE = 0.5;
 	private static final double TREND_DOWN_SLOPE = -0.5;
 	private static final int TREND_DEFAULT_CANDLE_NUMBER = 5;
@@ -47,6 +50,14 @@ public class StockPattern {
 	private static final double HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE = ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE;
 	private static final int HARAMI_MIN_TREND_CANDLE_NUMBER = ENGULF_MIN_TREND_CANDLE_NUMBER;
 	
+	private static final double INVERTED_HAMMER_MAX_BODY_LENGTH = PAPER_UMBRELLA_MAX_BODY_LENGTH;
+	private static final double INVERTED_HAMMER_MIN_UPPER_SHADOW_LENGTH = PAPER_UMBRELLA_MIN_LOWER_SHADOW_LENGTH;
+	private static final double INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH = PAPER_UMBRELLA_MAX_UPPER_SHADOW_LENGTH;
+	private static final int INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final double SHOOTING_STAR_MAX_BODY_LENGTH = INVERTED_HAMMER_MAX_BODY_LENGTH;
+	private static final double SHOOTING_STAR_MIN_UPPER_SHADOW_LENGTH = INVERTED_HAMMER_MIN_UPPER_SHADOW_LENGTH;
+	private static final double SHOOTING_STAR_MAX_LOWER_SHADOW_LENGTH = INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH;
+	private static final int SHOOTING_STAR_MIN_TREND_CANDLE_NUMBER = INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER;
 	
 	
 	private ArrayList<StockCandle> stockCandleArray;
@@ -438,7 +449,7 @@ public class StockPattern {
 		if (!isPaperUmbrella(index)) return false;
 		int start = index - HAMMER_MIN_TREND_CANDLE_NUMBER + 1;
 		if (start < 0) return false;
-		return isTrendDown(start, index, TREND_DEFAULT_DATA_TYPE);
+		return isTrendDown(start, index);
 	}
 	
 	/**
@@ -496,7 +507,7 @@ public class StockPattern {
 		if (!isPaperUmbrella(index)) return false;
 		int start = index - HANGING_MAN_MIN_TREND_CANDLE_NUMBER + 1;
 		if (start < 0) return false;
-		return isTrendUp(start, index, TREND_DEFAULT_DATA_TYPE);
+		return isTrendUp(start, index);
 	}
 	
 	/**
@@ -585,7 +596,7 @@ public class StockPattern {
 		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
 		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
 		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER;
-		if (isTrendDown(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		if (isTrendDown(start, index - 1)) return true;
 		return false;
 	}
 	
@@ -638,7 +649,7 @@ public class StockPattern {
 		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
 		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
 		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER;
-		if (isTrendUp(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		if (isTrendUp(start, index - 1)) return true;
 		return false;
 	}
 	
@@ -752,7 +763,7 @@ public class StockPattern {
 		}
 		if (currentCandle.volume <= previousCandle.volume) return false;
 		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
-		if (isTrendDown(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		if (isTrendDown(start, index - 1)) return true;
 		return false;
 	}
 	
@@ -803,7 +814,7 @@ public class StockPattern {
 		}
 		if (currentCandle.volume > HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE * previousCandle.volume) return false;
 		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
-		if (isTrendUp(start, index - 1, TREND_DEFAULT_DATA_TYPE)) return true;
+		if (isTrendUp(start, index - 1)) return true;
 		return false;
 	}
 	
@@ -875,6 +886,190 @@ public class StockPattern {
 		return false;
 	}
 	
+	/**
+	 * Return true if the current candle is an inverted hammer.
+	 * Example:
+	 * 
+	 *  |
+	 *  ¡ö
+	 *  ¡ö
+	 *  ¡ö  |
+	 *  ¡ö  |
+	 *  |  |   
+	 *     ¡ö
+	 *      
+	 * Definition:
+	 * 1. The candle has a small body length <= INVERTED_HAMMER_MAX_BODY_LENGTH.
+	 * 2. The candle has a long upper shadow >= INVERTED_HAMMER_MIN_UPPER_SHADOW_LENGTH.
+	 * 3. The candle has a very small lower shadow <= INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH.
+	 * 4. Trend before the current candle is bearish.
+	 * TODO: It is not necessary that there is a gap between the current candle and previous candle.   
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle is an inverted hammer.
+	 */
+	public boolean isInvertedHammer(int index) {
+		StockCandle stockCandle;
+		if (index <= INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER) return false;
+		stockCandle = stockCandleArray.get(index);
+		if (stockCandle.getBodyLength() > INVERTED_HAMMER_MAX_BODY_LENGTH) return false;
+		if (stockCandle.getUpperShadowLength() < INVERTED_HAMMER_MIN_UPPER_SHADOW_LENGTH) return false;
+		if (stockCandle.getLowerShadowLength() > INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH) return false;
+		int start = index - INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle is a shooting star.
+	 * Example:
+	 * 
+	 *     |
+	 *     |
+	 *     |
+	 *     ¡ö
+	 *     
+	 *  |
+	 *  ¡õ
+	 *  ¡õ
+	 *  ¡õ
+	 *  ¡õ
+	 *  |   
+	 *   
+	 *      
+	 * Definition:
+	 * 1. The candle has a small body length <= SHOOTING_STAR_MAX_BODY_LENGTH.
+	 * 2. The candle has a long upper shadow >= SHOOTING_STAR_MIN_UPPER_SHADOW_LENGTH.
+	 * 3. The candle has a very small lower shadow <= SHOOTING_STAR_MAX_LOWER_SHADOW_LENGTH.
+	 * 4. There is a gap up between the current candle and previous candle (stimulate people to take profits). 
+	 * 5. Trend before the current candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle is an inverted hammer.
+	 */
+	public boolean isShootingStar(int index) {
+		StockCandle stockCandle;
+		if (index <= SHOOTING_STAR_MIN_TREND_CANDLE_NUMBER) return false;
+		stockCandle = stockCandleArray.get(index);
+		if (stockCandle.getBodyLength() > SHOOTING_STAR_MAX_BODY_LENGTH) return false;
+		if (stockCandle.getUpperShadowLength() < SHOOTING_STAR_MIN_UPPER_SHADOW_LENGTH) return false;
+		if (stockCandle.getLowerShadowLength() > SHOOTING_STAR_MAX_LOWER_SHADOW_LENGTH) return false;
+		if (!hasGapUp(index)) return false;
+		int start = index - SHOOTING_STAR_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if there is a gap up between current candle and previous candle.
+	 * Example:
+	 * 
+	 *     |
+	 *     ¡õ
+	 *     ¡õ
+	 *     |
+	 * 
+	 *  |
+	 *  ¡õ
+	 *  ¡õ
+	 *  ¡õ
+	 *  |
+	 * 
+	 * Definition:
+	 * 1. If current candle is a white candle, then gap top = current candle's open.
+	 * 2. If current candle is a black candle, then gap top = current candle's close.
+	 * 3. If previous candle is a white candle, then gap bottom = previous candle's close.
+	 * 4. If previous candle is a black candle, then gap bottom = previous candle's open.
+	 * 5. A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.  
+	 * 
+	 * Notice that we are just computing gap here. If two candles form dark cloud cover, then the gap
+	 * is filled so there is no gap up, even though the open price of the current candle jumps up from
+	 * the close price of the previous candle.
+	 * 
+	 *     |
+	 *     ¡ö
+	 *     ¡ö
+	 *     ¡ö
+	 *  |  ¡ö
+	 *  ¡õ  ¡ö
+	 *  ¡õ  |
+	 *  ¡õ
+	 *  |
+	 *  
+	 * @param index The subscript in the stock candle array.
+	 * @return True if there is a gap up between current candle and previous candle.
+	 */
+	public boolean hasGapUp(int index) {
+		if (index < 1) return false;
+		double gapTop, gapBottom;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		gapTop = gapBottom = 0;
+		if (isWhite(currentStockCandle)) gapTop = currentStockCandle.open;
+		if (isBlack(currentStockCandle)) gapTop = currentStockCandle.close;
+		if (isWhite(previousStockCandle)) gapBottom = previousStockCandle.close;
+		if (isBlack(previousStockCandle)) gapBottom = previousStockCandle.open;
+		if (gapTop >= gapBottom + GAP_UP_MIN_LENGTH) return true;
+		return false;		
+	}
+	
+	/**
+	 * Return true if there is a gap down between current candle and previous candle.
+	 * Example:
+	 * 
+	 *  |
+	 *  ¡ö
+	 *  ¡ö
+	 *  |
+	 * 
+	 *    |
+	 *    ¡ö
+	 *    ¡ö
+	 *    ¡ö
+	 *    |
+	 * 
+	 * Notice that we are just computing gap here. If two candles form piercing line, then the gap
+	 * is filled so there is no gap down, even though the open price of the current candle jumps down from
+	 * the close price of the previous candle.
+	 * 
+	 *  |
+	 *  ¡ö
+	 *  ¡ö
+	 *  ¡ö  |
+	 *  ¡ö  ¡õ
+	 *  |  ¡õ
+	 *     ¡õ
+	 *     |
+	 *  
+	 * Definition:
+	 * 1. If current candle is a white candle, then gap bottom = current candle's close.
+	 * 2. If current candle is a black candle, then gap bottom = current candle's open.
+	 * 3. If previous candle is a white candle, then gap top = previous candle's open.
+	 * 4. If previous candle is a black candle, then gap top = previous candle's close.
+	 * 5. A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.  
+	 * @param index The subscript in the stock candle array.
+	 * @return True if there is a gap up between current candle and previous candle.
+	 */
+	public boolean hasGapDown(int index) {
+		if (index < 1) return false;
+		double gapTop, gapBottom;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		gapTop = gapBottom = 0;
+		if (isWhite(currentStockCandle)) gapBottom = currentStockCandle.close;
+		if (isBlack(currentStockCandle)) gapBottom = currentStockCandle.open;
+		if (isWhite(previousStockCandle)) gapTop = previousStockCandle.open;
+		if (isBlack(previousStockCandle)) gapTop = previousStockCandle.close;
+		if (gapTop >= gapBottom + GAP_DOWN_MIN_LENGTH) return true;
+		return false;	
+	}
+	
+	public boolean isTrendUp(int start, int end) {
+		return isTrendUp(start, end, TREND_DEFAULT_DATA_TYPE);
+	}
+	
 	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
 		SimpleLinearRegression slr = new SimpleLinearRegression();
 		double slope;
@@ -888,6 +1083,10 @@ public class StockPattern {
 		slope = slr.getSlope();
 		if (slope >= TREND_UP_SLOPE) return true;
 		else return false;
+	}
+	
+	public boolean isTrendDown(int start, int end) {
+		return isTrendDown(start, end, TREND_DEFAULT_DATA_TYPE);
 	}
 	
 	public boolean isTrendDown(int start, int end, StockCandleDataType dataType) {
