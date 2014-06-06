@@ -27,7 +27,8 @@ public class StockPattern {
 	private static final double BLACK_MARUBOZU_MAX_SHADOW_LENGTH = WHITE_MARUBOZU_MAX_SHADOW_LENGTH;
 	
 	private static final double DOJI_MAX_BODY_LENGTH = 2;	
-	private static final double LONG_LEGGED_DOJI_MIN_TOTAL_LENGTH = 10;	
+	private static final double LONG_LEGGED_DOJI_MIN_TOTAL_LENGTH = 10;
+	private static final double DOJI_STAR_MAX_TOTAL_LENGTH = 3;
 	private static final double GRAVESTONE_DOJI_MIN_UPPER_SHADOW_LENGTH = 8;	
 	private static final double GRAVESTONE_DOJI_MAX_LOWER_SHADOW_LENGTH = 1;	
 	private static final double DRAGONFLY_DOJI_MIN_LOWER_SHADOW_LENGTH = GRAVESTONE_DOJI_MIN_UPPER_SHADOW_LENGTH;	
@@ -59,6 +60,18 @@ public class StockPattern {
 	private static final double SHOOTING_STAR_MAX_LOWER_SHADOW_LENGTH = INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH;
 	private static final int SHOOTING_STAR_MIN_TREND_CANDLE_NUMBER = INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER;
 	
+	private static final double PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE = 0.5;
+	private static final int PIERCING_LINE_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final double DARK_CLOUD_COVER_MIN_BODY_LENGTH_PERCENTAGE = PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE;
+	private static final int DARK_CLOUD_COVER_MIN_TREND_CANDLE_NUMBER = PIERCING_LINE_MIN_TREND_CANDLE_NUMBER;
+	
+	private static final int BULLISH_DOJI_STAR_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final int BEARISH_DOJI_STAR_MIN_TREND_CANDLE_NUMBER = BULLISH_DOJI_STAR_MIN_TREND_CANDLE_NUMBER;
+	
+	private static final double MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE = 0.5;
+	private static final double EVENING_STAR_MIN_BODY_LENGTH_PERCENTAGE = MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE;
+	private static final int MORNING_STAR_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final int EVENING_STAR_MIN_TREND_CANDLE_NUMBER = MORNING_STAR_MIN_TREND_CANDLE_NUMBER;
 	
 	private ArrayList<StockCandle> stockCandleArray;
 	
@@ -311,7 +324,7 @@ public class StockPattern {
 	 * Definition:
 	 * 1. Candle is a doji.
 	 * 2. Total length including shadows >= LONG_LEGGED_DOJI_MIN_TOTAL_LENGTH.
-	 * @param index
+	 * @param index The subscript in the stock candle array.
 	 * @return True if the candle is a long legged doji (长腿十字线).
 	 */
 	public boolean isLongLeggedDoji(int index) {
@@ -320,6 +333,35 @@ public class StockPattern {
 		if (!isDoji(stockCandle)) return false;
 		if (stockCandle.getTotalLength() >= LONG_LEGGED_DOJI_MIN_TOTAL_LENGTH) return true;
 		return false;						
+	}
+	
+	/**
+     * @see isDojiStar(stockCandle)
+	 */
+	public boolean isDojiStar(int index) {
+		StockCandle stockCandle = stockCandleArray.get(index);
+		if (stockCandle == null) return false;
+		return isDojiStar(stockCandle);	
+	}
+	
+	/**
+	 * Return true if the candle is a doji star (十字星).
+	 * Example:
+	 * 
+	 *  |
+	 * -+-
+	 *  |
+	 *  
+	 * Definition:
+	 * 1. Candle is a doji.
+	 * 2. Total length including shadows <= DOJI_STAR_MAX_TOTAL_LENGTH.
+	 * @param stockCandle Stock candle object. Assume not null.
+	 * @return True if the candle is a doji star (十字星).
+	 */
+	public boolean isDojiStar(StockCandle stockCandle) {
+		if (!isDoji(stockCandle)) return false;
+		if (stockCandle.getTotalLength() <= DOJI_STAR_MAX_TOTAL_LENGTH) return true;
+		return false;	
 	}
 	
 	/**
@@ -959,6 +1001,32 @@ public class StockPattern {
 	}
 	
 	/**
+	 * @see hasGapUp(index, false)
+	 */
+	public boolean hasGapUp(int index) {
+		return hasGapUp(index, false);
+	}
+	
+	/**
+	 * @see hasGapUp(previousStockCandle, currentStockCandle, useShadows)
+	 */
+	public boolean hasGapUp(int index, boolean useShadows) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		return hasGapUp(previousStockCandle, currentStockCandle, useShadows);		
+	}
+	
+	/**
+	 * @see hasGapUp(previousStockCandle, currentStockCandle, useShadows)
+	 */
+	public boolean hasGapUp(StockCandle previousStockCandle, StockCandle currentStockCandle) {
+		return hasGapUp(previousStockCandle, currentStockCandle, false);
+	}
+	
+	/**
 	 * Return true if there is a gap up between current candle and previous candle.
 	 * Example:
 	 * 
@@ -973,13 +1041,6 @@ public class StockPattern {
 	 *  □
 	 *  |
 	 * 
-	 * Definition:
-	 * 1. If current candle is a white candle, then gap top = current candle's open.
-	 * 2. If current candle is a black candle, then gap top = current candle's close.
-	 * 3. If previous candle is a white candle, then gap bottom = previous candle's close.
-	 * 4. If previous candle is a black candle, then gap bottom = previous candle's open.
-	 * 5. A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.  
-	 * 
 	 * Notice that we are just computing gap here. If two candles form dark cloud cover, then the gap
 	 * is filled so there is no gap up, even though the open price of the current candle jumps up from
 	 * the close price of the previous candle.
@@ -993,26 +1054,68 @@ public class StockPattern {
 	 *  □  |
 	 *  □
 	 *  |
+	 *
+	 * Definition:
+	 * If useShadows = True:
+	 * 1. Gap top = current candle's low.
+	 * 2. Gap bottom = previous candle's high.
+	 * 
+	 * If useShadows = False:
+	 * 1. If current candle is a white candle, then gap top = current candle's open.
+	 * 2. If current candle is a black candle, then gap top = current candle's close.
+	 * 3. If previous candle is a white candle, then gap bottom = previous candle's close.
+	 * 4. If previous candle is a black candle, then gap bottom = previous candle's open.
+	 * 
+	 * A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.  
 	 *  
-	 * @param index The subscript in the stock candle array.
+	 * @param previousStockCandle Previous stock candle object. Assume not null.
+	 * @param currentStockCandle Current stock candle object. Assume not null.
+	 * @param useShadows True if there is still a gap if shadows are also counted in.
 	 * @return True if there is a gap up between current candle and previous candle.
 	 */
-	public boolean hasGapUp(int index) {
-		if (index < 1) return false;
+	public boolean hasGapUp(StockCandle previousStockCandle, StockCandle currentStockCandle, boolean useShadows) {
 		double gapTop, gapBottom;
+		gapTop = gapBottom = 0;
+		if (useShadows) {
+			gapTop = currentStockCandle.low;
+			gapBottom = previousStockCandle.high;
+		}
+		else {
+			if (isWhite(currentStockCandle)) gapTop = currentStockCandle.open;
+			if (isBlack(currentStockCandle)) gapTop = currentStockCandle.close;
+			if (isWhite(previousStockCandle)) gapBottom = previousStockCandle.close;
+			if (isBlack(previousStockCandle)) gapBottom = previousStockCandle.open;
+		}
+		if (gapTop >= gapBottom + GAP_UP_MIN_LENGTH) return true;
+		return false;
+	}
+	
+	/**
+	 * @see hasGapDown(index, false)
+	 */
+	public boolean hasGapDown(int index) {
+		return hasGapDown(index, false);
+	}
+	
+	
+	/**
+	 * @see hasGapDown(previousStockCandle, currentStockCandle, useShadows)
+	 */
+	public boolean hasGapDown(int index, boolean useShadows) {
+		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
 		currentStockCandle = stockCandleArray.get(index);
 		previousStockCandle = stockCandleArray.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
-		gapTop = gapBottom = 0;
-		if (isWhite(currentStockCandle)) gapTop = currentStockCandle.open;
-		if (isBlack(currentStockCandle)) gapTop = currentStockCandle.close;
-		if (isWhite(previousStockCandle)) gapBottom = previousStockCandle.close;
-		if (isBlack(previousStockCandle)) gapBottom = previousStockCandle.open;
-		if (gapTop >= gapBottom + GAP_UP_MIN_LENGTH) return true;
-		return false;		
+		return hasGapDown(previousStockCandle, currentStockCandle, useShadows);	
 	}
 	
+	/**
+	 * @see hasGapDown(previousStockCandle, currentStockCandle, useShadows)
+	 */
+	public boolean hasGapDown(StockCandle previousStockCandle, StockCandle currentStockCandle) {
+		return hasGapDown(previousStockCandle, currentStockCandle, false);
+	}
 	/**
 	 * Return true if there is a gap down between current candle and previous candle.
 	 * Example:
@@ -1042,30 +1145,237 @@ public class StockPattern {
 	 *     |
 	 *  
 	 * Definition:
+	 * If useShadows = True:
+	 * 1. Gap bottom = current candle's high.
+	 * 2. Gap top = previous candle's low.
+	 * 
+	 * If useShadows = False:
 	 * 1. If current candle is a white candle, then gap bottom = current candle's close.
 	 * 2. If current candle is a black candle, then gap bottom = current candle's open.
 	 * 3. If previous candle is a white candle, then gap top = previous candle's open.
 	 * 4. If previous candle is a black candle, then gap top = previous candle's close.
-	 * 5. A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.  
-	 * @param index The subscript in the stock candle array.
-	 * @return True if there is a gap up between current candle and previous candle.
+	 * 
+	 * A gap up exists if gap top >= gap bottom + GAP_MIN_LENGTH.
+	 *   
+	 * @param previousStockCandle Previous stock candle object. Assume not null.
+	 * @param currentStockCandle Current stock candle object. Assume not null.
+	 * @param useShadows True if there is still a gap if shadows are also counted in.
+	 * @return True if there is a gap down between current candle and previous candle.
 	 */
-	public boolean hasGapDown(int index) {
-		if (index < 1) return false;
+	public boolean hasGapDown(StockCandle previousStockCandle, StockCandle currentStockCandle, boolean useShadows) {
 		double gapTop, gapBottom;
-		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		gapTop = gapBottom = 0;
-		if (isWhite(currentStockCandle)) gapBottom = currentStockCandle.close;
-		if (isBlack(currentStockCandle)) gapBottom = currentStockCandle.open;
-		if (isWhite(previousStockCandle)) gapTop = previousStockCandle.open;
-		if (isBlack(previousStockCandle)) gapTop = previousStockCandle.close;
+		if (useShadows) {
+			gapBottom = currentStockCandle.high;
+			gapTop = previousStockCandle.low;
+		}
+		else {
+			if (isWhite(currentStockCandle)) gapBottom = currentStockCandle.close;
+			if (isBlack(currentStockCandle)) gapBottom = currentStockCandle.open;
+			if (isWhite(previousStockCandle)) gapTop = previousStockCandle.open;
+			if (isBlack(previousStockCandle)) gapTop = previousStockCandle.close;
+		}
 		if (gapTop >= gapBottom + GAP_DOWN_MIN_LENGTH) return true;
 		return false;	
 	}
 	
+	/**
+	 * Return true if the current candle and the previous candle form piercing line.
+	 * Example:
+	 * 
+	 *  |
+	 *  ■  |
+	 *  ■  □
+	 *  ■  □
+	 *  ■  □
+	 *  |  □
+	 *     □
+	 *     |
+	 *     
+	 * Definition:
+	 * 1. Previous candle is a black long day. (TODO: Does the current candle need to be a white long day?)
+	 * 2. Current candle's open < previous candle's low.
+	 * 3. Current candle's close > previous candle's close + previous candle's body length * PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE
+	 * The constant here should be >= 0.5.
+	 * 4. Trend before the current candle is bearish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form piercing line.
+	 */
+	public boolean isPiercingLine(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isBlackLongDay(previousStockCandle)) return false;
+		if (currentStockCandle.open >= previousStockCandle.low) return false;
+		if (currentStockCandle.close <= previousStockCandle.close + previousStockCandle.getBodyLength() * PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE) return false;
+		int start = index - PIERCING_LINE_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle and the previous candle form dark cloud cover.
+	 * Example:
+	 * 
+	 *     |
+	 *     ■
+	 *  |  ■
+	 *  □  ■
+	 *  □  ■
+	 *  □  ■
+	 *  □  |
+	 *  |  
+	 *     
+	 * Definition:
+	 * 1. Previous candle is a white long day. (TODO: Does the current candle need to be black long day?)
+	 * 2. Current candle's open > previous candle's high.
+	 * 3. Current candle's close < previous candle's close - previous candle's body length * DARK_CLOUD_COVER_MIN_BODY_LENGTH_PERCENTAGE
+	 * The constant here should be >= 0.5.
+	 * 4. Trend before the current candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form dark cloud cover.
+	 */
+	public boolean isDarkCloudCover(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isWhiteLongDay(previousStockCandle)) return false;
+		if (currentStockCandle.open <= previousStockCandle.high) return false;
+		if (currentStockCandle.close >= previousStockCandle.close - previousStockCandle.getBodyLength() * DARK_CLOUD_COVER_MIN_BODY_LENGTH_PERCENTAGE) return false;
+		int start = index - DARK_CLOUD_COVER_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle and the previous candle form bullish doji star.
+	 * Example:
+	 * 
+	 *  |
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  |
+	 *     |
+	 *     +
+	 *     |
+	 *    
+	 * Definition:
+	 * 1. Previous candle is a black long day.
+	 * 2. Current candle is a doji star.
+	 * 3. There is a gap down between current candle and previous candle.
+	 * 4. Trend before the current candle is bearish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form bullish doji star.
+	 */
+	public boolean isBullishDojiStar(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isBlackLongDay(previousStockCandle)) return false;
+		if (!isDojiStar(currentStockCandle)) return false;
+		if (!hasGapDown(index)) return false;
+		int start = index - BULLISH_DOJI_STAR_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle and the previous candle form bearish doji star.
+	 * Example:
+	 * 
+	 *     |
+	 *     +
+	 *     |
+	 * 
+	 *  |
+	 *  □
+	 *  □
+	 *  □
+	 *  □
+	 *  |
+	 *    
+	 * Definition:
+	 * 1. Previous candle is a white long day.
+	 * 2. Current candle is a doji star.
+	 * 3. There is a gap up between current candle and previous candle.
+	 * 4. Trend before the current candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form bearish doji star.
+	 */
+	public boolean isBearishDojiStar(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isWhiteLongDay(previousStockCandle)) return false;
+		if (!isDojiStar(currentStockCandle)) return false;
+		if (!hasGapUp(index)) return false;
+		int start = index - BEARISH_DOJI_STAR_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles have a form of morning doji star.
+	 * Example:
+	 * 
+	 *  |
+	 *  ■
+	 *  ■     |
+	 *  ■     □
+	 *  ■     □
+	 *  ■     □
+	 *  |     □
+	 *     |  |
+	 *     ■
+	 *     |    
+	 *  
+	 * Definition:
+	 * 1. First candle is a black long day.
+	 * 2. Second candle is either a white short day or black short day. There is a gap down between first candle
+	 * and second candle.
+	 * 3. Current candle is a white day. Either it is also a long day, or it pierces certain percentage of the first candle.
+	 * (current candle's close > first candle's open - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * first candle's body length)
+	 * 4. Trend before the second candle is bearish.
+	 * @param index
+	 * @return
+	 */
+	public boolean isMorningStar(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isBlackLongDay(secondPreviousStockCandle)) return false;
+		if (!isWhiteShortDay(previousStockCandle) && !isBlackShortDay(previousStockCandle)) return false;
+		if (!hasGapDown(secondPreviousStockCandle, previousStockCandle)) return false;
+		if (!isWhiteLongDay(currentStockCandle)) {
+			if (!isWhite(currentStockCandle)) return false;
+			if (currentStockCandle.close <= secondPreviousStockCandle.open - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
+				return false;
+		}
+		int start = index - MORNING_STAR_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendDown(start, index - 2)) return true;
+		return false;
+		
+	}
+	
+	public boolean isEveningStar(int index) {
+		return false;
+	}
+	
+	
+
 	public boolean isTrendUp(int start, int end) {
 		return isTrendUp(start, end, TREND_DEFAULT_DATA_TYPE);
 	}
@@ -1104,3 +1414,4 @@ public class StockPattern {
 		else return false;
 	}
 }
+
