@@ -73,6 +73,10 @@ public class StockPattern {
 	private static final int MORNING_STAR_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
 	private static final int EVENING_STAR_MIN_TREND_CANDLE_NUMBER = MORNING_STAR_MIN_TREND_CANDLE_NUMBER;
 	
+	private static final int BULLISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final int BEARISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER = BULLISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER;
+	
+	
 	private ArrayList<StockCandle> stockCandleArray;
 	
 	public ArrayList<StockCandle> getstockCandleArray() {
@@ -1325,7 +1329,14 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles have a form of morning doji star.
+	 * @see isMorningStar(index, isDojiStar, isAbandonBaby)
+	 */
+	public boolean isMorningStar(int index) {
+		return isMorningStar(index, false, false);
+	}
+	
+	/**
+	 * Return true if the recent three candles have a form of morning star.
 	 * Example:
 	 * 
 	 *  |
@@ -1346,10 +1357,12 @@ public class StockPattern {
 	 * 3. Current candle is a white day. Either it is also a long day, or it pierces certain percentage of the first candle.
 	 * (current candle's close > first candle's open - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * first candle's body length)
 	 * 4. Trend before the second candle is bearish.
-	 * @param index
-	 * @return
+	 * @param index The subscript in the stock candle array.
+	 * @param isDojiStar True if the second candle needs to be a doji.
+	 * @param isAbandonBaby True if the second candle needs to be a doji, and the shadows of the doji also gap below the other two candles.
+	 * @return True if the recent three candles have a form of morning star.
 	 */
-	public boolean isMorningStar(int index) {
+	public boolean isMorningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
 		currentStockCandle = stockCandleArray.get(index);
@@ -1357,8 +1370,13 @@ public class StockPattern {
 		secondPreviousStockCandle = stockCandleArray.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isBlackLongDay(secondPreviousStockCandle)) return false;
-		if (!isWhiteShortDay(previousStockCandle) && !isBlackShortDay(previousStockCandle)) return false;
-		if (!hasGapDown(secondPreviousStockCandle, previousStockCandle)) return false;
+		if (isDojiStar || isAbandonBaby) {
+			if (!isDoji(previousStockCandle)) return false;
+		}
+		else {
+			if (!isWhiteShortDay(previousStockCandle) && !isBlackShortDay(previousStockCandle)) return false;
+		}
+		if (!hasGapDown(secondPreviousStockCandle, previousStockCandle, isAbandonBaby)) return false;
 		if (!isWhiteLongDay(currentStockCandle)) {
 			if (!isWhite(currentStockCandle)) return false;
 			if (currentStockCandle.close <= secondPreviousStockCandle.open - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
@@ -1366,14 +1384,125 @@ public class StockPattern {
 		}
 		int start = index - MORNING_STAR_MIN_TREND_CANDLE_NUMBER - 1;
 		if (isTrendDown(start, index - 2)) return true;
-		return false;
-		
+		return false;		
 	}
 	
+	/**
+	 * @see isEveningStar(index, isDojiStar, isAbandonBaby)
+	 */
 	public boolean isEveningStar(int index) {
+		return isEveningStar(index, false, false);
+	}
+	
+	/**
+	 * Return true if the recent three candles have a form of evening star.
+	 * Example:
+	 * 
+	 *     |
+	 *     ¡ö
+	 *     |  |
+	 *  |     ¡ö
+	 *  ¡õ     ¡ö     
+	 *  ¡õ     ¡ö
+	 *  ¡õ     ¡ö
+	 *  ¡õ     |
+	 *  ¡õ
+	 *  |
+	 *     
+	 * Definition:
+	 * 1. First candle is a white long day.
+	 * 2. Second candle is either a white short day or black short day. There is a gap up between first candle
+	 * and second candle.
+	 * 3. Current candle is a black day. Either it is also a long day, or it pierces certain percentage of the first candle.
+	 * (current candle's close < first candle's close - EVENING_STAR_MIN_BODY_LENGTH_PERCENTAGE * first candle's body length)
+	 * 4. Trend before the second candle is bullish
+	 * @param index The subscript in the stock candle array.
+	 * @param isDojiStar True if the second candle needs to be a doji.
+	 * @param isAbandonBaby True if the second candle needs to be a doji, and the shadows of the doji also gap up the other two candles.
+	 * @return True if the recent three candles have a form of evening star.
+	 */
+	public boolean isEveningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
+		if (isDojiStar || isAbandonBaby) {
+			if (!isDoji(previousStockCandle)) return false;
+		}
+		else {
+			if (!isWhiteShortDay(previousStockCandle) && !isBlackShortDay(previousStockCandle)) return false;
+		}
+		if (!hasGapUp(secondPreviousStockCandle, previousStockCandle, isAbandonBaby)) return false;
+		if (!isBlackLongDay(currentStockCandle)) {
+			if (!isBlack(currentStockCandle)) return false;
+			if (currentStockCandle.close >= secondPreviousStockCandle.close - EVENING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
+				return false;
+		}
+		int start = index - EVENING_STAR_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendUp(start, index - 2)) return true;
+		return false;	
+	}
+	
+	/**
+	 * Return true if the recent three candles has a form of bullish tri star.
+	 * Example:
+	 * 
+	 * +
+	 *       +
+	 *    +
+	 *   
+	 * Definition:
+	 * 1. All three candles are doji.
+	 * 2. Second candle gaps below the first and the current candle.
+	 * 3. Trend before the second candle is bearish.  
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent three candles has a form of bullish tri star.
+	 */
+	public boolean isBullishTriStar(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!(isDoji(currentStockCandle) && isDoji(previousStockCandle) && (isDoji(secondPreviousStockCandle)))) return false;
+		if (!(hasGapUp(previousStockCandle, currentStockCandle) && (hasGapDown(secondPreviousStockCandle, previousStockCandle)))) return false;
+		int start = index - BULLISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendDown(start, index - 2)) return true;
 		return false;
 	}
 	
+	/**
+	 * Return true if the recent three candles has a form of bearish tri star.
+	 * Example:
+	 * 
+	 *    + 
+	 *       +
+	 * +
+	 *   
+	 * Definition:
+	 * 1. All three candles are doji.
+	 * 2. Second candle gaps up the first and the current candle.
+	 * 3. Trend before the second candle is bullish.  
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent three candles has a form of bearish tri star.
+	 */
+	public boolean isBearishTriStar(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!(isDoji(currentStockCandle) && isDoji(previousStockCandle) && (isDoji(secondPreviousStockCandle)))) return false;
+		if (!(hasGapDown(previousStockCandle, currentStockCandle) && (hasGapUp(secondPreviousStockCandle, previousStockCandle)))) return false;
+		int start = index - BEARISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendUp(start, index - 2)) return true;
+		return false;
+	}
 	
 
 	public boolean isTrendUp(int start, int end) {
