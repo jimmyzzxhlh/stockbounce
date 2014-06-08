@@ -94,6 +94,12 @@ public class StockPattern {
 	private static final double BEARISH_BELT_HOLD_MIN_JUMP_LENGTH = BULLISH_BELT_HOLD_MIN_JUMP_LENGTH;
 	private static final int BEARISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER = BULLISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER;
 	
+	private static final int UNIQUE_THREE_RIVER_BOTTOM_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	
+	private static final int THREE_WHITE_SOLDIERS_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	
+	private static final double ADVANCE_BLOCK_MIN_UPPER_SHADOW_LENGTH = 5;
+	private static final int ADVANCE_BLOCK_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
 	
 	private ArrayList<StockCandle> stockCandleArray;
 	
@@ -1811,6 +1817,123 @@ public class StockPattern {
 		if (jumpUp < BEARISH_BELT_HOLD_MIN_JUMP_LENGTH) return false;
 		int start = index - BEARISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendUp(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles form unique three river bottom (奇特三川底部).
+	 * Example:
+	 * 
+	 *  | 
+	 *  ■
+	 *  ■  ■  |
+	 *  ■  |  □
+	 *  ■  |  □
+	 *  |  |  |
+	 *     |  
+	 *     
+	 * Definition:
+	 * 1. First candle is a black long day.
+	 * 2. Second candle is a black short day with a long lower shadow that is lower than the first candle's low price.
+	 * 3. First candle harami the second candle's body.
+	 * 4. Current candle is a short white day. (TODO: Does the current candle need to be below the second candle?)
+	 * 5. Trend before the second candle is bearish.
+	 * 
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent three candles form unique three river bottom (奇特三川底部).
+	 */
+	public boolean isUniqueThreeRiverBottom(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isBlackLongDay(secondPreviousStockCandle)) return false;
+		if (!isBlackShortDay(previousStockCandle)) return false;
+		if (previousStockCandle.low >= secondPreviousStockCandle.low) return false;
+		if (!((secondPreviousStockCandle.open > previousStockCandle.open) && (secondPreviousStockCandle.close < previousStockCandle.close))) return false;
+		if (!isWhiteShortDay(currentStockCandle)) return false;
+		int start = index - UNIQUE_THREE_RIVER_BOTTOM_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendDown(start, index - 2)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles form three white soldiers (白色三兵).
+	 * Example:
+	 * 
+	 *        |
+	 *        □
+	 *     |  □
+	 *     □  □ 
+	 *  |  □  □
+	 *  □  □  |
+	 *  □  □  
+	 *  □  |
+	 *  □
+	 *  |
+	 *  
+	 * Definition:
+	 * 1. All three candles are white long days.
+	 * 2. The second candle opens within the body of the first candle. The current candle opens within the body
+	 * of the second candle. TODO: Is that really necessary?
+	 * 3. Trend before the first candle is bearish.
+	 * 
+	 * @param index
+	 * @return True if the recent three candles form three white soldiers (白色三兵).
+	 */
+	public boolean isThreeWhiteSoldiers(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isWhiteLongDay(currentStockCandle) || !isWhiteLongDay(previousStockCandle) || !isWhiteLongDay(secondPreviousStockCandle)) return false;
+		if (previousStockCandle.open >= secondPreviousStockCandle.close) return false;
+		if (currentStockCandle.open >= previousStockCandle.close) return false;
+		int start = index - THREE_WHITE_SOLDIERS_MIN_TREND_CANDLE_NUMBER - 2;
+		if (isTrendDown(start, index - 3)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the recent three candles form advance block (前进受阻).
+	 * Example:
+	 * 	
+	 *        |
+	 *     |  |
+	 *     |  |
+	 *     |  □ 
+	 *  |  □  |
+	 *  □  □  
+	 *  □  |
+	 *  □
+	 *  □
+	 *  |
+	 *  
+	 * Definition:
+	 * 1. First candle is a white long day.
+	 * 2. Second candle and current candle candle are white but they have long upper shadow.
+	 * TODO: Does second candle and current candle need to open within the body of the previous candle? Do they need to be white?
+	 * 3. Trend before the second candle is bullish.
+	 * @param index
+	 * @return
+	 */
+	public boolean isAdvanceBlock(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
+		if (!isWhite(previousStockCandle) || !isWhite(currentStockCandle)) return false;
+		if ((previousStockCandle.getUpperShadowLength() < ADVANCE_BLOCK_MIN_UPPER_SHADOW_LENGTH)
+	     || (currentStockCandle.getUpperShadowLength() < ADVANCE_BLOCK_MIN_UPPER_SHADOW_LENGTH)) return false;
+		int start = index - ADVANCE_BLOCK_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendUp(start, index - 2)) return true;
 		return false;
 	}
 }
