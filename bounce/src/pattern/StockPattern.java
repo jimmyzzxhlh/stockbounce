@@ -13,6 +13,11 @@ public class StockPattern {
 	private static final double GAP_UP_MIN_LENGTH = 3;
 	private static final double GAP_DOWN_MIN_LENGTH = GAP_UP_MIN_LENGTH;
 	
+	
+	//TODO: When computing trend, do we count the last candle?
+	//For example, for meeting lines, should we count the trend from the previous candle, or should we count
+	//the trend before the previous candle? Since the previous candle is already a long day, it can affect
+	//the trend slope if it is included.
 	private static final double TREND_UP_SLOPE = 0.5;
 	private static final double TREND_DOWN_SLOPE = -0.5;
 	private static final int TREND_DEFAULT_CANDLE_NUMBER = 5;
@@ -76,6 +81,19 @@ public class StockPattern {
 	private static final int BULLISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
 	private static final int BEARISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER = BULLISH_TRI_STAR_MIN_TREND_CANDLE_NUMBER;
 	
+	private static final double UPSIDE_GAP_TWO_CROWS_ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE = 0.8;
+	private static final int UPSIDE_GAP_TWO_CROWS_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	
+	private static final double BULLISH_MEETING_LINE_MAX_CLOSE_DIFF = 1;
+	private static final int BULLISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final double BEARISH_MEETING_LINE_MAX_CLOSE_DIFF = BULLISH_MEETING_LINE_MAX_CLOSE_DIFF;
+	private static final int BEARISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER = BULLISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER;
+	
+	private static final double BULLISH_BELT_HOLD_MIN_JUMP_LENGTH = 3;
+	private static final int BULLISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final double BEARISH_BELT_HOLD_MIN_JUMP_LENGTH = BULLISH_BELT_HOLD_MIN_JUMP_LENGTH;
+	private static final int BEARISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER = BULLISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER;
+	
 	
 	private ArrayList<StockCandle> stockCandleArray;
 	
@@ -100,6 +118,49 @@ public class StockPattern {
 		this.stockCandleArray = stockCandleArray;
 	}
 	
+	/**
+	 * @see isTrendUp(start, end, dataType)
+	 */
+	public boolean isTrendUp(int start, int end) {
+		return isTrendUp(start, end, TREND_DEFAULT_DATA_TYPE);
+	}
+	
+	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
+		SimpleLinearRegression slr = new SimpleLinearRegression();
+		double slope;
+		for (int i = start; i < end; i++) {
+			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
+			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
+			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
+			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
+		}
+		
+		slope = slr.getSlope();
+		if (slope >= TREND_UP_SLOPE) return true;
+		else return false;
+	}
+	
+	/**
+	 * @see isTrendDown(start, end, dataType)
+	 */
+	public boolean isTrendDown(int start, int end) {
+		return isTrendDown(start, end, TREND_DEFAULT_DATA_TYPE);
+	}
+	
+	public boolean isTrendDown(int start, int end, StockCandleDataType dataType) {
+		SimpleLinearRegression slr = new SimpleLinearRegression();
+		double slope;
+		for (int i = start; i < end; i++) {
+			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
+			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
+			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
+			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
+		}
+		
+		slope = slr.getSlope();
+		if (slope <= TREND_DOWN_SLOPE) return true;
+		else return false;
+	}
 	/**
 	 * @see isWhite(stockCandle)
 	 */
@@ -233,24 +294,33 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a white marubozu.
-	 * Example (white marubozu for open price):
-	 *  |
-	 *  |
-	 *  □
-	 *  □
-	 *  □
-	 *  □
-	 * Definition:
-	 * 1. White candle.
-	 * 2. Upper shadow length or lower shadow length <= WHITE_MARUBOZU_MAX_SHADOW_LENGTH
-	 * @param index The subscript in the stock candle array.
-	 * @param dataTypes Should either be Open or Close. Can pass both.
-	 * @return True if the current candle is a white marubozu.
+	 * @see isWhiteMarubozu(stockCandle)
 	 */
 	public boolean isWhiteMarubozu(int index, StockCandleDataType... dataTypes) {
 		StockCandle stockCandle = stockCandleArray.get(index);
 		if (stockCandle == null) return false;
+		return isWhiteMarubozu(stockCandle, dataTypes);
+	}
+	
+	/**
+	 * Return true if the current candle is a white marubozu.
+	 * Example (white marubozu for open price):
+	 * 
+	 *  |
+	 *  |
+	 *  □
+	 *  □
+	 *  □
+	 *  □
+	 * 
+	 * Definition:
+	 * 1. White candle.
+	 * 2. Upper shadow length or lower shadow length <= WHITE_MARUBOZU_MAX_SHADOW_LENGTH
+	 * @param stockCandle StockCandle object. Assume not null.
+	 * @param dataTypes Should either be Open or Close. Can pass both.
+	 * @return True if the current candle is a white marubozu.
+	 */
+	public boolean isWhiteMarubozu(StockCandle stockCandle, StockCandleDataType... dataTypes) {
 		if (!isWhite(stockCandle)) return false;
 		for (StockCandleDataType dataType : dataTypes) {
 			if ((dataType == StockCandleDataType.OPEN) && (stockCandle.getLowerShadowLength() > WHITE_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
@@ -260,24 +330,33 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a black marubozu.
-	 * Example (black marubozu for open price):
-	 *  |
-	 *  |
-	 *  ■
-	 *  ■
-	 *  ■
-	 *  ■
-	 * Definition:
-	 * 1. Black candle.
-	 * 2. Upper shadow length or lower shadow length <= BLACK_MARUBOZU_MAX_SHADOW_LENGTH
-	 * @param index The subscript in the stock candle array.
-	 * @param dataTypes Should either be Open or Close. Can pass both.
-	 * @return True if the current candle is a black marubozu.
+	 * @see isBlackMarubozu(stockCandle)
 	 */
 	public boolean isBlackMarubozu(int index, StockCandleDataType... dataTypes) {
 		StockCandle stockCandle = stockCandleArray.get(index);
 		if (stockCandle == null) return false;
+		return isBlackMarubozu(stockCandle, dataTypes);
+	}
+	
+	/**
+	 * Return true if the current candle is a black marubozu.
+	 * Example (black marubozu for open price):
+	 * 
+	 *  |
+	 *  |
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  
+	 * Definition:
+	 * 1. Black candle.
+	 * 2. Upper shadow length or lower shadow length <= BLACK_MARUBOZU_MAX_SHADOW_LENGTH
+	 * @param stockCandle Stock Candle object. Assume not null.
+	 * @param dataTypes Should either be Open or Close. Can pass both.
+	 * @return True if the current candle is a black marubozu.
+	 */
+	public boolean isBlackMarubozu(StockCandle stockCandle, StockCandleDataType... dataTypes) {
 		if (!isBlack(stockCandle)) return false;
 		for (StockCandleDataType dataType : dataTypes) {
 			if ((dataType == StockCandleDataType.OPEN) && (stockCandle.getLowerShadowLength() > BLACK_MARUBOZU_MAX_SHADOW_LENGTH)) return false;
@@ -417,6 +496,7 @@ public class StockPattern {
 	/**
 	 * Return true if the candle is a star to the last candle (星线).
 	 * Example:
+	 * 
 	 *     |
 	 *     □
 	 *     |
@@ -427,6 +507,7 @@ public class StockPattern {
 	 *  □
 	 *  □
 	 *  |
+	 *  
 	 * Definition:
 	 * 1. Current candle body length <= STAR_MAX_BODY_LENGTH.
 	 * 2. Gap length between the current candle and the last candle >= STAR_MIN_GAP_LENGTH.
@@ -455,11 +536,12 @@ public class StockPattern {
 	/**
 	 * Return true if the candle is a paper umbrella candle.
 	 * Example:
-	 * □
-	 * |
-	 * |
-	 * |
-	 * |
+	 * 
+	 *  □
+	 *  |
+	 *  |
+	 *  |
+	 *  |
 	 * 
 	 * Definition:
 	 * 1. Body length <= PAPER_UMBRELLA_MAX_BODY_LENGTH.
@@ -479,11 +561,12 @@ public class StockPattern {
 	/**
 	 * Return true if the candle is a hammer. The trend before the hammer should be bearish.
 	 * Example:
-	 * □
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  □
+	 *  |
+	 *  |
+	 *  | 
+	 *  |  
 	 * 
 	 * Definition:
 	 * 1. The candle is a paper umbrella.
@@ -502,11 +585,12 @@ public class StockPattern {
 	 * Return true if the candle is a white hammer. The trend before the hammer should be bearish.
 	 * White hammer is more likely to reverse the trend than black hammer.
 	 * Example:
-	 * □
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  □
+	 *  |
+	 *  | 
+	 *  | 
+	 *  |  
 	 * 
 	 * @param index The subscript in the stock candle array.
 	 * @return True if the candle is a white hammer. The trend before the hammer should be bearish.
@@ -520,11 +604,12 @@ public class StockPattern {
 	 * Return true if the candle is a black hammer. The trend before the hammer should be bearish.
 	 * Black hammer is less likely to reverse the trend than white hammer.
 	 * Example:
-	 * ■
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  ■
+	 *  |
+	 *  |
+	 *  |
+	 *  |  
 	 * 
 	 * @param index The subscript in the stock candle array.
 	 * @return True if the candle is a black hammer. The trend before the hammer should be bearish.
@@ -537,11 +622,12 @@ public class StockPattern {
 	/**
 	 * Return true if the candle is a hanging man. The trend before the hammer should be bullish.
 	 * Example:
-	 * □
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  □
+	 *  |
+	 *  |
+	 *  |
+	 *  |  
 	 * 
 	 * Definition:
 	 * 1. The candle is a paper umbrella.
@@ -560,11 +646,12 @@ public class StockPattern {
 	 * Return true if the candle is a white hanging man. The trend before the hammer should be bullish.
 	 * White hanging man is less likely to reverse the trend than black hanging man.
 	 * Example:
-	 * □
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  □
+	 *  |
+	 *  |
+	 *  |
+	 *  |  
 	 * 
 	 * @param index The subscript in the stock candle array.
 	 * @return True if the candle is a white hanging man. The trend before the hammer should be bullish.
@@ -578,11 +665,12 @@ public class StockPattern {
 	 * Return true if the candle is a black hanging man. The trend before the hammer should be bullish.
 	 * Black hanging man is more likely to reverse the trend than white hanging man.
 	 * Example:
-	 * ■
-	 * |
-	 * |
-	 * |
-	 * |  
+	 * 
+	 *  ■
+	 *  |
+	 *  |
+	 *  |
+	 *  |  
 	 * 
 	 * @param index The subscript in the stock candle array.
 	 * @return True if the candle is a black hanging man. The trend before the hammer should be bullish.
@@ -601,7 +689,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a white candle and it engulfs the previous black candle.
+	 * Return true if the current candle is a white candle and it engulfs the previous black candle (看涨吞没).
 	 * The trend before the engulfing should be bearish. 
 	 * Example:
 	 * 
@@ -622,7 +710,7 @@ public class StockPattern {
 	 * 5. Trend before the second day is bearish (Not counting the second day itself).
 	 * @param index The subscript in the stock candle array.
 	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
-	 * @return True if the current candle is a white candle and it engulfs the previous black candle.
+	 * @return True if the current candle is a white candle and it engulfs the previous black candle (看涨吞没).
 	 */
 	public boolean isBullishEngulfing(int index, boolean engulfShadows) {
 		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
@@ -654,7 +742,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a black candle and it engulfs the previous white candle.
+	 * Return true if the current candle is a black candle and it engulfs the previous white candle (看跌吞没).
 	 * The trend before the engulfing should be bullish. 
 	 * Example:
 	 * 
@@ -675,7 +763,7 @@ public class StockPattern {
 	 * 5. Trend before the second day is bullish (Not counting the second day itself).
 	 * @param index The subscript in the stock candle array.
 	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
-	 * @return True if the current candle is a black candle and it engulfs the previous white candle.
+	 * @return True if the current candle is a black candle and it engulfs the previous white candle (看跌吞没).
 	 */
 	public boolean isBearishEngulfing(int index, boolean engulfShadows) {
 		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
@@ -700,7 +788,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of three outside up.
+	 * Return true if the recent three candles has a form of three outside up (三外升).
 	 * Example:
 	 * 
 	 *        |
@@ -718,7 +806,7 @@ public class StockPattern {
 	 * 3. The two candles before the current candle has a form of bullish engulfing. 
 	 * @param index The subscript in the stock candle array.
 	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
-	 * @return True if the recent three candles has a form of three outside up.
+	 * @return True if the recent three candles has a form of three outside up (三外升).
 	 */
 	public boolean isThreeOutsideUp(int index, boolean engulfShadows) {
 		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
@@ -732,7 +820,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of three outside down.
+	 * Return true if the recent three candles has a form of three outside down (三外降).
 	 * Example:
 	 *
 	 *     |
@@ -750,7 +838,7 @@ public class StockPattern {
 	 * 3. The two candles before the current candle has a form of bearish engulfing. 
 	 * @param index The subscript in the stock candle array.
 	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
-	 * @return True if the recent three candles has a form of three outside down.
+	 * @return True if the recent three candles has a form of three outside down (三外降).
 	 */
 	public boolean isThreeOutsideDown(int index, boolean engulfShadows) {
 		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
@@ -764,7 +852,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the previous candle is a black candle and harami the current white candle.
+	 * Return true if the previous candle is a black candle and harami the current white candle (看涨孕线).
 	 * Example:
 	 * 
 	 *  |  
@@ -785,7 +873,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
 	 * @param haramiDoji True if the second candle is a doji.
-	 * @return True if the previous candle is a black candle and harami the current white candle.
+	 * @return True if the previous candle is a black candle and harami the current white candle (看涨孕线).
 	 */
 	public boolean isBullishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
 		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
@@ -815,7 +903,7 @@ public class StockPattern {
 	
 	
 	/**
-	 * Return true if the previous candle is a white candle and it harami the current black candle.
+	 * Return true if the previous candle is a white candle and it harami the current black candle (看跌孕线).
 	 * Example:
 	 * 
 	 *  |  
@@ -836,7 +924,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
 	 * @param haramiDoji True if the second candle is a doji.
-	 * @return True if the previous candle is a white candle and it harami the current black candle.
+	 * @return True if the previous candle is a white candle and it harami the current black candle (看跌孕线).
 	 */
 	public boolean isBearishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
 		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
@@ -865,7 +953,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of three inside up.
+	 * Return true if the recent three candles has a form of three inside up (三内升).
 	 * Example:
 	 * 
 	 *        |
@@ -884,7 +972,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
 	 * @param haramiDoji True if the second candle is a doji.
-	 * @return True if the recent three candles has a form of three inside up.
+	 * @return True if the recent three candles has a form of three inside up (三内升).
 	 */
 	public boolean isThreeInsideUp(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
 		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
@@ -899,7 +987,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of three inside down.
+	 * Return true if the recent three candles has a form of three inside down (三内降).
 	 * Example:
 	 * 
 	 *  |  
@@ -918,7 +1006,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param haramiShadows True if the first candle needs to harami the shadows of the second candle.
 	 * @param haramiDoji True if the second candle is a doji.
-	 * @return True if the recent three candles has a form of three inside down.
+	 * @return True if the recent three candles has a form of three inside down (三内降).
 	 */
 	public boolean isThreeInsideDown(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
 		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
@@ -933,7 +1021,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is an inverted hammer.
+	 * Return true if the current candle is an inverted hammer (倒锤子线).
 	 * Example:
 	 * 
 	 *  |
@@ -951,7 +1039,7 @@ public class StockPattern {
 	 * 4. Trend before the current candle is bearish.
 	 * TODO: It is not necessary that there is a gap between the current candle and previous candle.   
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle is an inverted hammer.
+	 * @return True if the current candle is an inverted hammer (倒锤子线).
 	 */
 	public boolean isInvertedHammer(int index) {
 		StockCandle stockCandle;
@@ -966,7 +1054,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle is a shooting star.
+	 * Return true if the current candle is a shooting star (流星线).
 	 * Example:
 	 * 
 	 *     |
@@ -989,7 +1077,7 @@ public class StockPattern {
 	 * 4. There is a gap up between the current candle and previous candle (stimulate people to take profits). 
 	 * 5. Trend before the current candle is bullish.
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle is an inverted hammer.
+	 * @return True if the current candle is a shooting star (流星线).
 	 */
 	public boolean isShootingStar(int index) {
 		StockCandle stockCandle;
@@ -1031,7 +1119,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if there is a gap up between current candle and previous candle.
+	 * Return true if there is a gap up between current candle and previous candle (向上跳空).
 	 * Example:
 	 * 
 	 *     |
@@ -1075,7 +1163,7 @@ public class StockPattern {
 	 * @param previousStockCandle Previous stock candle object. Assume not null.
 	 * @param currentStockCandle Current stock candle object. Assume not null.
 	 * @param useShadows True if there is still a gap if shadows are also counted in.
-	 * @return True if there is a gap up between current candle and previous candle.
+	 * @return True if there is a gap up between current candle and previous candle (向上跳空).
 	 */
 	public boolean hasGapUp(StockCandle previousStockCandle, StockCandle currentStockCandle, boolean useShadows) {
 		double gapTop, gapBottom;
@@ -1121,7 +1209,7 @@ public class StockPattern {
 		return hasGapDown(previousStockCandle, currentStockCandle, false);
 	}
 	/**
-	 * Return true if there is a gap down between current candle and previous candle.
+	 * Return true if there is a gap down between current candle and previous candle (向下跳空).
 	 * Example:
 	 * 
 	 *  |
@@ -1164,7 +1252,7 @@ public class StockPattern {
 	 * @param previousStockCandle Previous stock candle object. Assume not null.
 	 * @param currentStockCandle Current stock candle object. Assume not null.
 	 * @param useShadows True if there is still a gap if shadows are also counted in.
-	 * @return True if there is a gap down between current candle and previous candle.
+	 * @return True if there is a gap down between current candle and previous candle (向下跳空).
 	 */
 	public boolean hasGapDown(StockCandle previousStockCandle, StockCandle currentStockCandle, boolean useShadows) {
 		double gapTop, gapBottom;
@@ -1184,7 +1272,37 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle and the previous candle form piercing line.
+	 * Return the value between the current candle's open price and the previous candle's close price,
+	 * If the value is > 0, then the current candle's open price jumps up from the previous candle's close price.
+	 * If the value is < 0, then the current candle's open price jumps down from the previous candle's close price.
+	 * Basically they are the movement of previous candle's after hour market and the current candle's before hour market.
+	 * 
+	 * Example: The following chart has a jump up of 3 units.
+	 * 
+	 *     |
+	 *     □
+	 *  |  □
+	 *  ■  □
+	 *  ■  |
+	 *  ■
+	 *  ■
+	 *  |
+	 * 
+	 * @param index The subscript in the stock candle array.
+	 * @return The value between the current candle's open price and the previous candle's close price.
+	 */
+	public double getJump(int index) {
+		if (index < 1) return 0;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return 0;
+		return currentStockCandle.open - previousStockCandle.close;
+	}
+	
+
+	/**
+	 * Return true if the current candle and the previous candle form piercing line (刺透线).
 	 * Example:
 	 * 
 	 *  |
@@ -1203,7 +1321,7 @@ public class StockPattern {
 	 * The constant here should be >= 0.5.
 	 * 4. Trend before the current candle is bearish.
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle and the previous candle form piercing line.
+	 * @return True if the current candle and the previous candle form piercing line (刺透线).
 	 */
 	public boolean isPiercingLine(int index) {
 		if (index < 1) return false;
@@ -1220,7 +1338,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle and the previous candle form dark cloud cover.
+	 * Return true if the current candle and the previous candle form dark cloud cover (乌云盖顶).
 	 * Example:
 	 * 
 	 *     |
@@ -1239,7 +1357,7 @@ public class StockPattern {
 	 * The constant here should be >= 0.5.
 	 * 4. Trend before the current candle is bullish.
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle and the previous candle form dark cloud cover.
+	 * @return True if the current candle and the previous candle form dark cloud cover (乌云盖顶).
 	 */
 	public boolean isDarkCloudCover(int index) {
 		if (index < 1) return false;
@@ -1256,7 +1374,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle and the previous candle form bullish doji star.
+	 * Return true if the current candle and the previous candle form bullish doji star (看涨十字星).
 	 * Example:
 	 * 
 	 *  |
@@ -1275,7 +1393,7 @@ public class StockPattern {
 	 * 3. There is a gap down between current candle and previous candle.
 	 * 4. Trend before the current candle is bearish.
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle and the previous candle form bullish doji star.
+	 * @return True if the current candle and the previous candle form bullish doji star (看涨十字星).
 	 */
 	public boolean isBullishDojiStar(int index) {
 		if (index < 1) return false;
@@ -1292,7 +1410,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the current candle and the previous candle form bearish doji star.
+	 * Return true if the current candle and the previous candle form bearish doji star (看跌十字星).
 	 * Example:
 	 * 
 	 *     |
@@ -1312,7 +1430,7 @@ public class StockPattern {
 	 * 3. There is a gap up between current candle and previous candle.
 	 * 4. Trend before the current candle is bullish.
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the current candle and the previous candle form bearish doji star.
+	 * @return True if the current candle and the previous candle form bearish doji star (看跌十字星).
 	 */
 	public boolean isBearishDojiStar(int index) {
 		if (index < 1) return false;
@@ -1336,7 +1454,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles have a form of morning star.
+	 * Return true if the recent three candles have a form of morning star (启明星).
 	 * Example:
 	 * 
 	 *  |
@@ -1360,7 +1478,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param isDojiStar True if the second candle needs to be a doji.
 	 * @param isAbandonBaby True if the second candle needs to be a doji, and the shadows of the doji also gap below the other two candles.
-	 * @return True if the recent three candles have a form of morning star.
+	 * @return True if the recent three candles have a form of morning star (启明星).
 	 */
 	public boolean isMorningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
 		if (index < 2) return false;
@@ -1395,7 +1513,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles have a form of evening star.
+	 * Return true if the recent three candles have a form of evening star (黄昏星).
 	 * Example:
 	 * 
 	 *     |
@@ -1419,7 +1537,7 @@ public class StockPattern {
 	 * @param index The subscript in the stock candle array.
 	 * @param isDojiStar True if the second candle needs to be a doji.
 	 * @param isAbandonBaby True if the second candle needs to be a doji, and the shadows of the doji also gap up the other two candles.
-	 * @return True if the recent three candles have a form of evening star.
+	 * @return True if the recent three candles have a form of evening star (黄昏星).
 	 */
 	public boolean isEveningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
 		if (index < 2) return false;
@@ -1447,7 +1565,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of bullish tri star.
+	 * Return true if the recent three candles has a form of bullish tri star (看涨三星).
 	 * Example:
 	 * 
 	 * +
@@ -1459,7 +1577,7 @@ public class StockPattern {
 	 * 2. Second candle gaps below the first and the current candle.
 	 * 3. Trend before the second candle is bearish.  
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the recent three candles has a form of bullish tri star.
+	 * @return True if the recent three candles has a form of bullish tri star (看涨三星).
 	 */
 	public boolean isBullishTriStar(int index) {
 		if (index < 2) return false;
@@ -1476,7 +1594,7 @@ public class StockPattern {
 	}
 	
 	/**
-	 * Return true if the recent three candles has a form of bearish tri star.
+	 * Return true if the recent three candles has a form of bearish tri star (看跌三星).
 	 * Example:
 	 * 
 	 *    + 
@@ -1488,7 +1606,7 @@ public class StockPattern {
 	 * 2. Second candle gaps up the first and the current candle.
 	 * 3. Trend before the second candle is bullish.  
 	 * @param index The subscript in the stock candle array.
-	 * @return True if the recent three candles has a form of bearish tri star.
+	 * @return True if the recent three candles has a form of bearish tri star (看跌三星).
 	 */
 	public boolean isBearishTriStar(int index) {
 		if (index < 2) return false;
@@ -1504,43 +1622,196 @@ public class StockPattern {
 		return false;
 	}
 	
-
-	public boolean isTrendUp(int start, int end) {
-		return isTrendUp(start, end, TREND_DEFAULT_DATA_TYPE);
+	/**
+	 * Return true if the recent three candles form upside gap two crows (向上跳空两只乌鸦).
+	 * Example:
+	 * 
+	 *        |
+	 *     |  ■
+	 *     ■  ■
+	 *     |  ■
+	 *        |
+	 *  |
+	 *  □
+	 *  □
+	 *  □
+	 *  □
+	 *  |
+	 *  
+	 * Definition:
+	 * 1. First candle is a white long day.
+	 * 2. Both the second candle and the current candle are black days. Current candle engulfs the second candle.
+	 * 3. Both the second candle and the current candle gap up the first candle.
+	 * 4. Trend before the second candle is bullish.
+	 * 
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent three candles has a form of upside gap two crows (向上跳空两只乌鸦).
+	 */
+	public boolean isUpsideGapTwoCrows(int index) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
+		if (!(isBlack(previousStockCandle) && isBlack(currentStockCandle))) return false;
+		if (!((currentStockCandle.open > previousStockCandle.open) && (currentStockCandle.close < previousStockCandle.close)
+	       && (currentStockCandle.getBodyLength() >= UPSIDE_GAP_TWO_CROWS_ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * previousStockCandle.getBodyLength()))) return false;
+		if (!(hasGapUp(secondPreviousStockCandle, previousStockCandle) && hasGapUp(secondPreviousStockCandle, currentStockCandle))) return false;
+		int start = index - UPSIDE_GAP_TWO_CROWS_MIN_TREND_CANDLE_NUMBER - 1;
+		if (isTrendUp(start, index - 2)) return true;
+		return false;
 	}
 	
-	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
-		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
-			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
-			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
-			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
-		}
-		
-		slope = slr.getSlope();
-		if (slope >= TREND_UP_SLOPE) return true;
-		else return false;
+	/**
+	 * Return true if the current candle and the previous candle form bullish meeting line (看涨约会线).
+	 * Example:
+	 * 
+	 *  |
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  ■  | 
+	 *  |  □
+	 *     □     
+	 *     □
+	 *     □
+	 *     |
+	 *     
+	 * Definition:
+	 * 1. Current candle is a white long day. Previous candle is a black long day.
+	 * 2. Current candle's close is almost the same as the previous candle's close.
+	 * (Abs(Current candle's close - Previous candle's close) < BULLISH_MEETING_LINE_MAX_CLOSE_DIFF).
+	 * 3. Trend before the current candle is bearish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form bullish meeting line (看涨约会线).
+	 */
+	public boolean isBullishMeetingLine(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isWhiteLongDay(currentStockCandle)) return false;
+		if (!isBlackLongDay(previousStockCandle)) return false;
+		if (Math.abs(currentStockCandle.close - previousStockCandle.close) > BULLISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
+		int start = index - BULLISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1)) return true;
+		return false;
 	}
 	
-	public boolean isTrendDown(int start, int end) {
-		return isTrendDown(start, end, TREND_DEFAULT_DATA_TYPE);
+	/**
+	 * Return true if the current candle and the previous candle form bearish meeting line (看跌约会线).
+	 * Example:
+	 * 
+	 *     |
+	 *     ■
+	 *     ■
+	 *     ■
+	 *  |  ■
+	 *  □  |
+	 *  □
+	 *  □
+	 *  □ 
+	 *  |
+	 *        
+	 * Definition:
+	 * 1. Current candle is a black long day. Previous candle is a white long day.
+	 * 2. Current candle's close is almost the same as the previous candle's close.
+	 * (Abs(Current candle's close - Previous candle's close) < BEARISH_MEETING_LINE_MAX_CLOSE_DIFF).
+	 * 3. Trend before the current candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle and the previous candle form bearish meeting line (看跌约会线).
+	 */
+	public boolean isBearishMeetingLine(int index) {
+		if (index < 1) return false;
+		StockCandle currentStockCandle, previousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
+		if (!isBlackLongDay(currentStockCandle)) return false;
+		if (!isWhiteLongDay(previousStockCandle)) return false;
+		if (Math.abs(currentStockCandle.close - previousStockCandle.close) > BEARISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
+		int start = index - BEARISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1)) return true;
+		return false;
 	}
 	
-	public boolean isTrendDown(int start, int end, StockCandleDataType dataType) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
-		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
-			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
-			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
-			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
-		}
-		
-		slope = slr.getSlope();
-		if (slope <= TREND_DOWN_SLOPE) return true;
-		else return false;
+	/**
+	 * Return true if the current candle is a bullish belt hold (看涨捉腰带线).
+	 * Example
+	 * 
+	 *  |
+	 *  ■
+	 *  ■  |
+	 *  |  ■
+	 *     ■
+	 *     ■
+	 *     |
+	 *        |
+	 *        □
+	 *        □
+	 *        □
+	 *        □
+	 * 
+	 * Definition:
+	 * 1. Current candle is a white long day. (TODO: Is it possible that it is not a white long day?)
+	 * 2. Current candle's open price jumps down from the previous candle's close price.
+	 * 3. Current candle is a white marubozu in terms of the open price.
+	 * 4. Trend before the current candle is bearish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle is a bullish belt hold (看涨捉腰带线).
+	 */
+	public boolean isBullishBeltHold(int index) {
+		StockCandle currentStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		if (currentStockCandle == null) return false;
+		if (!isWhiteLongDay(currentStockCandle)) return false;
+		if (!isWhiteMarubozu(currentStockCandle, StockCandleDataType.OPEN)) return false;
+		double jumpDown = getJump(index);
+		if (jumpDown > -BULLISH_BELT_HOLD_MIN_JUMP_LENGTH) return false;
+		int start = index - BULLISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendDown(start, index - 1)) return true;
+		return false;
+	}
+	
+	/**
+	 * Return true if the current candle is a bearish belt hold (看跌捉腰带线).
+	 * Example:
+	 * 
+	 *        ■
+	 *        ■
+	 *        ■
+	 *        ■
+	 *        |
+	 *     |
+	 *     □ 
+	 *  |  □
+	 *  □  |
+	 *  □
+	 *  □
+	 *  | 
+	 *  
+	 * Definition:
+	 * 1. Current candle is a black long day. (TODO: Is it possible that it is not a black long day?)
+	 * 2. Current candle's open price jumps down from the previous candle's close price.
+	 * 3. Current candle is a black marubozu in terms of the open price.
+	 * 4. Trend before the current candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the current candle is a bearish belt hold (看跌捉腰带线).
+	 */
+	public boolean isBearishBeltHold(int index) {
+		StockCandle currentStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		if (currentStockCandle == null) return false;
+		if (!isBlackLongDay(currentStockCandle)) return false;
+		if (!isBlackMarubozu(currentStockCandle, StockCandleDataType.OPEN)) return false;
+		double jumpUp = getJump(index);
+		if (jumpUp < BEARISH_BELT_HOLD_MIN_JUMP_LENGTH) return false;
+		int start = index - BEARISH_BELT_HOLD_MIN_TREND_CANDLE_NUMBER;
+		if (isTrendUp(start, index - 1)) return true;
+		return false;
 	}
 }
 
