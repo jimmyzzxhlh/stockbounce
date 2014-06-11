@@ -2,6 +2,8 @@ package stock;
 
 import java.util.Date;
 
+import stock.StockEnum.StockCandleDataType;
+
 public class StockCandle {
 	
 	public double open = 0;
@@ -14,6 +16,15 @@ public class StockCandle {
 	
 	public StockCandle() {
 			
+	}
+	
+	public StockCandle(StockCandle inputStockCandle) {
+		this.open = inputStockCandle.open;
+		this.close = inputStockCandle.close;
+		this.high = inputStockCandle.high;
+		this.low = inputStockCandle.low;
+		this.volume = inputStockCandle.volume;
+		this.date = inputStockCandle.date;
 	}
 	
 	public StockCandle(Date date, double open, double close, double high, double low, int volume) {
@@ -134,6 +145,18 @@ public class StockCandle {
 		}
 		else {
 			if (currentStockCandle.open < lastStockCandle.close) return lastStockCandle.close - currentStockCandle.open;
+		}
+		return 0;
+	}
+	
+	public double getStockPrice(StockCandleDataType dataType) {
+		switch (dataType) {
+		case OPEN: return open;
+		case CLOSE: return close;
+		case HIGH: return high;
+		case LOW: return low;
+		default:
+			break;
 		}
 		return 0;
 	}

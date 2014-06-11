@@ -1,8 +1,11 @@
 package stock;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import stock.StockEnum.StockCandleDataType;
 
 /**
  * Main class for a list of stock candles.
@@ -10,11 +13,16 @@ import java.util.Comparator;
  */
 public class StockCandleArray {
 	private ArrayList<StockCandle> stockCandleArray;
-	private static final double TREND_UP_SLOPE = 0.5;
-	private static final double TREND_DOWN_SLOPE = -0.5;
-	private static final double MIN_UPPER_SHADOW_LENGTH = 15;
-	private static final double MAX_BODY_LENGTH = 3;
+	private String symbol;
 	
+	
+	public StockCandleArray(StockCandleArray inputStockCandleArray) {
+		this.stockCandleArray = new ArrayList<StockCandle>();
+		for (int i = 0; i < inputStockCandleArray.getStockCandleArray().size(); i++) {
+			StockCandle stockCandle = new StockCandle(inputStockCandleArray.getStockCandleArray().get(i));
+			this.stockCandleArray.add(stockCandle);
+		}		
+	}
 	
 	public ArrayList<StockCandle> getStockCandleArray() {
 		return stockCandleArray;
@@ -24,12 +32,19 @@ public class StockCandleArray {
 		this.stockCandleArray = stockCandleArray;
 	}
 
+	public String getSymbol() {
+		return symbol;
+	}
+	
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
 	
 	public StockCandleArray() {
 		stockCandleArray = new ArrayList<StockCandle>(); 
 	}
 	
-	public static void normalizeStockCandle(ArrayList<StockCandle> stockCandleArray, int maxHeight) {
+	public static void normalizeStockCandle(ArrayList<StockCandle> stockCandleArray, double maxForNormalization) {
 		StockCandle stockCandle;
 		double max = 0;
 		double min = 1e10;
@@ -43,7 +58,7 @@ public class StockCandleArray {
 				max = stockCandle.high;
 			}
 		}
-		scale = maxHeight / (max - min);
+		scale = maxForNormalization / (max - min);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			stockCandle = stockCandleArray.get(i);
 			stockCandle.open = (stockCandle.open - min) * scale;
@@ -96,24 +111,48 @@ public class StockCandleArray {
 	}
 
 	
+	/**
+	 * Get the maximum stock price during a time range, defined by the current day (index)
+	 * and the number of days to look forward.
+	 * @param index The subscript in the stock candle array that represents the current day.
+	 * @param days Number of days to look forward.
+	 * @param dataType Type of data to look at (open, close, etc.).
+	 * @return See description. If nothing can be returned, then return 0.
+	 */
+	public double getMaxStockPrice(int index, int days, StockCandleDataType dataType) {
+		if (index + days - 1 >= stockCandleArray.size()) return 0;
+		double result = 0;
+		for (int i = index; i < index + days; i++) {
+			double currentPrice = stockCandleArray.get(i).getStockPrice(dataType);
+			if (currentPrice > result) result = currentPrice;
+		}
+		return result;		
+	}
 	
+	public static String formatPrice(double price) {
+		DecimalFormat decimalFormat = new DecimalFormat("#.00");
+		return decimalFormat.format(price);
+	}
 	
-//	public boolean HasLongUpperShadow(int position) {
-//		if ((position < 0) || (position >= stockCandleArray.size())) return false;
-//		StockCandle stockCandle;
-//		double bodyLength;
-//		double upperShadowLength;
-//		stockCandle = stockCandleArray.get(position);
-//		
-//		bodyLength = Math.abs(stockCandle.close - stockCandle.open);
-//		upperShadowLength = stockCandle.high - Math.max(stockCandle.open, stockCandle.close);
-//		//Shouldn't happen
-//		if (upperShadowLength < 0) upperShadowLength = 0;
-//		 
-//		
-//		//if (upperShadowLength > LONG_UPPER_SHADOW_LENGTH)
-//		return false;
-//	}
+	/**
+	 * Get the minimum stock price during a time range, defined by the current day (index)
+	 * and the number of days to look forward.
+	 * @param index The subscript in the stock candle array that represents the current day.
+	 * @param days Number of days to look forward.
+	 * @param dataType Type of data to look at (open, close, etc.).
+	 * @return See description. If nothing can be returned, then return 0.
+	 */
+	public double getMinStockPrice(int index, int days, StockCandleDataType dataType) {
+		if (index + days - 1 >= stockCandleArray.size()) return 0;
+		double result = 0;
+		for (int i = index; i < index + days; i++) {
+			double currentPrice = stockCandleArray.get(i).getStockPrice(dataType);
+			if ((result == 0) || (currentPrice < result)) result = currentPrice;
+		}
+		return result;		
+	}
+	
+
 }
 			
 		

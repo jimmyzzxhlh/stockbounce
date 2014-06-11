@@ -1,11 +1,11 @@
 package yahoo;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import stock.StockParser;
 import stock.StockCandle;
+import stock.StockParser;
 
 public class YahooParser extends StockParser {
 
@@ -23,6 +23,10 @@ public class YahooParser extends StockParser {
 	
 	public YahooParser(String filename) {
 		super(filename);
+	}
+	
+	public YahooParser(File file) {
+		super(file);
 	}
 	@Override
 	public void parseLine(String line, StockCandle stockCandle) {

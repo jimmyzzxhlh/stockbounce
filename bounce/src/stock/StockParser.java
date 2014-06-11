@@ -1,11 +1,13 @@
 package stock;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 
 public abstract class StockParser {
 	public String filename = null;
 	public int lineNumber = 0;
+	public File file = null;
 	
 	private BufferedReader br;
 	
@@ -17,8 +19,17 @@ public abstract class StockParser {
 		this.filename = filename;
 	}
 	
+	public StockParser(File file) {
+		this.file = file;
+	}
+	
 	public void startReadFile() throws Exception {
-		this.br = new BufferedReader(new FileReader(this.filename));
+		if (filename != null) {
+			this.br = new BufferedReader(new FileReader(filename));
+		}
+		else if (file != null) {
+			this.br = new BufferedReader(new FileReader(file));
+		}
 	}
 	
 	public String nextLine() throws Exception {

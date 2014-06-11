@@ -1,5 +1,7 @@
 package pattern;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import stock.SimpleLinearRegression;
@@ -103,6 +105,10 @@ public class StockPattern {
 	
 	private ArrayList<StockCandle> stockCandleArray;
 	
+	private String symbol;
+	
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+	
 	public ArrayList<StockCandle> getstockCandleArray() {
 		return stockCandleArray;
 	}
@@ -110,6 +116,16 @@ public class StockPattern {
 	public void setstockCandleArray(ArrayList<StockCandle> stockCandleArray) {
 		this.stockCandleArray = stockCandleArray;
 	}
+	
+	public String getSymbol() {
+		return symbol;
+	}
+
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+	
+	
 
 	public StockPattern() {
 		
@@ -123,6 +139,11 @@ public class StockPattern {
 	public StockPattern(ArrayList<StockCandle> stockCandleArray) {
 		this.stockCandleArray = stockCandleArray;
 	}
+	
+	public String getDate(int index) {
+		return dateFormat.format(stockCandleArray.get(index).date);
+	}
+	
 	
 	/**
 	 * @see isTrendUp(start, end, dataType)
