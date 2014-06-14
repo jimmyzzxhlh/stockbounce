@@ -1,6 +1,5 @@
 package pattern;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -20,9 +19,9 @@ public class StockPattern {
 	//For example, for meeting lines, should we count the trend from the previous candle, or should we count
 	//the trend before the previous candle? Since the previous candle is already a long day, it can affect
 	//the trend slope if it is included.
-	private static final double TREND_UP_SLOPE = 0.5;
-	private static final double TREND_DOWN_SLOPE = -0.5;
-	private static final int TREND_DEFAULT_CANDLE_NUMBER = 5;
+	private static final double TREND_UP_SLOPE = 1;
+	private static final double TREND_DOWN_SLOPE = -1;
+	private static final int TREND_DEFAULT_CANDLE_NUMBER = 10;
 	private static final StockCandleDataType TREND_DEFAULT_DATA_TYPE = StockCandleDataType.CLOSE;
 	
 	private static final double WHITE_LONG_DAY_MIN_BODY_LENGTH = 10;	

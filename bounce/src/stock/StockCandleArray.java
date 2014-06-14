@@ -22,6 +22,7 @@ public class StockCandleArray {
 			StockCandle stockCandle = new StockCandle(inputStockCandleArray.getStockCandleArray().get(i));
 			this.stockCandleArray.add(stockCandle);
 		}		
+		this.symbol = inputStockCandleArray.symbol;
 	}
 	
 	public ArrayList<StockCandle> getStockCandleArray() {
@@ -44,12 +45,29 @@ public class StockCandleArray {
 		stockCandleArray = new ArrayList<StockCandle>(); 
 	}
 	
-	public static void normalizeStockCandle(ArrayList<StockCandle> stockCandleArray, double maxForNormalization) {
+	public int size() {
+		return stockCandleArray.size();
+	}
+	
+	public StockCandle get(int index) {
+		return stockCandleArray.get(index);
+	}
+	
+	public void add(StockCandle stockCandle) {
+		stockCandleArray.add(stockCandle);
+	}
+	
+	public void normalizeStockCandle(double maxForNormalization) {
+		normalizeStockCandle(maxForNormalization, 0, stockCandleArray.size());
+	}
+	
+	public void normalizeStockCandle(double maxForNormalization, int start, int end) {
 		StockCandle stockCandle;
 		double max = 0;
 		double min = 1e10;
 		double scale = 1;
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+		if ((start < 0) || (end >= stockCandleArray.size())) return;
+		for (int i = start; i <= end; i++) {
 			stockCandle = stockCandleArray.get(i);
 			if (stockCandle.low < min) {
 				min = stockCandle.low;

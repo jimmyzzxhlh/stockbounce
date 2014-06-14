@@ -1,6 +1,8 @@
 package test;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 
 import pattern.StockPattern;
 import stock.StockCandle;
@@ -10,8 +12,11 @@ import yahoo.YahooParser;
 
 public class PatternTest {
 	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
-	private static final int STOCK_CANDLE_ARRAY_MAX = 250;
+	private static final String OUTPUT_DIRECTORY_PATH = "D:\\zzx\\Stock\\";
+	private static final int STOCK_CANDLE_ARRAY_NORMALIZE_DAYS = 250;
 	private static final double STOCK_CANDLE_NORMALIZE_MAX = 500;
+	private static final int TEST_DAYS = 250;
+	
 	
 	public static void main(String args[]) throws Exception {
 		PatternTest patternTest = new PatternTest();
@@ -22,21 +27,28 @@ public class PatternTest {
 	public void testChart() throws Exception {
 		File directory = new File(CSV_DIRECTORY_PATH);
 		File[] directoryList = directory.listFiles();
+		File outputFile = new File(OUTPUT_DIRECTORY_PATH + "engulfing.csv");
 		StockCandleArray stockCandleArray, originalStockCandleArray;
 		if (directoryList == null) return;
+		outputFile.createNewFile();
+		FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
+		BufferedWriter bw = new BufferedWriter(fw);
 		
-		System.out.print("Symbol" + ",");
-		System.out.print("Date" + ",");
-		System.out.print("Current" + ",");
+		
+		bw.write("Symbol" + ",");
+		bw.write("Date" + ",");
+		bw.write("Current Close" + ",");
+		bw.write("Next Open" + ",");
 		for (int days = 5; days <= 15; days+=5) {
-			System.out.print(days + "d Max High" + ",");
-			System.out.print(days + "d Max Close" + ",");
-			System.out.print(days + "d Min Low" + ",");
-			System.out.print(days + "d Min Close" + ",");
+			bw.write(days + "d Max High" + ",");
+			bw.write(days + "d Max Close" + ",");
+			bw.write(days + "d Min Low" + ",");
+			bw.write(days + "d Min Close" + ",");
 		}
-		System.out.println();
+		bw.newLine();
 		
 		for (File csvFile : directoryList) {
+			System.out.println(csvFile.getName());
 			YahooParser parser = new YahooParser(csvFile);
 			stockCandleArray = new StockCandleArray();
 			String filename = csvFile.getName();
@@ -47,38 +59,49 @@ public class PatternTest {
 			while ((line = parser.nextLine()) != null) {
 				StockCandle stockCandle = new StockCandle();
 				parser.parseLine(line, stockCandle);
-				stockCandleArray.getStockCandleArray().add(stockCandle);
-				if (stockCandleArray.getStockCandleArray().size() >= STOCK_CANDLE_ARRAY_MAX) break;
+				stockCandleArray.add(stockCandle);
 			}
 			parser.closeFile();
 			stockCandleArray.sortByDate();
 			originalStockCandleArray = new StockCandleArray(stockCandleArray);
-			StockCandleArray.normalizeStockCandle(stockCandleArray.getStockCandleArray(), STOCK_CANDLE_NORMALIZE_MAX);
+			for (int i = stockCandleArray.size() - 1; i > stockCandleArray.size() - TEST_DAYS; i--) {
+				if (i < 0) break;
+				int start = i - STOCK_CANDLE_ARRAY_NORMALIZE_DAYS + 1;
+				int end = i;
+				if (start < 0) start = 0;
+				stockCandleArray.normalizeStockCandle(STOCK_CANDLE_NORMALIZE_MAX, start, end);
+				checkPattern(bw, end, stockCandleArray, originalStockCandleArray);
+				stockCandleArray = new StockCandleArray(originalStockCandleArray);
+			}
 			
-			checkPattern(stockCandleArray, originalStockCandleArray);
 		}
-		
+		bw.close();
+		fw.close();
 	}
 	
 	
-	private void checkPattern(StockCandleArray stockCandleArray, StockCandleArray originalStockCandleArray) {
+	private void checkPattern(BufferedWriter bw, int index, StockCandleArray stockCandleArray, StockCandleArray originalStockCandleArray) throws Exception {
 		StockPattern stockPattern = new StockPattern(stockCandleArray.getStockCandleArray());
 		stockPattern.setSymbol(stockCandleArray.getSymbol());
 		
-		for (int i = 0; i < stockCandleArray.getStockCandleArray().size(); i++) {
-			if (stockPattern.isBearishEngulfing(i)) {
-				System.out.print(stockPattern.getSymbol() + ",");
-				System.out.print(stockPattern.getDate(i) + ",");
-				System.out.print(StockCandleArray.formatPrice(originalStockCandleArray.getStockCandleArray().get(i).close) + ",");
-				for (int days = 5; days <= 15; days+=5) {
-					System.out.print(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(i, days, StockCandleDataType.HIGH)) + ",");
-					System.out.print(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(i, days, StockCandleDataType.CLOSE)) + ",");
-					System.out.print(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(i, days, StockCandleDataType.LOW)) + ",");
-					System.out.print(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(i, days, StockCandleDataType.CLOSE)) + ",");
-				}
-				System.out.println();
+		if (stockPattern.isBearishEngulfing(index)) {
+			bw.write(stockPattern.getSymbol() + ",");
+			bw.write(stockPattern.getDate(index) + ",");
+			bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index).close) + ",");
+			if (index < originalStockCandleArray.size() - 1) {
+				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index + 1).open) + ",");
 			}
-				
+			else {
+				bw.write(0 + ",");
+			}
+			
+			for (int days = 5; days <= 15; days+=5) {
+				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.HIGH)) + ",");
+				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.CLOSE)) + ",");
+				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.LOW)) + ",");
+				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.CLOSE)) + ",");
+			}
+			bw.newLine();
 		}
 	}
 
