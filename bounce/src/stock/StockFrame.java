@@ -5,10 +5,17 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+
 
 @SuppressWarnings("serial")
 /**
@@ -29,11 +36,16 @@ public class StockFrame extends JFrame implements ActionListener {
 	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
 	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
 	private JTextField textField;
+	private int patternIndex = -1;
+	private static final int RADIUS = CANDLE_WIDTH *5;
 	
 	public StockFrame() {
 		super();
 		//
-		
+	}
+	
+	public void setIndex(int patternIndex){
+		this.patternIndex = patternIndex;
 	}
 	
 	public StockFrame(int width, int height) {
@@ -41,13 +53,24 @@ public class StockFrame extends JFrame implements ActionListener {
 		this.setSize(width, height);
 		this.setLayout(new BorderLayout());
 		addTextField();
-		
 	}
 	
 	public void paint(Graphics g) {
 		paintCandles(g);
-				
+		if (patternIndex == -1) return;
+		
+		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
+		
+		int openInt = (int) Math.floor(indexedStockCandle.open);
+		int frameHeight = this.getHeight();
+		int x = CANDLE_WIDTH * patternIndex + 3;
+		int y = frameHeight - openInt;
+		
+		g.drawOval(x-RADIUS/2,y,RADIUS,RADIUS);
+		g.setColor(Color.BLUE);
+		//g.fillOval(x,y,RADIUS,RADIUS);
 	}
+	
 	
 	/**
 	 * Paint each candle on the frame.

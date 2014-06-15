@@ -35,8 +35,8 @@ public class YahooDrawChartTest {
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	
 	public static void main(String args[]) throws Exception {
-		StockData stockData = new StockData(null,null);
-		stockData.downloadStocks();
+		//StockData stockData = new StockData(null,null);
+		//stockData.downloadStocks();
 		drawChart();
 		
 		

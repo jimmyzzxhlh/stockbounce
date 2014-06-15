@@ -76,6 +76,7 @@ public abstract class PatternTest {
 	private void checkPattern(BufferedWriter bw, int index, StockCandleArray stockCandleArray, StockCandleArray originalStockCandleArray) throws Exception {
 		StockPattern stockPattern = new StockPattern(stockCandleArray.getStockCandleArray());
 		stockPattern.setSymbol(stockCandleArray.getSymbol());
+		YahooDrawPattern drawPattern = new YahooDrawPattern();
 		
 		if (hasPattern(stockPattern, index)) {
 			bw.write(stockPattern.getSymbol() + ",");
@@ -95,6 +96,9 @@ public abstract class PatternTest {
 				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.CLOSE)) + ",");
 			}
 			bw.newLine();
+			
+			drawPattern.setPatternIndex(index);
+			drawPattern.drawChart(stockCandleArray);
 		}
 	}
 	
