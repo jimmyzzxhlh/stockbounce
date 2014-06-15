@@ -10,19 +10,12 @@ import stock.StockCandleArray;
 import stock.StockEnum.StockCandleDataType;
 import yahoo.YahooParser;
 
-public class PatternTest {
+public abstract class PatternTest {
 	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	private static final String OUTPUT_DIRECTORY_PATH = "D:\\zzx\\Stock\\";
 	private static final int STOCK_CANDLE_ARRAY_NORMALIZE_DAYS = 250;
 	private static final double STOCK_CANDLE_NORMALIZE_MAX = 500;
 	private static final int TEST_DAYS = 250;
-	
-	
-	public static void main(String args[]) throws Exception {
-		PatternTest patternTest = new PatternTest();
-		patternTest.testChart();
-	}
-
 	
 	public void testChart() throws Exception {
 		File directory = new File(CSV_DIRECTORY_PATH);
@@ -84,7 +77,7 @@ public class PatternTest {
 		StockPattern stockPattern = new StockPattern(stockCandleArray.getStockCandleArray());
 		stockPattern.setSymbol(stockCandleArray.getSymbol());
 		
-		if (stockPattern.isBearishEngulfing(index)) {
+		if (hasPattern(stockPattern, index)) {
 			bw.write(stockPattern.getSymbol() + ",");
 			bw.write(stockPattern.getDate(index) + ",");
 			bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index).close) + ",");
@@ -104,5 +97,7 @@ public class PatternTest {
 			bw.newLine();
 		}
 	}
+	
+	public abstract boolean hasPattern(StockPattern stockPattern, int index);
 
 }

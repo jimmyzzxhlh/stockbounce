@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import stock.SimpleLinearRegression;
 import stock.StockCandle;
 import stock.StockEnum.StockCandleDataType;
+import stock.StockEnum.StockPatternType;
 
 public class StockPattern {
 	//=============Constant Definition=============
@@ -142,7 +143,6 @@ public class StockPattern {
 	public String getDate(int index) {
 		return dateFormat.format(stockCandleArray.get(index).date);
 	}
-	
 	
 	/**
 	 * @see isTrendUp(start, end, dataType)
@@ -1956,5 +1956,7 @@ public class StockPattern {
 		if (isTrendUp(start, index - 2)) return true;
 		return false;
 	}
+	
+	
 }
 
