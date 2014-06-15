@@ -61,13 +61,13 @@ public class StockFrame extends JFrame implements ActionListener {
 		
 		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
 		
-		int highInt = (int) Math.floor(indexedStockCandle.high);
-		int lowInt = (int) Math.floor(indexedStockCandle.low);
+		int openInt = (int) Math.floor(indexedStockCandle.open);
+		int closeInt = (int) Math.floor(indexedStockCandle.close);
 		int frameHeight = this.getHeight();
 		int x = CANDLE_WIDTH * patternIndex + 3 -RADIUS/2;
-		int y = frameHeight - (int)((highInt+lowInt)/2) -RADIUS/2;
+		int y = frameHeight - (int)((openInt+closeInt)/2) -RADIUS/2;
 		
-		g.setColor(Color.BLUE);
+		g.setColor(Color.YELLOW);
 		g.drawOval(x,y,RADIUS,RADIUS);
 		
 	}

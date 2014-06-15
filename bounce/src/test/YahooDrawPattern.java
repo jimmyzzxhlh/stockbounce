@@ -20,7 +20,7 @@ public class YahooDrawPattern {
 	private static final int CANDLE_DAYS_OFFSET = 0;
 	private int patternIndex = -1;
 	private static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
-	private static final int WIDTH = 20;
+	private static final int WIDTH = 30;
 	
 	
 	public void setPatternIndex(int patternIndex){
@@ -32,11 +32,19 @@ public class YahooDrawPattern {
 	 * Read a chart CSV file and draw the chart.
 	 * @throws Exception
 	 */
-	public void drawChart(StockCandleArray stockCandleArray) throws Exception {
+	public void drawChart(StockCandleArray stockAllArray) throws Exception {
 		
 		if (patternIndex == -1) return;
 		
-
+		StockCandleArray stockCandleArray = new StockCandleArray();
+		stockCandleArray.setSymbol(stockAllArray.getSymbol());
+		int startIndex = (patternIndex-WIDTH>0)?(patternIndex-WIDTH):0;
+		int endIndex = (patternIndex+WIDTH<stockAllArray.getStockCandleArray().size())?(patternIndex+WIDTH):stockAllArray.getStockCandleArray().size()-1;
+		patternIndex = patternIndex - startIndex;
+		
+		for (int index=0;index<=(endIndex-startIndex);index++){
+			stockCandleArray.add(stockAllArray.get(startIndex+index));
+		}
 		
 		int frameWidth;
 		String symbol = stockCandleArray.getSymbol();
