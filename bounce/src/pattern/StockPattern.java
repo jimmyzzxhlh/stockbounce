@@ -103,6 +103,14 @@ public class StockPattern {
 	private static final double ADVANCE_BLOCK_MIN_UPPER_SHADOW_LENGTH = 5;
 	private static final int ADVANCE_BLOCK_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
 	
+	private static final double THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH = 2;
+	private static final int THREE_BLACK_CROWS_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	
+	private static final int BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER = 5; //This number should be at least 4.
+	private static final int BULLISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER = TREND_DEFAULT_CANDLE_NUMBER;
+	private static final int BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER = BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER;
+	private static final int BEARISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER = BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER;
+	
 	private ArrayList<StockCandle> stockCandleArray;
 	
 	private String symbol;
@@ -1900,7 +1908,7 @@ public class StockPattern {
 	 * of the second candle. TODO: Is that really necessary?
 	 * 3. Trend before the first candle is bearish.
 	 * 
-	 * @param index
+	 * @param index The subscript in the stock candle array.
 	 * @return True if the recent three candles form three white soldiers (白色三兵).
 	 */
 	public boolean isThreeWhiteSoldiers(int index) {
@@ -1938,8 +1946,8 @@ public class StockPattern {
 	 * 2. Second candle and current candle candle are white but they have long upper shadow.
 	 * TODO: Does second candle and current candle need to open within the body of the previous candle? Do they need to be white?
 	 * 3. Trend before the second candle is bullish.
-	 * @param index
-	 * @return
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent three candles form advance block (前进受阻).
 	 */
 	public boolean isAdvanceBlock(int index) {
 		if (index < 2) return false;
@@ -1958,5 +1966,164 @@ public class StockPattern {
 	}
 	
 	
+	/**
+	 * Return true if the recent three candles form three black crows (三只黑乌鸦).
+	 * Example:
+	 * 
+	 *  |
+	 *  ■
+	 *  ■  |
+	 *  ■  ■
+	 *  ■  ■
+	 *  |  ■  |
+	 *     ■  ■
+	 *     |  ■
+	 *        ■
+	 *        ■
+	 *        |
+	 * 
+	 * Definition:
+	 * 1. All three candles are black long days.
+	 * 2. Each candle has a new low.
+	 * 3. Each candle closes at or near its lows (lower shadow length <= THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH).
+	 * 4. If isIdenticalThreeCrows = False, then each day opens within the body of the previous day.
+	 * 5. Trend before the first candle is bullish.
+	 * @param index The subscript in the stock candle array.
+	 * @param isIdenticalThreeCrows See definition.
+	 * @return True if the recent three candles form three black crows (三只黑乌鸦).
+	 */
+	public boolean isThreeBlackCrows(int index, boolean isIdenticalThreeCrows) {
+		if (index < 2) return false;
+		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
+		currentStockCandle = stockCandleArray.get(index);
+		previousStockCandle = stockCandleArray.get(index - 1);
+		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
+		if (!isBlackLongDay(currentStockCandle) || !isBlackLongDay(previousStockCandle) || !isBlackLongDay(secondPreviousStockCandle)) return false;
+		if ((currentStockCandle.close >= previousStockCandle.close) || (previousStockCandle.close >= secondPreviousStockCandle.close)) return false;
+		if ((currentStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH)
+		 || (previousStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH)
+		 || (secondPreviousStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH))
+			return false;
+		if (!isIdenticalThreeCrows) {
+			if ((currentStockCandle.open <= previousStockCandle.close) || (previousStockCandle.open <= secondPreviousStockCandle.close)) return false;
+		}
+		int start = index - THREE_BLACK_CROWS_MIN_TREND_CANDLE_NUMBER - 2;
+		if (isTrendUp(start, index - 3)) return true;
+		return false;		 
+	}
+	
+	/**
+	 * Return true if the recent candles form bullish breakaway (看涨脱离形态).
+	 * Example:
+	 *  
+	 *  |
+	 *  ■
+	 *  ■
+	 *  ■
+	 *  ■           |
+	 *  |           □
+	 *     |        □
+	 *     ■        □
+	 *     ■  |  |  □
+	 *     |  □  ■  □
+	 *        |  |  |
+	 *
+	 * Definition:
+	 * 1. The first candle is a black long day.
+	 * 2. The second candle is a black day and there is a gap down between the first and the second candle.
+	 * 3. The candles after the second candle are short days, and they should:
+	 * (1) Not close above the second candle's open.
+	 * (2) They are short days.
+	 * (3) The last close price of those candles should be below the second candle's close price.
+	 * 4. The current candle is a white long day that penetrates to the gap.
+	 * 5. Trend before the third candle should be bearish.
+	 * 
+	 * The maximum total number of candles in the form is defined by BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER.
+	 * This number should be at last 4.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent candles form bullish breakaway (看涨脱离形态).
+	 */
+	public boolean isBullishBreakaway(int index) {
+		if (index < BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER - 1) return false;
+		int firstStockCandleIndex = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 1;
+		int secondStockCandleIndex = firstStockCandleIndex + 1;
+		StockCandle firstStockCandle = stockCandleArray.get(firstStockCandleIndex);
+		StockCandle secondStockCandle = stockCandleArray.get(secondStockCandleIndex);
+		StockCandle currentStockCandle = stockCandleArray.get(index);
+		if ((firstStockCandle == null) || (secondStockCandle == null) || (currentStockCandle == null)) return false;
+		if (!isBlackLongDay(firstStockCandle)) return false;
+		if (!isBlack(secondStockCandle)) return false;
+		if (!hasGapDown(firstStockCandle, secondStockCandle)) return false;
+		for (int i = secondStockCandleIndex + 1; i < index; i++) {
+			StockCandle transitionStockCandle = stockCandleArray.get(i);
+			if (!isBlackShortDay(transitionStockCandle) && !isWhiteShortDay(transitionStockCandle)) return false;
+			if (transitionStockCandle.close > secondStockCandle.open) return false; 
+		}
+		if (stockCandleArray.get(index - 1).close >= secondStockCandle.close) return false;
+		if (!isWhiteLongDay(currentStockCandle)) return false;
+		if (currentStockCandle.close <= secondStockCandle.open) return false;
+		int start = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 3 - BULLISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER;
+		int end = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 2;
+		if (isTrendDown(start, end)) return true;
+		return false;		
+	}
+	
+	/**
+	 * Return true if the recent candles form bearish breakaway (看跌脱离形态).
+	 * Example:
+	 *        
+	 *        |  |  |
+	 *     |  ■  □  ■
+	 *     □  |  |  ■
+	 *     □        ■       
+	 *     |        ■
+	 *              ■
+	 *  |           |
+	 *  □
+	 *  □
+	 *  □
+	 *  □  
+	 *  |        
+	 *    
+	 * Definition:
+	 * 1. The first candle is a white long day.
+	 * 2. The second candle is a white day and there is a gap up between the first and the second candle.
+	 * 3. The candles after the second candle are short days, and they should:
+	 * (1) Not close below the second candle's open.
+	 * (2) They are short days.
+	 * (3) The last close price of those candles should be above the second candle's close price.
+	 * 4. The current candle is a black long day that penetrates to the gap.
+	 * 5. Trend before the third candle should be bullish.
+	 * 
+	 * The maximum total number of candles in the form is defined by BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER.
+	 * This number should be at last 4.
+	 * @param index The subscript in the stock candle array.
+	 * @return True if the recent candles form bearish breakaway (看跌脱离形态).
+	 */
+	public boolean isBearishBreakaway(int index) {
+		if (index < BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER - 1) return false;
+		int firstStockCandleIndex = index - BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER + 1;
+		int secondStockCandleIndex = firstStockCandleIndex + 1;
+		StockCandle firstStockCandle = stockCandleArray.get(firstStockCandleIndex);
+		StockCandle secondStockCandle = stockCandleArray.get(secondStockCandleIndex);
+		StockCandle currentStockCandle = stockCandleArray.get(index);
+		if ((firstStockCandle == null) || (secondStockCandle == null) || (currentStockCandle == null)) return false;
+		if (!isWhiteLongDay(firstStockCandle)) return false;
+		if (!isWhite(secondStockCandle)) return false;
+		if (!hasGapUp(firstStockCandle, secondStockCandle)) return false;
+		for (int i = secondStockCandleIndex + 1; i < index; i++) {
+			StockCandle transitionStockCandle = stockCandleArray.get(i);
+			if (!isWhiteShortDay(transitionStockCandle) && !isBlackShortDay(transitionStockCandle)) return false;
+			if (transitionStockCandle.close < secondStockCandle.open) return false; 
+		}
+		if (stockCandleArray.get(index - 1).close <= secondStockCandle.close) return false;
+		if (!isBlackLongDay(currentStockCandle)) return false;
+		if (currentStockCandle.close >= secondStockCandle.open) return false;
+		int start = index - BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER + 3 - BEARISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER;
+		int end = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 2;
+		if (isTrendUp(start, end)) return true;
+		return false;		
+	}
 }
 

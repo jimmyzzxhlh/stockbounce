@@ -30,7 +30,7 @@ public class YahooDrawChartTest {
 	public StockFrame stockFrame;
 	public StockCandleArray stockCandleArray;
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\MSFT.csv";
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
 	public static final int CANDLE_DAYS = 1;
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	
@@ -75,9 +75,9 @@ public class YahooDrawChartTest {
 		parser.closeFile();
 		mainProgram.stockCandleArray.sortByDate();
 		mainProgram.stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
-//		for (int i = 0; i < mainProgram.stockCandleArray.size(); i++) {
-//			System.out.println(mainProgram.stockCandleArray.get(i).toString());
-//		}
+		for (int i = 0; i < mainProgram.stockCandleArray.size(); i++) {
+			System.out.println(mainProgram.stockCandleArray.get(i).toString());
+		}
 		
 		frameWidth = (mainProgram.stockCandleArray.getStockCandleArray().size() + 1) * 5;
 		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);

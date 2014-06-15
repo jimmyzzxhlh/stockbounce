@@ -58,7 +58,7 @@ public class StockCandleArray {
 	}
 	
 	public void normalizeStockCandle(double maxForNormalization) {
-		normalizeStockCandle(maxForNormalization, 0, stockCandleArray.size());
+		normalizeStockCandle(maxForNormalization, 0, stockCandleArray.size() - 1);
 	}
 	
 	public void normalizeStockCandle(double maxForNormalization, int start, int end) {
