@@ -68,7 +68,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		
 		g.drawOval(x-RADIUS/2,y,RADIUS,RADIUS);
 		g.setColor(Color.BLUE);
-		//g.fillOval(x,y,RADIUS,RADIUS);
+		g.fillOval(x,y,RADIUS,RADIUS);
 	}
 	
 	
