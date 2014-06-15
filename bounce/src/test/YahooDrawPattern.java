@@ -18,9 +18,9 @@ public class YahooDrawPattern {
 	private static final int FRAME_HEIGHT = 500;
 	private static final int CANDLE_DAYS = 1;
 	private static final int CANDLE_DAYS_OFFSET = 0;
-	private int patternIndex = -1;
-	private static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
-	private static final int WIDTH = 30;
+	private int patternIndex = -1; 
+	private static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\"; //Assumes the directory exists!
+	private static final int WIDTH = 30; // The duration (days) before/after the indexed candle
 	
 	
 	public void setPatternIndex(int patternIndex){
@@ -42,8 +42,8 @@ public class YahooDrawPattern {
 		int endIndex = (patternIndex+WIDTH<stockAllArray.getStockCandleArray().size())?(patternIndex+WIDTH):stockAllArray.getStockCandleArray().size()-1;
 		patternIndex = patternIndex - startIndex;
 		
-		for (int index=0;index<=(endIndex-startIndex);index++){
-			stockCandleArray.add(stockAllArray.get(startIndex+index));
+		for (int index=startIndex;index<=endIndex;index++){
+			stockCandleArray.add(stockAllArray.get(index));
 		}
 		
 		int frameWidth;

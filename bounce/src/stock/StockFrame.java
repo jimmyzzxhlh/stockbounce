@@ -5,14 +5,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
@@ -59,6 +53,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		paintCandles(g);
 		if (patternIndex == -1) return;
 		
+		//Draw a circle centering the indexed candle
 		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
 		
 		int openInt = (int) Math.floor(indexedStockCandle.open);
