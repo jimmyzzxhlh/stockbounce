@@ -20,6 +20,7 @@ public class YahooDrawPattern {
 	private static final int CANDLE_DAYS_OFFSET = 0;
 	private int patternIndex = -1;
 	private static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
+	private static final int WIDTH = 20;
 	
 	
 	public void setPatternIndex(int patternIndex){
@@ -35,6 +36,8 @@ public class YahooDrawPattern {
 		
 		if (patternIndex == -1) return;
 		
+
+		
 		int frameWidth;
 		String symbol = stockCandleArray.getSymbol();
 
@@ -42,7 +45,7 @@ public class YahooDrawPattern {
 		stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
 		
 		frameWidth = (stockCandleArray.getStockCandleArray().size() + 1) * 5;
-		stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
+		stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT);
 		stockFrame.candleDays = CANDLE_DAYS;
 		stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
 		stockFrame.stockCandleArray = stockCandleArray.getStockCandleArray();
