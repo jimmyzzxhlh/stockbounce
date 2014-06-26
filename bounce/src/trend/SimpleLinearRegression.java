@@ -1,6 +1,5 @@
 package trend;
 
-import java.util.ArrayList;
 
 /**
  * See the following wiki:

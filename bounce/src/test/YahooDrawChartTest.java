@@ -8,11 +8,9 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.swing.WindowConstants;
 
-import download.StockData;
-
-import stock.StockFrame;
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockFrame;
 import yahoo.YahooParser;
 
 //To get historical price:
@@ -42,7 +40,8 @@ public class YahooDrawChartTest {
 		
 	}
 	
-	private static void downloadChart() throws Exception{
+	@SuppressWarnings("unused")
+	private static void downloadChart() throws Exception {
 		File file = new File(filename);
 		file.createNewFile();
 		
