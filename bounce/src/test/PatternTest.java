@@ -16,6 +16,7 @@ public abstract class PatternTest {
 	private static final int STOCK_CANDLE_ARRAY_NORMALIZE_DAYS = 250;
 	private static final double STOCK_CANDLE_NORMALIZE_MAX = 500;
 	private static final int TEST_DAYS = 250;
+	private static final int MIN_VOLUME = 20000;
 	
 	public void testChart() throws Exception {
 		File directory = new File(CSV_DIRECTORY_PATH);
@@ -62,6 +63,7 @@ public abstract class PatternTest {
 				int start = i - STOCK_CANDLE_ARRAY_NORMALIZE_DAYS + 1;
 				int end = i;
 				if (start < 0) start = 0;
+				if (stockCandleArray.get(i).volume < MIN_VOLUME) continue;
 				stockCandleArray.normalizeStockCandle(STOCK_CANDLE_NORMALIZE_MAX, start, end);
 				checkPattern(bw, end, stockCandleArray, originalStockCandleArray);
 				stockCandleArray = new StockCandleArray(originalStockCandleArray);

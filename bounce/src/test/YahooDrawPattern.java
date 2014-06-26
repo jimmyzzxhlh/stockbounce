@@ -64,6 +64,18 @@ public class YahooDrawPattern {
 		String date = df.format(indexedStockCandle.date);
 		String path = SNAPSHOT_DIRECTORY_PATH + symbol + "_" + date+".png";
 		
+		//Create the directory if the path does not exist.
+		File directory = new File(SNAPSHOT_DIRECTORY_PATH);
+		if (!directory.exists()) {
+			System.out.println("Creating directory: " + SNAPSHOT_DIRECTORY_PATH);
+			try {
+				directory.mkdir();				
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
 		BufferedImage image = new BufferedImage(stockFrame.getWidth(), stockFrame.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
         Graphics g = image.getGraphics();
         stockFrame.paint (g);

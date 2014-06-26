@@ -3,10 +3,12 @@ package pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-import stock.SimpleLinearRegression;
 import stock.StockCandle;
 import stock.StockEnum.StockCandleDataType;
-import stock.StockEnum.StockPatternType;
+import stock.StockEnum.TrendCalculationMethod;
+import trend.LinearRegression;
+import trend.SimpleLinearRegression;
+import trend.WeightedOrdinaryLinearRegression;
 
 public class StockPattern {
 	//=============Constant Definition=============
@@ -16,14 +18,16 @@ public class StockPattern {
 	private static final double GAP_DOWN_MIN_LENGTH = GAP_UP_MIN_LENGTH;
 	
 	
-	//TODO: When computing trend, do we count the last candle?
+	//When computing trend, do we count the last candle?
 	//For example, for meeting lines, should we count the trend from the previous candle, or should we count
 	//the trend before the previous candle? Since the previous candle is already a long day, it can affect
 	//the trend slope if it is included.
+	//The answer should be Yes, because if the last candle can almost reverse the trend, then the pattern
+	//does not have a trend any more.
+	private static final TrendCalculationMethod TREND_CALCULATION_METHOD = TrendCalculationMethod.WEIGHTED_ORDINARY_LINEAR_REGRESSION;
 	private static final double TREND_UP_SLOPE = 1;
 	private static final double TREND_DOWN_SLOPE = -1;
 	private static final int TREND_DEFAULT_CANDLE_NUMBER = 10;
-	private static final StockCandleDataType TREND_DEFAULT_DATA_TYPE = StockCandleDataType.CLOSE;
 	
 	private static final double WHITE_LONG_DAY_MIN_BODY_LENGTH = 10;	
 	private static final double BLACK_LONG_DAY_MIN_BODY_LENGTH = WHITE_LONG_DAY_MIN_BODY_LENGTH;	
@@ -156,44 +160,73 @@ public class StockPattern {
 	 * @see isTrendUp(start, end, dataType)
 	 */
 	public boolean isTrendUp(int start, int end) {
-		return isTrendUp(start, end, TREND_DEFAULT_DATA_TYPE);
+		return isTrendUp(start, end, StockCandleDataType.OPEN, StockCandleDataType.CLOSE);
 	}
 	
-	public boolean isTrendUp(int start, int end, StockCandleDataType dataType) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
+	public boolean isTrendUp(int start, int end, StockCandleDataType... dataTypes) {		
+		LinearRegression lr = null;
 		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
-			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
-			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
-			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
+		for (StockCandleDataType dataType : dataTypes) {
+			switch (TREND_CALCULATION_METHOD) {
+			case SIMPLE_LINEAR_REGRESSION:
+				lr = new SimpleLinearRegression();
+				break;
+			case WEIGHTED_ORDINARY_LINEAR_REGRESSION:
+				lr = new WeightedOrdinaryLinearRegression();
+				WeightedOrdinaryLinearRegression wolr = (WeightedOrdinaryLinearRegression) lr;
+				wolr.setDefaultWeight();
+				break;
+			default:
+				break;			
+			}
+			for (int i = start; i < end; i++) {				
+				if (dataType == StockCandleDataType.OPEN) lr.data.add(stockCandleArray.get(i).getOpen());
+				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
+				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
+				else if (dataType == StockCandleDataType.LOW) lr.data.add(stockCandleArray.get(i).getLow());			
+			}		
+			slope = lr.getSlope();
+			if (slope < TREND_UP_SLOPE) return false;			
 		}
-		
-		slope = slr.getSlope();
-		if (slope >= TREND_UP_SLOPE) return true;
-		else return false;
+		return true;
 	}
+	
+	
 	
 	/**
 	 * @see isTrendDown(start, end, dataType)
 	 */
 	public boolean isTrendDown(int start, int end) {
-		return isTrendDown(start, end, TREND_DEFAULT_DATA_TYPE);
+		return isTrendDown(start, end, StockCandleDataType.OPEN, StockCandleDataType.CLOSE);
 	}
 	
-	public boolean isTrendDown(int start, int end, StockCandleDataType dataType) {
-		SimpleLinearRegression slr = new SimpleLinearRegression();
+	public boolean isTrendDown(int start, int end, StockCandleDataType... dataTypes) {
+		LinearRegression lr = null;
 		double slope;
-		for (int i = start; i < end; i++) {
-			if (dataType == StockCandleDataType.OPEN) slr.data.add(stockCandleArray.get(i).getOpen());
-			else if (dataType == StockCandleDataType.CLOSE) slr.data.add(stockCandleArray.get(i).getClose());
-			else if (dataType == StockCandleDataType.HIGH) slr.data.add(stockCandleArray.get(i).getHigh());
-			else if (dataType == StockCandleDataType.LOW) slr.data.add(stockCandleArray.get(i).getLow());			
-		}
+		for (StockCandleDataType dataType : dataTypes) {
+			switch (TREND_CALCULATION_METHOD) {
+			case SIMPLE_LINEAR_REGRESSION:
+				lr = new SimpleLinearRegression();
+				break;
+			case WEIGHTED_ORDINARY_LINEAR_REGRESSION:
+				lr = new WeightedOrdinaryLinearRegression();
+				WeightedOrdinaryLinearRegression wolr = (WeightedOrdinaryLinearRegression) lr;
+				wolr.setDefaultWeight();
+				break;
+			default:
+				break;			
+			}
 		
-		slope = slr.getSlope();
-		if (slope <= TREND_DOWN_SLOPE) return true;
-		else return false;
+			for (int i = start; i < end; i++) {
+				if (dataType == StockCandleDataType.OPEN) lr.data.add(stockCandleArray.get(i).getOpen());
+				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
+				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
+				else if (dataType == StockCandleDataType.LOW) lr.data.add(stockCandleArray.get(i).getLow());			
+			}		
+			slope = lr.getSlope();
+			if (slope > TREND_DOWN_SLOPE) return false;
+		}
+		return true;
 	}
 	/**
 	 * @see isWhite(stockCandle)

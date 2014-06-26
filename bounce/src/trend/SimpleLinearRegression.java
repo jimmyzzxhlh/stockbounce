@@ -1,4 +1,4 @@
-package stock;
+package trend;
 
 import java.util.ArrayList;
 
@@ -7,8 +7,7 @@ import java.util.ArrayList;
  * http://en.wikipedia.org/wiki/Simple_linear_regression
  * 
  */
-public class SimpleLinearRegression {
-	public ArrayList<Double> data = new ArrayList<Double>();
+public class SimpleLinearRegression extends LinearRegression {
 	
 	public SimpleLinearRegression() {
 		
@@ -45,5 +44,11 @@ public class SimpleLinearRegression {
 		xSquareAverage /= n;
 		slope = (xyAverage - xAverage * yAverage) / (xSquareAverage - (xAverage * xAverage));
 		return slope;		
+	}
+
+	@Override
+	public double getOffset() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

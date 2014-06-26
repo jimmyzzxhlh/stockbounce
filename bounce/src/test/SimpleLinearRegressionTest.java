@@ -1,6 +1,6 @@
 package test;
 
-import stock.SimpleLinearRegression;
+import trend.SimpleLinearRegression;
 
 public class SimpleLinearRegressionTest {
 	

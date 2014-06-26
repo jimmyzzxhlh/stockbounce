@@ -6,6 +6,11 @@ public class StockEnum {
 		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE
 	}
 	
+	public enum TrendCalculationMethod {
+		SIMPLE_LINEAR_REGRESSION,
+		WEIGHTED_ORDINARY_LINEAR_REGRESSION
+	}
+	
 	public enum StockPatternType {
 		ADVANCE_BLOCK,
 		BEARISH_BELT_HOLD,
