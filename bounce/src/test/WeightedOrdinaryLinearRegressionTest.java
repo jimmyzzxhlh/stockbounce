@@ -14,10 +14,10 @@ public class WeightedOrdinaryLinearRegressionTest {
 		wdlr.data.add(7.0);
 		wdlr.data.add(10.0);
 		wdlr.newWeight();
-		for (int i = 0; i < 4; i++) {
-			wdlr.weight.add(1.0);
-		}
-		//wdlr.setDefaultWeight();
+//		for (int i = 0; i < 4; i++) {
+//			wdlr.weight.add(1.0);
+//		}
+		wdlr.setDefaultWeight();
 		
 		System.out.println(wdlr.getSlope());
 		System.out.println(wdlr.getOffset());

@@ -24,7 +24,7 @@ public class StockPattern {
 	//the trend slope if it is included.
 	//The answer should be Yes, because if the last candle can almost reverse the trend, then the pattern
 	//does not have a trend any more.
-	private static final TrendCalculationMethod TREND_CALCULATION_METHOD = TrendCalculationMethod.SIMPLE_LINEAR_REGRESSION;
+	private static final TrendCalculationMethod TREND_CALCULATION_METHOD = TrendCalculationMethod.WEIGHTED_ORDINARY_LINEAR_REGRESSION;
 	private static final double TREND_UP_SLOPE = 3;
 	private static final double TREND_DOWN_SLOPE = - TREND_UP_SLOPE; // Decrease 6% in 10 days (SLOPE * CANDLE_NUMBER/Normalized height)
 	private static final int TREND_DEFAULT_CANDLE_NUMBER = 10;
@@ -215,7 +215,7 @@ public class StockPattern {
 				break;			
 			}
 		
-			for (int i = start; i < end; i++) {
+			for (int i = start; i <= end; i++) {
 				if (dataType == StockCandleDataType.OPEN) lr.data.add(stockCandleArray.get(i).getOpen());
 				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
 				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
@@ -232,6 +232,8 @@ public class StockPattern {
 
 			slope = lr.getSlope();
 			if (slope > TREND_DOWN_SLOPE) return false;
+			System.out.println(this.symbol + " : " + this.getDate(start) + " " + slope);
+			
 		}
 		return true;
 	}
@@ -2164,6 +2166,25 @@ public class StockPattern {
 		int end = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 2;
 		if (isTrendUp(start, end)) return true;
 		return false;		
+	}
+	
+	/**
+	 * Return true if the recent two candles form two crows (Á½Ö»ÎÚÑ»).
+	 * Example:
+	 * 
+	 * 
+	 * Definition:
+	 * 
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public boolean isTwoCrows(int index) {
+		return false;
+	}
+	
+	public boolean isThreeStarsInTheSouth(int index) {
+		return false;
 	}
 }
 

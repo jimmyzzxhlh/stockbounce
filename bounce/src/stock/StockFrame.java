@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 
@@ -30,6 +32,8 @@ public class StockFrame extends JFrame implements ActionListener {
 	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
 	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
 	private JTextField textField;
+	private JPanel panel;
+	private JScrollPane scrollBar;
 	private int patternIndex = -1;
 	private static final int RADIUS = CANDLE_WIDTH *5;
 	
@@ -46,6 +50,10 @@ public class StockFrame extends JFrame implements ActionListener {
 		super();
 		this.setSize(width, height);
 		this.setLayout(new BorderLayout());
+		//panel = new JPanel();
+		//scrollBar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		//this.getContentPane().add(scrollBar);
+		
 		addTextField();
 	}
 	

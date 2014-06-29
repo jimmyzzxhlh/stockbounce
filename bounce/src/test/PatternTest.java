@@ -12,7 +12,7 @@ import stock.StockEnum.StockCandleDataType;
 import yahoo.YahooParser;
 
 public abstract class PatternTest {
-	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV 2\\";
+	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	private static final String OUTPUT_DIRECTORY_PATH = "D:\\zzx\\Stock\\";
 	private static final int STOCK_CANDLE_ARRAY_NORMALIZE_DAYS = 250;
 	private static final double STOCK_CANDLE_NORMALIZE_MAX = 500;

@@ -28,7 +28,7 @@ public class YahooDrawChartTest {
 	public StockFrame stockFrame;
 	public StockCandleArray stockCandleArray;
 	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
+	public static final String filename = "D:\\zzx\\Stock\\CSV\\BONT.csv";
 	public static final int CANDLE_DAYS = 1;
 	public static final int CANDLE_DAYS_OFFSET = 0;
 	

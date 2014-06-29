@@ -2,6 +2,17 @@ package trend;
 
 import java.util.ArrayList;
 
+/**
+ * Given a list of points (x[i], y[i]) and each data point's weight w[i], find a line 
+ * y = B1 * X + B2 such that
+ * sigma(i=1..m){w[i] * [y[i] - (B1 * x[i] + B2)]} is minimum.
+ * See the following wiki for non-weighted ordinary linear regression example:
+ * http://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95
+ * 
+ * 
+ * 
+ *
+ */
 public class WeightedOrdinaryLinearRegression extends LinearRegression {
 	
 	public ArrayList<Double> weight = new ArrayList<Double>();
@@ -39,13 +50,13 @@ public class WeightedOrdinaryLinearRegression extends LinearRegression {
 	public double getSlope() {
 		double c[] = new double[7];
 		setCoefficient(c);
-		return (c[2] * c[6] - c[3] * c[5]) / (c[1] * c[5] - c[2] * c[4]);		
+		return (c[3] * c[4] - c[1] * c[6]) / (c[1] * c[5] - c[2] * c[4]);		
 	}
 	
 	public double getOffset() {
 		double c[] = new double[7];
 		setCoefficient(c);
-		return (c[3] * c[4] - c[1] * c[6]) / (c[1] * c[5] - c[2] * c[4]);
+		return (c[2] * c[6] - c[3] * c[5]) / (c[1] * c[5] - c[2] * c[4]);
 	}	
 	
 }
