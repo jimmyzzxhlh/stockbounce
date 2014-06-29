@@ -24,9 +24,9 @@ public class StockPattern {
 	//the trend slope if it is included.
 	//The answer should be Yes, because if the last candle can almost reverse the trend, then the pattern
 	//does not have a trend any more.
-	private static final TrendCalculationMethod TREND_CALCULATION_METHOD = TrendCalculationMethod.WEIGHTED_ORDINARY_LINEAR_REGRESSION;
-	private static final double TREND_UP_SLOPE = 1;
-	private static final double TREND_DOWN_SLOPE = -1;
+	private static final TrendCalculationMethod TREND_CALCULATION_METHOD = TrendCalculationMethod.SIMPLE_LINEAR_REGRESSION;
+	private static final double TREND_UP_SLOPE = 3;
+	private static final double TREND_DOWN_SLOPE = - TREND_UP_SLOPE; // Decrease 6% in 10 days (SLOPE * CANDLE_NUMBER/Normalized height)
 	private static final int TREND_DEFAULT_CANDLE_NUMBER = 10;
 	
 	private static final double WHITE_LONG_DAY_MIN_BODY_LENGTH = 10;	
@@ -210,8 +210,6 @@ public class StockPattern {
 				break;
 			case WEIGHTED_ORDINARY_LINEAR_REGRESSION:
 				lr = new WeightedOrdinaryLinearRegression();
-				WeightedOrdinaryLinearRegression wolr = (WeightedOrdinaryLinearRegression) lr;
-				wolr.setDefaultWeight();
 				break;
 			default:
 				break;			
@@ -222,7 +220,16 @@ public class StockPattern {
 				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
 				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
 				else if (dataType == StockCandleDataType.LOW) lr.data.add(stockCandleArray.get(i).getLow());			
-			}		
+			}
+			
+			switch (TREND_CALCULATION_METHOD) {
+				case WEIGHTED_ORDINARY_LINEAR_REGRESSION:
+				WeightedOrdinaryLinearRegression wolr = (WeightedOrdinaryLinearRegression) lr;
+				wolr.setDefaultWeight();
+				default:
+					break;
+			}
+
 			slope = lr.getSlope();
 			if (slope > TREND_DOWN_SLOPE) return false;
 		}
@@ -796,8 +803,8 @@ public class StockPattern {
 		}
 		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
 		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
-		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER;
-		if (isTrendDown(start, index - 1)) return true;
+		int start = index - ENGULF_MIN_TREND_CANDLE_NUMBER + 1;
+		if (isTrendDown(start, index)) return true;
 		return false;
 	}
 	

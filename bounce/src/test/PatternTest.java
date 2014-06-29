@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.FileWriter;
 
 import pattern.StockPattern;
+import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockEnum.StockCandleDataType;
 import yahoo.YahooParser;
 
 public abstract class PatternTest {
-	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
+	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV 2\\";
 	private static final String OUTPUT_DIRECTORY_PATH = "D:\\zzx\\Stock\\";
 	private static final int STOCK_CANDLE_ARRAY_NORMALIZE_DAYS = 250;
 	private static final double STOCK_CANDLE_NORMALIZE_MAX = 500;
@@ -34,10 +35,8 @@ public abstract class PatternTest {
 		bw.write("Current Close" + ",");
 		bw.write("Next Open" + ",");
 		for (int days = 5; days <= 15; days+=5) {
-			bw.write(days + "d Max High" + ",");
-			bw.write(days + "d Max Close" + ",");
-			bw.write(days + "d Min Low" + ",");
-			bw.write(days + "d Min Close" + ",");
+			bw.write(days + "d Max Increase %" + ",");
+			bw.write(days + "d Min Decrease %" + ",");
 		}
 		bw.newLine();
 		
@@ -79,23 +78,25 @@ public abstract class PatternTest {
 		StockPattern stockPattern = new StockPattern(stockCandleArray.getStockCandleArray());
 		stockPattern.setSymbol(stockCandleArray.getSymbol());
 		YahooDrawPattern drawPattern = new YahooDrawPattern();
+		if (index >= originalStockCandleArray.size() - 1) return;
+		double nextOpen = originalStockCandleArray.get(index + 1).open;
 		
 		if (hasPattern(stockPattern, index)) {
 			bw.write(stockPattern.getSymbol() + ",");
 			bw.write(stockPattern.getDate(index) + ",");
 			bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index).close) + ",");
 			if (index < originalStockCandleArray.size() - 1) {
-				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index + 1).open) + ",");
+				bw.write(StockCandleArray.formatPrice(nextOpen) + ",");
 			}
 			else {
 				bw.write(0 + ",");
 			}
 			
 			for (int days = 5; days <= 15; days+=5) {
-				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.HIGH)) + ",");
-				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.CLOSE)) + ",");
-				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.LOW)) + ",");
-				bw.write(StockCandleArray.formatPrice(originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.CLOSE)) + ",");
+				double maxIncreaseRate = StockAPI.changeRate(nextOpen, originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.HIGH));
+				double maxDecreaseRate = StockAPI.changeRate(nextOpen, originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.LOW));
+				bw.write(StockCandleArray.formatPrice(maxIncreaseRate * 100) + "%,");
+				bw.write(StockCandleArray.formatPrice(maxDecreaseRate * 100) + "%,");
 			}
 			bw.newLine();
 			
