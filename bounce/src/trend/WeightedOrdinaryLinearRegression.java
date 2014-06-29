@@ -24,7 +24,7 @@ public class WeightedOrdinaryLinearRegression extends LinearRegression {
 	public void setDefaultWeight() {
 		newWeight();
 		for (int i = 0; i < data.size(); i++) {
-			weight.add((i + 1) * 1.0);
+			weight.add((i + 6) * 1.0);
 		}
 	}
 	
