@@ -29,6 +29,27 @@ public class StockCandleArray {
 		return stockCandleArray;
 	}
 
+	public double getHigh(int index) {
+		return stockCandleArray.get(index).high;
+	}
+	
+	public double getLow(int index) {
+		return stockCandleArray.get(index).low;
+	}
+	
+	
+	public double getOpen(int index) {
+		return stockCandleArray.get(index).open;
+	}
+	
+	public double getClose(int index) {
+		return stockCandleArray.get(index).close;
+	}
+	
+	public int getVolume(int index) {
+		return stockCandleArray.get(index).volume;
+	}
+	
 	public void setStockCandleArray(ArrayList<StockCandle> stockCandleArray) {
 		this.stockCandleArray = stockCandleArray;
 	}

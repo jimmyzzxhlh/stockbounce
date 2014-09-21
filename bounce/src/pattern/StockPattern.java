@@ -783,7 +783,9 @@ public class StockPattern {
 	 * then it is more likely to reverse the trend.
 	 * 3. First candle body length <= ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * second candle body length.
 	 * 4. Second candle volume >= ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * first candle volume.
-	 * 5. Trend before the second day is bearish (Not counting the second day itself).
+	 * 5. Trend before the second day is bearish (counting the second day itself).
+	 *    Why do we need to count the second day (the current day)? Because if the current day is a very long white candle,
+	 *    then there is no more space to go up. 
 	 * @param index The subscript in the stock candle array.
 	 * @param engulfShadows True if the second candle needs to engulf the shadows of the first candle.
 	 * @return True if the current candle is a white candle and it engulfs the previous black candle (ø¥’«ÕÃ√ª).

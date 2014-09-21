@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import stock.StockCandle;
+import stock.StockCandleArray;
 import stock.StockParser;
 
 public class YahooParser extends StockParser {
@@ -51,6 +52,36 @@ public class YahooParser extends StockParser {
 		return true;
 	}
 
-
+	public static StockCandleArray readCSVFile(String filename, int maxCandle) throws Exception {
+		File csvFile = new File(filename);
+		return readCSVFile(csvFile, maxCandle);
+	}
+	
+	public static StockCandleArray readCSVFile(File csvFile, int maxCandle) throws Exception {
+		StockCandleArray stockCandleArray;
+		
+		YahooParser parser = new YahooParser(csvFile);
+		stockCandleArray = new StockCandleArray();
+		String symbol = csvFile.getName().substring(0, csvFile.getName().length() - 4);
+		stockCandleArray.setSymbol(symbol);
+		parser.startReadFile();
+		String line;
+		
+		int candleCount = 0;
+		
+		while ((line = parser.nextLine()) != null) {
+			candleCount++;
+			if ((maxCandle > 0) & (candleCount > maxCandle)) break;
+			StockCandle stockCandle = new StockCandle();
+			parser.parseLine(line, stockCandle);
+			stockCandleArray.add(stockCandle);
+			
+		}
+		parser.closeFile();
+		stockCandleArray.sortByDate();
+		return stockCandleArray;
+	}
+	
+	
 	
 }

@@ -38,11 +38,11 @@ public class YahooDrawPattern {
 		
 		StockCandleArray stockCandleArray = new StockCandleArray();
 		stockCandleArray.setSymbol(stockAllArray.getSymbol());
-		int startIndex = (patternIndex-WIDTH>0)?(patternIndex-WIDTH):0;
-		int endIndex = (patternIndex+WIDTH<stockAllArray.getStockCandleArray().size())?(patternIndex+WIDTH):stockAllArray.getStockCandleArray().size()-1;
+		int startIndex = (patternIndex-WIDTH > 0) ? (patternIndex - WIDTH) : 0;
+		int endIndex = (patternIndex + WIDTH < stockAllArray.getStockCandleArray().size()) ? (patternIndex+WIDTH) : stockAllArray.getStockCandleArray().size() - 1;
 		patternIndex = patternIndex - startIndex;
 		
-		for (int index=startIndex;index<=endIndex;index++){
+		for (int index = startIndex; index <= endIndex; index++){
 			stockCandleArray.add(stockAllArray.get(index));
 		}
 		

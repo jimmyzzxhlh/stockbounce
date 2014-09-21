@@ -25,12 +25,11 @@ import yahoo.YahooParser;
 //g = d for day, m for month, y for yearly
 public class YahooDrawChartTest {
 
-	public StockFrame stockFrame;
-	public StockCandleArray stockCandleArray;
-	public static final int FRAME_HEIGHT = 500;
-	public static final String filename = "D:\\zzx\\Stock\\CSV\\BONT.csv";
-	public static final int CANDLE_DAYS = 1;
-	public static final int CANDLE_DAYS_OFFSET = 0;
+	private static final int FRAME_HEIGHT = 500;
+	private static final String filename = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
+	private static final int CANDLE_DAYS = 1;
+	private static final int CANDLE_DAYS_OFFSET = 0;
+	private static final int MAX_CANDLES = 200;
 	
 	public static void main(String args[]) throws Exception {
 		//StockData stockData = new StockData(null,null);
@@ -56,35 +55,22 @@ public class YahooDrawChartTest {
 	 * @throws Exception
 	 */
 	private static void drawChart() throws Exception {
-		String line;
-		StockCandle stockCandle = null;
-		YahooParser parser = new YahooParser(filename);
-		YahooDrawChartTest mainProgram = new YahooDrawChartTest();
-		mainProgram.stockCandleArray = new StockCandleArray();
-
-		int frameWidth;
+		StockFrame stockFrame;
+		StockCandleArray stockCandleArray;
 		
-		parser.startReadFile();
-		
-		while ((line = parser.nextLine()) != null) {
-			stockCandle = new StockCandle();
-			parser.parseLine(line, stockCandle);
-			mainProgram.stockCandleArray.getStockCandleArray().add(stockCandle);
-		}
-		parser.closeFile();
-		mainProgram.stockCandleArray.sortByDate();
-		mainProgram.stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
-		for (int i = 0; i < mainProgram.stockCandleArray.size(); i++) {
-			System.out.println(mainProgram.stockCandleArray.get(i).toString());
+		stockCandleArray = YahooParser.readCSVFile(filename, MAX_CANDLES);
+		stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			System.out.println(stockCandleArray.get(i).toString());
 		}
 		
-		frameWidth = (mainProgram.stockCandleArray.getStockCandleArray().size() + 1) * 5;
-		mainProgram.stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
-		mainProgram.stockFrame.candleDays = CANDLE_DAYS;
-		mainProgram.stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
-		mainProgram.stockFrame.stockCandleArray = mainProgram.stockCandleArray.getStockCandleArray();
-		mainProgram.stockFrame.setVisible(true);
-		mainProgram.stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		int frameWidth = (stockCandleArray.getStockCandleArray().size() + 1) * 5;
+		stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
+		stockFrame.candleDays = CANDLE_DAYS;
+		stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
+		stockFrame.stockCandleArray = stockCandleArray.getStockCandleArray();
+		stockFrame.setVisible(true);
+		stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
 	
 	
