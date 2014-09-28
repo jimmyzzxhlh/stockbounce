@@ -23,12 +23,17 @@ public abstract class StockParser {
 		this.file = file;
 	}
 	
-	public void startReadFile() throws Exception {
-		if (filename != null) {
-			this.br = new BufferedReader(new FileReader(filename));
+	public void startReadFile() {
+		try {
+			if (filename != null) {
+				this.br = new BufferedReader(new FileReader(filename));
+			}
+			else if (file != null) {
+				this.br = new BufferedReader(new FileReader(file));
+			}
 		}
-		else if (file != null) {
-			this.br = new BufferedReader(new FileReader(file));
+		catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

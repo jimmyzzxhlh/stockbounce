@@ -26,7 +26,7 @@ import yahoo.YahooParser;
 public class YahooDrawChartTest {
 
 	private static final int FRAME_HEIGHT = 500;
-	private static final String filename = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
+	private static final String filename = "D:\\zzx\\Stock\\CSV\\JD.csv";
 	private static final int CANDLE_DAYS = 1;
 	private static final int CANDLE_DAYS_OFFSET = 0;
 	private static final int MAX_CANDLES = 200;

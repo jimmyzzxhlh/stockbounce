@@ -4,9 +4,13 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.joda.time.LocalDate;
+
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockParser;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
 
 public class YahooParser extends StockParser {
 
@@ -17,6 +21,7 @@ public class YahooParser extends StockParser {
 	private static final int CLOSE_PIECE = 4;
 	private static final int VOLUME_PIECE = 5;
 	private static final String DELIMITER = ","; 
+	
 	 
 	public YahooParser() {
 		super();
@@ -52,12 +57,12 @@ public class YahooParser extends StockParser {
 		return true;
 	}
 
-	public static StockCandleArray readCSVFile(String filename, int maxCandle) throws Exception {
+	public static StockCandleArray readCSVFile(String filename, int maxCandle) {
 		File csvFile = new File(filename);
 		return readCSVFile(csvFile, maxCandle);
 	}
 	
-	public static StockCandleArray readCSVFile(File csvFile, int maxCandle) throws Exception {
+	public static StockCandleArray readCSVFile(File csvFile, int maxCandle) {
 		StockCandleArray stockCandleArray;
 		
 		YahooParser parser = new YahooParser(csvFile);
@@ -69,15 +74,27 @@ public class YahooParser extends StockParser {
 		
 		int candleCount = 0;
 		
-		while ((line = parser.nextLine()) != null) {
-			candleCount++;
-			if ((maxCandle > 0) & (candleCount > maxCandle)) break;
-			StockCandle stockCandle = new StockCandle();
-			parser.parseLine(line, stockCandle);
-			stockCandleArray.add(stockCandle);
-			
+		HolidayManager m = HolidayManager.getInstance(HolidayCalendar.UNITED_STATES);
+		
+		
+		try {
+			while ((line = parser.nextLine()) != null) {
+				candleCount++;
+				if ((maxCandle > 0) & (candleCount > maxCandle)) break;
+				StockCandle stockCandle = new StockCandle();
+				parser.parseLine(line, stockCandle);
+				if (m.isHoliday(new LocalDate(stockCandle.getDate()))) {
+					System.out.println(stockCandle.getDate() + " is a holiday. Data will be ignored.");
+					continue;
+				}
+				stockCandleArray.add(stockCandle);
+				
+			}
+			parser.closeFile();
 		}
-		parser.closeFile();
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		stockCandleArray.sortByDate();
 		return stockCandleArray;
 	}

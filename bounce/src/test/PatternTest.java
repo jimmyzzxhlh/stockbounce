@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 
 import pattern.StockPattern;
-import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;

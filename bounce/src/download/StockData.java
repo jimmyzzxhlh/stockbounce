@@ -15,7 +15,8 @@ import java.util.Date;
 
 public class StockData {
 
-	private static final String filename = "D:\\zzx\\Stock\\CSV\\companylist.csv";
+	private static final String COMPANY_LIST_FILENAME = "D:\\zzx\\Stock\\CSV\\companylist.csv";
+	private static final String DIRECTORY = "D:\\zzx\\Stock\\CSV\\";
 	private String startDate; 
 	private String endDate;
 	private static final String DELIMITER = ",";
@@ -23,7 +24,7 @@ public class StockData {
 	private BufferedReader br;
 		
 	private void startReadFile() throws Exception {
-		this.br = new BufferedReader(new FileReader(filename));
+		this.br = new BufferedReader(new FileReader(COMPANY_LIST_FILENAME));
 	}
 
 	private void closeFile() throws Exception {
@@ -70,8 +71,8 @@ public class StockData {
 		closeFile();
 	}
 	
-	private void downloadStock(String stock) throws Exception{
-		String fileStock = "D:\\zzx\\Stock\\CSV\\"+stock+".csv";
+	public void downloadStock(String symbol) throws Exception{
+		String fileStock = DIRECTORY + symbol + ".csv";
 		int retry = 0; //Retry if IOException (i.e., HTTP 400)
 		
 		File file = new File(fileStock);
@@ -95,7 +96,7 @@ public class StockData {
 		String endMonth = Integer.toString(cal.get(Calendar.MONTH));
         String endDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
         String endYear = Integer.toString(cal.get(Calendar.YEAR));
-        String siteAddr = "http://ichart.finance.yahoo.com/table.csv?s="+stock+"&d="+endMonth+"&e="+endDay+"&f="+endYear+"&g=d&a="+startMonth+"&b="+startDay+"&c="+startYear+"&ignore=.csv";
+        String siteAddr = "http://ichart.finance.yahoo.com/table.csv?s="+symbol+"&d="+endMonth+"&e="+endDay+"&f="+endYear+"&g=d&a="+startMonth+"&b="+startDay+"&c="+startYear+"&ignore=.csv";
 		
         URL site = new URL(siteAddr);
         try {

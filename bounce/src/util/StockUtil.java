@@ -1,10 +1,5 @@
 package util;
 
-import java.io.File;
-
-import stock.StockCandle;
-import stock.StockCandleArray;
-import yahoo.YahooParser;
 
 public class StockUtil {
 	
@@ -20,7 +15,7 @@ public class StockUtil {
 	public static double changeRate(double original, double result){
 		if ((original <= 0)||(result <= 0))
 			return 0;
-		return (result-original)/original;
+		return (result - original) / original;
 	}
 	
 

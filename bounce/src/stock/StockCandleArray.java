@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 import stock.StockEnum.StockCandleDataType;
 
@@ -48,6 +49,10 @@ public class StockCandleArray {
 	
 	public int getVolume(int index) {
 		return stockCandleArray.get(index).volume;
+	}
+	
+	public Date getDate(int index) {
+		return stockCandleArray.get(index).date;
 	}
 	
 	public void setStockCandleArray(ArrayList<StockCandle> stockCandleArray) {
