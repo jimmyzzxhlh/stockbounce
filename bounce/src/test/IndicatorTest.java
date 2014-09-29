@@ -15,8 +15,8 @@ public class IndicatorTest {
 	
 	public static void main(String args[]) {
 //		testSimpleMovingAverageFakeData();
-//		testRSI();
-		testExponentialMovingAverage();
+		testRSI();
+//		testExponentialMovingAverage();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -41,7 +41,7 @@ public class IndicatorTest {
 	
 	//Not working yet.
 	private static void testRSI() {		
-		int period = 2;
+		int period = 14;
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		double[] rsi = StockIndicator.getRSI(stockCandleArray, period);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
