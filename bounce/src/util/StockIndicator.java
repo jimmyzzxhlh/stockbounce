@@ -98,6 +98,44 @@ public class StockIndicator {
 		return rsi;
 	}
 	
-	
+	public static double[] getStandardDeviation(StockCandleArray stockCandleArray, int period) {
+		double[] sdArray = new double[stockCandleArray.size()];
+		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+			double average = 0;
+			int start = i - period + 1;
+			int end = i;
+			for (int j = start; j <= end; j++) {
+				average += stockCandleArray.getClose(j);
+			}
+			average /= (period * 1.0);
+			double sd = 0;
+			for (int j = start; j <= end; j++) {
+				sd += (stockCandleArray.getClose(j) - average) * (stockCandleArray.getClose(j) - average); 
+			}
+			sd = Math.sqrt(sd / period);
+			sdArray[i] = sd;
+		}
+		return sdArray;
+	}
+	/**
+	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
+	 * @param stockCandleArray
+	 * @param period
+	 * @param k
+	 * @return bollingerBands[0] = upperBB
+	 *         bollingerBands[1] = middleBB
+	 *         bollingerBands[2] = lowerBB
+	 */
+	public static double[][] getBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
+		double[] movingAverage = getSimpleMovingAverage(stockCandleArray, period);
+		double[] standardDeviation = getStandardDeviation(stockCandleArray, period);
+		double[][] bollingerBands = new double[3][stockCandleArray.size()];
+		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+			bollingerBands[1][i] = movingAverage[i];                                 //middle
+			bollingerBands[0][i] = bollingerBands[1][i] + k * standardDeviation[i];  //upper
+			bollingerBands[2][i] = bollingerBands[1][i] - k * standardDeviation[i];  //lower
+		}
+		return bollingerBands;
+	}
 
 }

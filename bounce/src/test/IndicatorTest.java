@@ -15,8 +15,10 @@ public class IndicatorTest {
 	
 	public static void main(String args[]) {
 //		testSimpleMovingAverageFakeData();
-		testRSI();
+//		testRSI();
 //		testExponentialMovingAverage();
+//		testStandardDeviation();
+		testBollingerBands();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -55,6 +57,38 @@ public class IndicatorTest {
 		double[] ema = StockIndicator.getExponentialMovingAverage(stockCandleArray, period);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(ema[i]));
+		}
+	}
+	
+	private static void testStandardDeviation() {
+		StockCandleArray stockCandleArray = new StockCandleArray();
+		stockCandleArray.add(createStockCandle(2));
+		stockCandleArray.add(createStockCandle(4));
+		stockCandleArray.add(createStockCandle(4));
+		stockCandleArray.add(createStockCandle(4));
+		stockCandleArray.add(createStockCandle(5));
+		stockCandleArray.add(createStockCandle(5));
+		stockCandleArray.add(createStockCandle(7));
+		stockCandleArray.add(createStockCandle(9));
+		double[] sd = StockIndicator.getStandardDeviation(stockCandleArray, 8);
+		for (int i = 0; i < sd.length; i++) {
+			System.out.println(i + ": " + sd[i]);
+		}
+	}
+	
+	private static StockCandle createStockCandle(double data) {
+		StockCandle stockCandle = new StockCandle();
+		stockCandle.close = data;
+		return stockCandle;
+	}
+	
+	public static void testBollingerBands() {
+		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		int period = 20;
+		int k = 2;
+		double[][] bb = StockIndicator.getBollingerBands(stockCandleArray, period, k);
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[2][i]));
 		}
 	}
 }
