@@ -137,5 +137,55 @@ public class StockIndicator {
 		}
 		return bollingerBands;
 	}
+	
+	public static double[] getPercentBFromBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
+		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
+		double[] percentB = new double[stockCandleArray.size()];
+		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+			percentB[i] = (stockCandleArray.getClose(i) - bollingerBands[2][i]) / (bollingerBands[0][i] - bollingerBands[2][i]);
+		}
+		return percentB;
+	}
+	
+	public static double[] getBandwidthFromBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
+		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
+		double[] bandwidth = new double[stockCandleArray.size()];
+		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+			bandwidth[i] = (bollingerBands[0][i] - bollingerBands[2][i]) / bollingerBands[1][i];
+		}
+		return bandwidth;
+	}
+	
+	/**
+	 * http://en.wikipedia.org/wiki/MACD
+	 * @param stockCandleArray
+	 * @param shortPeriod
+	 * @param longPeriod
+	 * @param macdAveragePeriod
+	 * @return
+	 *   macd[0][i] (MACD)       = EMA of short period (12 days) - EMA of long period (26 days)
+	 *   macd[1][i] (signal)     = macd[0]'s EMA (9 days)
+	 *   macd[2][i] (divergence) = (MACD - signal)
+	 */
+	public static double[][] getMACD(StockCandleArray stockCandleArray, int shortPeriod, int longPeriod, int macdAveragePeriod) {
+		double[] emaShort = getExponentialMovingAverage(stockCandleArray, shortPeriod);
+		double[] emaLong = getExponentialMovingAverage(stockCandleArray, longPeriod);
+		double[] emaDiff = new double[stockCandleArray.size()];
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			emaDiff[i] = emaShort[i] - emaLong[i];
+		}
+		
+		double[] macdSignal = getExponentialMovingAverage(emaDiff, macdAveragePeriod);
+		
+		double[][] macd = new double[3][stockCandleArray.size()];
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			macd[0][i] = emaDiff[i];
+			macd[1][i] = macdSignal[i];
+			macd[2][i] = emaDiff[i] - macdSignal[i];
+		}
+		
+		return macd;
+		
+	}
 
 }

@@ -18,7 +18,8 @@ public class IndicatorTest {
 //		testRSI();
 //		testExponentialMovingAverage();
 //		testStandardDeviation();
-		testBollingerBands();
+//		testBollingerBands();
+		testMACD();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -89,6 +90,17 @@ public class IndicatorTest {
 		double[][] bb = StockIndicator.getBollingerBands(stockCandleArray, period, k);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[2][i]));
+		}
+	}
+	
+	public static void testMACD() {
+		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		int shortPeriod = 12;
+		int longPeriod = 26;
+		int macdAveragePeriod = 9;
+		double[][] macd = StockIndicator.getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]));
 		}
 	}
 }
