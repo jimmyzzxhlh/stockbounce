@@ -1,10 +1,11 @@
 package test;
 
+import indicator.StockIndicator;
+
 import java.text.DecimalFormat;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
-import util.StockIndicator;
 import yahoo.YahooParser;
 
 public class IndicatorTest {
@@ -19,7 +20,8 @@ public class IndicatorTest {
 //		testExponentialMovingAverage();
 //		testStandardDeviation();
 //		testBollingerBands();
-		testMACD();
+//		testMACD();
+		testEMACoefficient();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -42,7 +44,6 @@ public class IndicatorTest {
 //				
 //	}
 	
-	//Not working yet.
 	private static void testRSI() {		
 		int period = 14;
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
@@ -102,5 +103,21 @@ public class IndicatorTest {
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]));
 		}
+	}
+	
+	public static void testEMACoefficient() {
+		int period = 20;
+		double sum = 0;
+		double[] emaCoefficient = StockIndicator.getExponentiaoMovingAverageCoefficient(period);
+		for (int i = 0; i < period; i++) {
+			sum += emaCoefficient[i];
+			System.out.println(emaCoefficient[i]);
+			
+		}
+//		System.out.println(emaCoefficient[0]);
+//		System.out.println(emaCoefficient[1]);
+//		System.out.println(emaCoefficient[period - 1]);
+		System.out.println("sum: " + sum);
+		
 	}
 }

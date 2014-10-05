@@ -1,4 +1,4 @@
-package util;
+package indicator;
 
 import stock.StockCandleArray;
 
@@ -28,6 +28,10 @@ public class StockIndicator {
 	 */
 	public static double[] getExponentialMovingAverage(StockCandleArray stockCandleArray, int period) {
 		double[] ema = new double[stockCandleArray.size()];
+		
+		//Why is this 2 / (period + 1)? Because if you think about the last data in the array,
+		//if it needs to have twice the weight as the weight for the other data, then the total weight
+		//will be period + 1 and the weight for the last data is 2.
 		double emaPercent = 2.0 / (period + 1);
 		double oneMinusEMAPercent = 1 - emaPercent;
 		if (ema.length <= 0) return null;
@@ -48,6 +52,44 @@ public class StockIndicator {
 			ema[i] = inputArray[i] * emaPercent + ema[i - 1] * oneMinusEMAPercent;
 		}		
 		return ema;
+	}
+	
+	/**
+	 * Get an array of exponential moving average coefficients.
+	 * This can be used by the gain evaluation function and the coefficients can be adjusted in the future.
+	 * @param period
+	 * @return
+	 */
+	public static double[] getExponentiaoMovingAverageCoefficient(int period) {
+		if (period < 1) return null; 
+		double[] emaCoefficient = new double[period + 1];
+		double emaPercent = 2.0 / (period + 1);
+		double[] emaOneMinusPercentExp = new double[period + 1];
+		double oneMinusEMAPercent = 1 - emaPercent;
+		
+		//Compute the exponential of 1 - emaPercent
+		emaOneMinusPercentExp[0] = 1;
+		for (int i = 1; i <= period; i++) {
+			emaOneMinusPercentExp[i] = emaOneMinusPercentExp[i - 1] * oneMinusEMAPercent;
+		}
+		
+		//The first coefficient can be really large.
+		//We are building a virtual coefficient at the beginning and then distribute it into the later coefficients.
+		//P[0] = (1 - alpha)^N
+		//P[1] = (1 - alpha)^(N - 1) * alpha
+		//-> P[i] = (1 - alpha)^(N - i) * alpha (N > 1, i=1..N)
+		//P[N] = alpha
+		//P[0] + P[1] + ... + P[N] = 1
+		//Distribute the coefficient P[0] based on scale so we will get
+		//P[i]' = P[0] * {P[i] / [1 - (1 - alpha)^N]} + P[i]
+		//      = P[i] / [(1 - (1 - alpha)^N]
+		//Here alpha = 2 / (period + 1)
+		for (int j = 0; j < period; j++) {
+			int i = j + 1;
+			emaCoefficient[j] = (emaOneMinusPercentExp[period - i] * emaPercent) / (1 - emaOneMinusPercentExp[period]);			
+		}
+		return emaCoefficient;
+		
 	}
 	
 	/**
