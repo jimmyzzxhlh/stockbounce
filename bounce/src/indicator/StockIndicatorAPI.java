@@ -6,7 +6,7 @@ import stock.StockCandleArray;
  * Static class for computing indicators. 
  *
  */
-public class StockIndicator {
+public class StockIndicatorAPI {
 	public static double[] getSimpleMovingAverage(StockCandleArray stockCandleArray, int period) {
 		double[] movingAverage = new double[stockCandleArray.size()];
 		double sum = 0;

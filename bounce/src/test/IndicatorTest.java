@@ -1,6 +1,6 @@
 package test;
 
-import indicator.StockIndicator;
+import indicator.StockIndicatorAPI;
 
 import java.text.DecimalFormat;
 
@@ -31,7 +31,7 @@ public class IndicatorTest {
 			stockCandle.close = i;
 			stockCandleArray.add(stockCandle);
 		}
-		double[] movingAverage = StockIndicator.getSimpleMovingAverage(stockCandleArray, 10);
+		double[] movingAverage = StockIndicatorAPI.getSimpleMovingAverage(stockCandleArray, 10);
 		for (int i = 0; i < 100; i++) {
 			System.out.println(i + ": " + movingAverage[i]);
 		}
@@ -47,7 +47,7 @@ public class IndicatorTest {
 	private static void testRSI() {		
 		int period = 14;
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
-		double[] rsi = StockIndicator.getRSI(stockCandleArray, period);
+		double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, period);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(rsi[i]));
 		}
@@ -56,7 +56,7 @@ public class IndicatorTest {
 	private static void testExponentialMovingAverage() {
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int period = 20;
-		double[] ema = StockIndicator.getExponentialMovingAverage(stockCandleArray, period);
+		double[] ema = StockIndicatorAPI.getExponentialMovingAverage(stockCandleArray, period);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(ema[i]));
 		}
@@ -72,7 +72,7 @@ public class IndicatorTest {
 		stockCandleArray.add(createStockCandle(5));
 		stockCandleArray.add(createStockCandle(7));
 		stockCandleArray.add(createStockCandle(9));
-		double[] sd = StockIndicator.getStandardDeviation(stockCandleArray, 8);
+		double[] sd = StockIndicatorAPI.getStandardDeviation(stockCandleArray, 8);
 		for (int i = 0; i < sd.length; i++) {
 			System.out.println(i + ": " + sd[i]);
 		}
@@ -88,7 +88,7 @@ public class IndicatorTest {
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int period = 20;
 		int k = 2;
-		double[][] bb = StockIndicator.getBollingerBands(stockCandleArray, period, k);
+		double[][] bb = StockIndicatorAPI.getBollingerBands(stockCandleArray, period, k);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[2][i]));
 		}
@@ -99,7 +99,7 @@ public class IndicatorTest {
 		int shortPeriod = 12;
 		int longPeriod = 26;
 		int macdAveragePeriod = 9;
-		double[][] macd = StockIndicator.getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
+		double[][] macd = StockIndicatorAPI.getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]));
 		}
@@ -108,7 +108,7 @@ public class IndicatorTest {
 	public static void testEMACoefficient() {
 		int period = 20;
 		double sum = 0;
-		double[] emaCoefficient = StockIndicator.getExponentiaoMovingAverageCoefficient(period);
+		double[] emaCoefficient = StockIndicatorAPI.getExponentiaoMovingAverageCoefficient(period);
 		for (int i = 0; i < period; i++) {
 			sum += emaCoefficient[i];
 			System.out.println(emaCoefficient[i]);
