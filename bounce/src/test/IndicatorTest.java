@@ -1,5 +1,6 @@
 package test;
 
+import indicator.StockGain;
 import indicator.StockIndicatorAPI;
 
 import java.text.DecimalFormat;
@@ -108,7 +109,7 @@ public class IndicatorTest {
 	public static void testEMACoefficient() {
 		int period = 20;
 		double sum = 0;
-		double[] emaCoefficient = StockIndicatorAPI.getExponentiaoMovingAverageCoefficient(period);
+		double[] emaCoefficient = StockGain.getExponentialMovingAverageCoefficient(period);
 		for (int i = 0; i < period; i++) {
 			sum += emaCoefficient[i];
 			System.out.println(emaCoefficient[i]);
