@@ -23,7 +23,7 @@ public class SVMTest {
 		        double[] vals = {1, 0, 2 * i};  
 		        trainData[i] = vals;
 		    } else {
-		        double[] vals = {0, 0, -2 * i}; // 50% negative
+		        double[] vals = {0, 0, -2 * i}; 
 		        trainData[i] = vals;
 		    }           
 		}
