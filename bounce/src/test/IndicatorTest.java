@@ -11,18 +11,18 @@ import yahoo.YahooParser;
 
 public class IndicatorTest {
 	
-	private final static String FILENAME = "D:\\zzx\\Stock\\CSV\\JD.csv";
+	private final static String FILENAME = "D:\\zzx\\Stock\\CSV\\ZIPR.csv";
 	private final static int MAX_CANDLE = 500;
 	private final static DecimalFormat df = new DecimalFormat("0.00");
 	
 	public static void main(String args[]) {
 //		testSimpleMovingAverageFakeData();
-//		testRSI();
+		testRSI();
 //		testExponentialMovingAverage();
 //		testStandardDeviation();
 //		testBollingerBands();
 //		testMACD();
-		testEMACoefficient();
+//		testEMACoefficient();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {

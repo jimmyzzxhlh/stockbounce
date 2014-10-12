@@ -83,8 +83,8 @@ public class YahooParser extends StockParser {
 				if ((maxCandle > 0) & (candleCount > maxCandle)) break;
 				StockCandle stockCandle = new StockCandle();
 				parser.parseLine(line, stockCandle);
-				if (m.isHoliday(new LocalDate(stockCandle.getDate()))) {
-					System.out.println(stockCandle.getDate() + " is a holiday. Data will be ignored.");
+				if ((stockCandle.volume <= 0) || (m.isHoliday(new LocalDate(stockCandle.getDate())))) {
+//					System.out.println(stockCandle.getDate() + " is a holiday. Data will be ignored.");
 					continue;
 				}
 				stockCandleArray.add(stockCandle);

@@ -47,10 +47,10 @@ public class StockGain {
 		
 		double[] coef = StockGain.getExponentialMovingAverageCoefficient(period);
 		
-		//Initialize the average.
-		for (int i = 1; i <= stockCandleArray.size() - period; i++) {
-			for (int j = 1; j <= period; j++) {
-				stockGains[i] += stockCandleArray.getClose(i + j) * coef[j];
+		//Calculate gains
+		for (int i = 0; i < stockCandleArray.size() - period; i++) {
+			for (int j = 0; j < period; j++) {
+				stockGains[i] += stockCandleArray.getClose(i + j + 1) * coef[j];
 			}	
 			stockGains[i] = stockGains[i] / stockCandleArray.getOpen(i + 1) - 1; //convert to percentage gain
 		}
