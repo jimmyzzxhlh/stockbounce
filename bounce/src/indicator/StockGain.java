@@ -5,6 +5,7 @@ import stock.StockCandleArray;
 public class StockGain {
 	
 	/**
+	 * NOT USED.
 	 * Get exponential moving average of the gain at the end of a certain period amount of time.
 	 * The gain is represented by percentage.
 	 * This can be used as an evaluation function of the gain in our machine learning system.
@@ -27,10 +28,24 @@ public class StockGain {
 		return 0;
 	}
 	
+	/**
+	 * NOT USED.
+	 * @param stockCandleArray
+	 * @param index
+	 * @param period
+	 * @return
+	 */
 	public static double getLongGainEMA(StockCandleArray stockCandleArray, int index, int period) {
 		return getGainEMA(stockCandleArray, index, period);
 	}
 	
+	/**
+	 * NOT USED.
+	 * @param stockCandleArray
+	 * @param index
+	 * @param period
+	 * @return
+	 */
 	public static double getShortGainEMA(StockCandleArray stockCandleArray, int index, int period) {
 		return -getGainEMA(stockCandleArray, index, period);
 	}
@@ -45,6 +60,8 @@ public class StockGain {
 		double[] stockGains = new double[stockCandleArray.size()];
 		if (stockCandleArray.size() <= period) return stockGains;
 		
+		//Right now we are using the exponential moving average coefficients to calculate the expected gain value.
+		//May need to adjust the coefficient in the future. 
 		double[] coef = StockGain.getExponentialMovingAverageCoefficient(period);
 		
 		//Calculate gains
@@ -52,7 +69,8 @@ public class StockGain {
 			for (int j = 0; j < period; j++) {
 				stockGains[i] += stockCandleArray.getClose(i + j + 1) * coef[j];
 			}	
-			stockGains[i] = stockGains[i] / stockCandleArray.getOpen(i + 1) - 1; //convert to percentage gain
+			//convert to percentage gain. Notice that we start with the open price of the next day.
+			stockGains[i] = stockGains[i] / stockCandleArray.getOpen(i + 1) - 1; 
 		}
 
 		return stockGains;

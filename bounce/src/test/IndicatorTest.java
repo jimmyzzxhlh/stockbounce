@@ -2,8 +2,12 @@ package test;
 
 import indicator.StockGain;
 import indicator.StockIndicatorAPI;
+import indicator.StockIndicatorArray;
+import indicator.StockIndicatorParser;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
@@ -17,12 +21,16 @@ public class IndicatorTest {
 	
 	public static void main(String args[]) {
 //		testSimpleMovingAverageFakeData();
-		testRSI();
+//		testRSI();
 //		testExponentialMovingAverage();
 //		testStandardDeviation();
 //		testBollingerBands();
 //		testMACD();
 //		testEMACoefficient();
+//		testMin();
+//		testMax();
+//		testWriteIndicatorCSV();
+		testReadIndicatorCSV();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -96,13 +104,15 @@ public class IndicatorTest {
 	}
 	
 	public static void testMACD() {
+		System.out.println("Testing MACD...");
 		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int shortPeriod = 12;
 		int longPeriod = 26;
 		int macdAveragePeriod = 9;
 		double[][] macd = StockIndicatorAPI.getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
+		double[] macdNormalized = StockIndicatorAPI.getMACDNormalized(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]));
+			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]) + " " + df.format(macdNormalized[i]));
 		}
 	}
 	
@@ -120,5 +130,50 @@ public class IndicatorTest {
 //		System.out.println(emaCoefficient[period - 1]);
 		System.out.println("sum: " + sum);
 		
+	}
+	
+	public static void testMin() {
+		int period = 5;
+		double[] inputArray = {3,9,1,4,5,2,7,6,10,8};
+		double[] min = StockIndicatorAPI.getMin(inputArray, period);
+		for (int i = 0; i < min.length; i++) {
+			System.out.println(i + " : " + min[i]);
+		}
+	}
+	
+	public static void testMax() {
+		int period = 5;
+		double[] inputArray = {3,9,1,4,5,2,7,6,10,8};
+		double[] max = StockIndicatorAPI.getMax(inputArray, period);
+		for (int i = 0; i < max.length; i++) {
+			System.out.println(i + " : " + max[i]);
+		}
+	}
+	
+	public static void testReadIndicatorCSV() {
+		try {
+			//StockIndicators.calculateStockIndicators();
+			
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			Date startDate = formatter.parse("2012-01-01");
+			Date endDate = formatter.parse("2012-01-31");
+			String fileName = "D:\\zzx\\Stock\\Indicators_CSV\\ZIPR_Indicators.csv";
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFile(fileName, startDate, endDate);
+			for (int i = 0; i < stockIndicatorArray.size(); i++){
+				System.out.println(stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i) + " " + stockIndicatorArray.getRSI(i));
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testWriteIndicatorCSV() {
+		try {
+			StockIndicatorArray.writeStockIndicators();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

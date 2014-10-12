@@ -10,7 +10,7 @@ import java.util.Date;
 import stock.StockCandleArray;
 import yahoo.YahooParser;
 
-public class StockIndicators {
+public class StockIndicatorArray {
 	private static final String CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	private static final String OUTPUT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Indicators_CSV\\";
 	private static final int PERIOD_RSI = 14;
@@ -43,11 +43,11 @@ public class StockIndicators {
 		return stockIndicatorArray.get(i).getRSI();
 	}
 	
-	public ArrayList<StockIndicator> getStockIndicators(){
+	public ArrayList<StockIndicator> getStockIndicatorArray(){
 		return stockIndicatorArray;
 	}
 	
-	public void setStockIndicators(ArrayList<StockIndicator> stockIndicatorArray){
+	public void setStockIndicatorArray(ArrayList<StockIndicator> stockIndicatorArray){
 		this.stockIndicatorArray = stockIndicatorArray;
 	}
 	
@@ -55,7 +55,7 @@ public class StockIndicators {
 		stockIndicatorArray.add(stockIndicator);
 	}
 	
-	public static void calculateStockIndicators() throws Exception{
+	public static void writeStockIndicators() throws Exception{
 		File directory = new File(CSV_DIRECTORY_PATH);
 		File[] directoryList = directory.listFiles();
 		File outputFile;
@@ -87,6 +87,7 @@ public class StockIndicators {
 			}
 			double[] stockGains = StockGain.getStockGain(stockCandleArray, PERIOD_STOCKGAINS);
 			double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, PERIOD_RSI);
+			//Add new indicators here
 			
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				String strDate = formatter.format(stockDates[i]);
@@ -100,35 +101,4 @@ public class StockIndicators {
 		}
 	}
 	
-	public static StockIndicators getStockIndicators(String fileName, Date startDate, Date endDate){
-		File csvFile = new File(fileName);
-		return getStockIndicators(csvFile, startDate, endDate);
-	}
-	
-	public static StockIndicators getStockIndicators(File csvFile, Date startDate, Date endDate){
-		ArrayList<StockIndicator> stockIndicatorArray;
-		String symbol;
-		StockIndicators retStockIndicators = new StockIndicators();
-		
-		if (startDate.after(endDate)) {
-			return null;
-		}
-		
-		symbol = csvFile.getName().substring(0, csvFile.getName().length() - 4);
-		retStockIndicators.setSymbol(symbol);
-		stockIndicatorArray = IndicatorParser.readCSVFile(csvFile);
-		
-		if ((startDate == null)||(endDate == null)){
-			retStockIndicators.setStockIndicators(stockIndicatorArray);
-			return retStockIndicators;
-		}
-		
-		for (int i = 0; i < stockIndicatorArray.size(); i++){
-			Date date = stockIndicatorArray.get(i).getDate();
-			if ((startDate.after(date) == false) && (endDate.before(date) == false )){
-				retStockIndicators.add(stockIndicatorArray.get(i));
-			}
-		}
-		return retStockIndicators;
-	}
 }
