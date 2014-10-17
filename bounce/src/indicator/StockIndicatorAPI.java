@@ -9,6 +9,11 @@ import stock.StockCandleArray;
  * because we cannot do that (for obvious reasons).
  * 2. For each day, we know the stock price of the current day and then we compute the indicator, so
  * this means when using the indicator, we need to evaluate the next day instead of current day!
+ * 3. Every indicator API here needs to return a value within 0 to 100 (in rare cases if the maximum value is greater
+ * than 100, such as %b from bollinger band, that might be fine, but need further verification).
+ * 4. For values that cannot be computed, especially the first few days, we will return the NAN value defined
+ * in StockIndicatorConst. Any feature vector with NAN value should not be trained or tested.
+ * 
  */
 public class StockIndicatorAPI {
 	
@@ -23,7 +28,10 @@ public class StockIndicatorAPI {
 		double sum = 0;
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			sum += stockCandleArray.getClose(i);
-			if (i < period - 1) continue;
+			if (i < period - 1) {
+				movingAverage[i] = StockIndicatorConst.NAN;
+				continue;
+			}
 			if (i >= period) sum -= stockCandleArray.getClose(i - period);
 			movingAverage[i] = sum / (period * 1.0);				
 		}
@@ -82,9 +90,19 @@ public class StockIndicatorAPI {
 	 */
 	public static double[] getRSI(StockCandleArray stockCandleArray, int period) {
 		double[] rsi = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() <= period) return rsi;
+		if (stockCandleArray.size() <= period) {
+			for (int i = 0; i < stockCandleArray.size(); i++) {
+				rsi[i] = StockIndicatorConst.NAN;
+			}
+			return rsi;		
+		}
 		double upAverage = 0;
 		double downAverage = 0;
+		
+		//Initialize the first period days to NAN
+		for (int i = 0; i < period; i++) {
+			rsi[i] = StockIndicatorConst.NAN;
+		}
 		
 		//Initialize the average.
 		for (int i = 1; i <= period; i++) {
@@ -129,6 +147,17 @@ public class StockIndicatorAPI {
 	 */
 	public static double[] getStandardDeviation(StockCandleArray stockCandleArray, int period) {
 		double[] sdArray = new double[stockCandleArray.size()];
+		if (stockCandleArray.size() < period) {
+			for (int i = 0; i < stockCandleArray.size(); i++) {
+				sdArray[i] = StockIndicatorConst.NAN;
+			}
+			return sdArray;
+		}
+		
+		for (int i = 0; i < period - 1; i++) {
+			sdArray[i] = StockIndicatorConst.NAN;
+		}
+		
 		for (int i = period - 1; i < stockCandleArray.size(); i++) {
 			double average = 0;
 			int start = i - period + 1;
@@ -159,9 +188,21 @@ public class StockIndicatorAPI {
 	 *         bollingerBands[2] = lowerBB : Middle BB - k * (standard deviation within the period)
 	 */
 	public static double[][] getBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
+		double[][] bollingerBands = new double[3][stockCandleArray.size()];
+		if (stockCandleArray.size() < period) {
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < stockCandleArray.size(); j++) {
+					bollingerBands[i][j] = StockIndicatorConst.NAN;
+				}
+			}
+			return bollingerBands;
+		}
+		
 		double[] movingAverage = getSimpleMovingAverage(stockCandleArray, period);
 		double[] standardDeviation = getStandardDeviation(stockCandleArray, period);
-		double[][] bollingerBands = new double[3][stockCandleArray.size()];
+		for (int i = 0; i < period - 1; i++) {
+			bollingerBands[0][i] = bollingerBands[1][i] = bollingerBands[2][i] = StockIndicatorConst.NAN;
+		}
 		for (int i = period - 1; i < stockCandleArray.size(); i++) {
 			bollingerBands[1][i] = movingAverage[i];                                 //middle
 			bollingerBands[0][i] = bollingerBands[1][i] + k * standardDeviation[i];  //upper
@@ -171,7 +212,7 @@ public class StockIndicatorAPI {
 	}
 	
 	/**
-	 * Return the %b indicator from the bollinger bands.
+	 * Return the %b indicator from the bollinger bands. The return value is normalized for percentage (i.e. * 100).
 	 * %b = (Close Price - Lower BB) / (Upper BB - Lower BB)
 	 * If stock price goes up and close price is greater than the upper BB, then %b > 1. If stock price goes down
 	 * and close price is less than the lower BB, then %b < 0. There is no restricted range for %b.
@@ -182,17 +223,27 @@ public class StockIndicatorAPI {
 	 * @param k
 	 * @return An array that lists the %b indicator.
 	 */
-	public static double[] getPercentBFromBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
-		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
+	public static double[] getBollingerBandsPercentB(StockCandleArray stockCandleArray, int period, int k) {
 		double[] percentB = new double[stockCandleArray.size()];
+		if (stockCandleArray.size() < period) {
+			for (int i = 0; i < stockCandleArray.size(); i++) {
+				percentB[i] = StockIndicatorConst.NAN;
+			}
+			return percentB;
+		}
+		
+		for (int i = 0; i < period - 1; i++) {
+			percentB[i] = StockIndicatorConst.NAN;
+		}
+		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
 		for (int i = period - 1; i < stockCandleArray.size(); i++) {
-			percentB[i] = (stockCandleArray.getClose(i) - bollingerBands[2][i]) / (bollingerBands[0][i] - bollingerBands[2][i]);
+			percentB[i] = (stockCandleArray.getClose(i) - bollingerBands[2][i]) * 100.0 / (bollingerBands[0][i] - bollingerBands[2][i]);
 		}
 		return percentB;
 	}
 	
 	/**
-	 * Return the bandwidth from the bollinger bands.
+	 * Return the bandwidth from the bollinger bands. The return value is normalized for percentage (i.e. * 100)
 	 * Bandwidth = (Upper BB - Lower BB) / Middle BB
 	 * See the following wiki for the definition of bollinger bands.
 	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
@@ -201,11 +252,21 @@ public class StockIndicatorAPI {
 	 * @param k
 	 * @return An array that lists the bandwidth indicator.
 	 */
-	public static double[] getBandwidthFromBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
-		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
+	public static double[] getBollingerBandsBandwidth(StockCandleArray stockCandleArray, int period, int k) {
 		double[] bandwidth = new double[stockCandleArray.size()];
+		if (stockCandleArray.size() < period) {
+			for (int i = 0; i < stockCandleArray.size(); i++) {
+				bandwidth[i] = StockIndicatorConst.NAN;
+			}
+			return bandwidth;
+		}
+		
+		for (int i = 0; i < period - 1; i++) {
+			bandwidth[i] = StockIndicatorConst.NAN;
+		}
+		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
 		for (int i = period - 1; i < stockCandleArray.size(); i++) {
-			bandwidth[i] = (bollingerBands[0][i] - bollingerBands[2][i]) / bollingerBands[1][i];
+			bandwidth[i] = (bollingerBands[0][i] - bollingerBands[2][i]) * 100.0 / bollingerBands[1][i];
 		}
 		return bandwidth;
 	}
@@ -298,4 +359,18 @@ public class StockIndicatorAPI {
 		return max;
 	}
 
+	/**
+	 * Return the distance in percentage from the current close price to the EMA line. 
+	 * @param stockCandleArray
+	 * @param period
+	 * @return
+	 */
+	public static double[] getExponentialMovingAverageDistance(StockCandleArray stockCandleArray, int period) {
+		double[] ema = getExponentialMovingAverage(stockCandleArray, period);
+		double[] emaDistance = new double[stockCandleArray.size()];
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			emaDistance[i] = (stockCandleArray.getClose(i) - ema[i]) * 100.0 / ema[i]; 
+		}
+		return emaDistance;		
+	}
 }

@@ -15,7 +15,7 @@ import yahoo.YahooParser;
 
 public class IndicatorTest {
 	
-	private final static String FILENAME = "D:\\zzx\\Stock\\CSV\\ZIPR.csv";
+	private final static String FILENAME = "D:\\zzx\\Stock\\CSV\\JD.csv";
 	private final static int MAX_CANDLE = 500;
 	private final static DecimalFormat df = new DecimalFormat("0.00");
 	
@@ -29,8 +29,8 @@ public class IndicatorTest {
 //		testEMACoefficient();
 //		testMin();
 //		testMax();
-//		testWriteIndicatorCSV();
-		testReadIndicatorCSV();
+		testWriteIndicatorCSV();
+//		testReadIndicatorCSV();
 	}
 	
 	private static void testSimpleMovingAverageFakeData() {
@@ -98,9 +98,13 @@ public class IndicatorTest {
 		int period = 20;
 		int k = 2;
 		double[][] bb = StockIndicatorAPI.getBollingerBands(stockCandleArray, period, k);
+		double[] percentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, period, k);
+		double[] bandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleArray, period, k);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[2][i]));
+			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[1][i]) + " " + df.format(bb[2][i]) + " " + df.format(percentB[i]) + " " + df.format(bandwidth[i]));
 		}
+		
+		
 	}
 	
 	public static void testMACD() {
@@ -160,7 +164,16 @@ public class IndicatorTest {
 			String fileName = "D:\\zzx\\Stock\\Indicators_CSV\\ZIPR_Indicators.csv";
 			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFile(fileName, startDate, endDate);
 			for (int i = 0; i < stockIndicatorArray.size(); i++){
-				System.out.println(stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i) + " " + stockIndicatorArray.getRSI(i));
+				System.out.print(stockIndicatorArray.getDate(i) + " ");
+				System.out.print(df.format(stockIndicatorArray.getStockGain(i)) + " ");
+				System.out.print(stockIndicatorArray.getStockGainClassification(i) + " ");
+				System.out.print(df.format(stockIndicatorArray.getRSI(i)) + " ");
+				System.out.print(df.format(stockIndicatorArray.getBollingerBandsPercentB(i)) + " ");
+				System.out.print(df.format(stockIndicatorArray.getBollingerBandsBandwidth(i)) + " ");
+				System.out.print(df.format(stockIndicatorArray.getEMADistance(i)) + " ");
+				//Add new indicators here.
+				
+				System.out.println();
 			}
 			
 		} catch (Exception e) {
@@ -170,7 +183,7 @@ public class IndicatorTest {
 	
 	public static void testWriteIndicatorCSV() {
 		try {
-			StockIndicatorArray.writeStockIndicators();
+			StockIndicatorParser.writeStockIndicators();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

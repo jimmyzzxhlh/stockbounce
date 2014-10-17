@@ -18,7 +18,20 @@ public class StockUtil {
 		return (result - original) / original;
 	}
 	
-
+	/**
+	 * Get symbol name from the filename.
+	 * If the filename is an indicator file like <Stock Symbol>_Indicators.csv, then we get the string before "_".
+	 * If the filename is like <Stock Symbol>.csv, then we get the string before ".".
+	 * @param filename
+	 * @return
+	 */
+	public static String getSymbolFromFileName(String filename) {
+		int underscorePos = filename.indexOf("_");
+		if (underscorePos > 0) return filename.substring(0, underscorePos);
+		int dotPos = filename.indexOf(".");
+		if (dotPos > 0) return filename.substring(0, dotPos);
+		return filename;
+	}
 	
 	
 }

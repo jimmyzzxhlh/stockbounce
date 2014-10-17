@@ -70,7 +70,7 @@ public class StockGain {
 				stockGains[i] += stockCandleArray.getClose(i + j + 1) * coef[j];
 			}	
 			//convert to percentage gain. Notice that we start with the open price of the next day.
-			stockGains[i] = stockGains[i] / stockCandleArray.getOpen(i + 1) - 1; 
+			stockGains[i] = (stockGains[i] / stockCandleArray.getOpen(i + 1) - 1) * 100.0; 
 		}
 
 		return stockGains;

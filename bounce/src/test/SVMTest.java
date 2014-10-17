@@ -1,17 +1,30 @@
 package test;
 
+import indicator.StockIndicator;
+import indicator.StockIndicatorArray;
+import indicator.StockIndicatorConst;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import libsvm.svm;
 import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
+import svm.SVMTrain;
+
 
 public class SVMTest {
 	public static void main(String args[]) {
-		testSVMUsingFakeData();
+//		testSVMUsingFakeData();
+		testSVMUsingRealData();
+//		testSVMStockGainAnalysis();
 	}
 	
-	
+	/**
+	 * This is only a sample test of SVM.
+	 */
 	public static void testSVMUsingFakeData() {
 		//Create training data
 		double[][] trainData = new double[1000][]; 
@@ -129,5 +142,69 @@ public class SVMTest {
 		feature[1] = x;
 		feature[2] = y;
 		return feature;
+	}
+	
+	/**
+	 * Testing SVM using indicator CSV files.
+	 */
+	private static void testSVMUsingRealData() {
+		SVMTrain svmTrain = new SVMTrain();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date trainStartDate = null;
+		Date trainEndDate = null;
+		//Specify the date range to test only a certain period.
+		try {
+			trainStartDate = formatter.parse("2013-01-01");
+			trainEndDate = formatter.parse("2013-06-30");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH, trainStartDate, trainEndDate);
+		System.out.println("Total training data: " + svmTrain.getStockIndicatorArray().size());
+		svmTrain.createSVMModel();
+		System.out.println("Model created. Predicting data...");
+		//Right now just testing using the trained data (which, ideally, should be 100% accurate)
+		int correct = 0;
+		int wrong = 0;
+		for (int i = 0; i < svmTrain.getStockIndicatorArray().size(); i++) {
+			StockIndicator stockIndicator = svmTrain.getStockIndicatorArray().get(i);
+			int predict = (int)svmTrain.predictSingleDay(stockIndicator);
+			if (stockIndicator.getStockGainClassification() == predict) {
+				correct++;
+			}
+			else {
+				wrong++;
+			}			
+		}
+		System.out.println("Correct: " + correct);
+		System.out.println("Wrong: " + wrong);
+	}
+	
+	/**
+	 * Analyze the distribution of the stock gain.
+	 * It turns out that the distribution is very symmetric. However most of the training data 
+	 * has gain between -10% to 10%, so we need to adjust SVM parameters, or we need to balance
+	 * the data set.
+	 */
+	private static void testSVMStockGainAnalysis() {
+		SVMTrain svmTrain = new SVMTrain();
+		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
+		int[] stockGainArray = new int[200];
+		for (int i = 0; i < stockIndicatorArray.size(); i++) {
+			int stockGain = (int)(Math.round(stockIndicatorArray.getStockGain(i))) + 100;
+			if (stockGain >= 200) stockGain = 199;
+			if (stockGain < 0) stockGain = 0;
+			stockGainArray[stockGain]++;
+//			if (stockGain == 199) {
+//				System.out.println(stockIndicatorArray.getSymbol(i) + " : " + stockIndicatorArray.getDate(i));
+//			}
+		}
+		for (int i = 0; i < stockGainArray.length; i++) {
+//			System.out.println((i - 100) + " : " + stockGainArray[i]);
+			System.out.println(stockGainArray[i]);
+			
+		}
 	}
 }
