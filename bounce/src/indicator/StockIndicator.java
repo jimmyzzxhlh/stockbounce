@@ -137,11 +137,14 @@ public class StockIndicator {
 //		if ((stockGain < -15) && (stockGain >= -20)) {stockGainClassification = -4; return;}
 //		if ((stockGain < -20))                       {stockGainClassification = -5; return;}
 		
-		if ((stockGain >= -5) && (stockGain < 5))    {stockGainClassification = 1; return;}
-		if ((stockGain >= 5) && (stockGain < 15))    {stockGainClassification = 2; return;}
-		if ((stockGain >= 15))                       {stockGainClassification = 3; return;}
-		if ((stockGain < -5) && (stockGain >= -15))  {stockGainClassification = -2; return;}
-		if ((stockGain < -15))                       {stockGainClassification = -3; return;}
+//		if ((stockGain >= -5) && (stockGain < 5))    {stockGainClassification = 1; return;}
+//		if ((stockGain >= 5) && (stockGain < 15))    {stockGainClassification = 2; return;}
+//		if ((stockGain >= 15))                       {stockGainClassification = 3; return;}
+//		if ((stockGain < -5) && (stockGain >= -15))  {stockGainClassification = 4; return;}
+//		if ((stockGain < -15))                       {stockGainClassification = 5; return;}
+		
+		if ((stockGain >= 0))                       {stockGainClassification = 1; return;}
+		if ((stockGain < 0))                        {stockGainClassification = 0; return;}
 		
 	}
 

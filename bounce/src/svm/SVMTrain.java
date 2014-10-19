@@ -49,7 +49,15 @@ public class SVMTrain {
 		stockIndicatorArray = StockIndicatorParser.readCSVFiles(directoryName, startDate, endDate);
 	}
 	
-	public void createSVMModel() {
+	public void setGamma(double gamma) {
+		svmParameter.gamma = gamma;		
+	}
+	
+	public void setC(double C) {
+		svmParameter.C = C;
+	}
+	
+	public void createProblem() {
 		svmProblem = new svm_problem();
 	    dataCount = stockIndicatorArray.size();
 	    svmProblem.l = dataCount;
@@ -67,15 +75,19 @@ public class SVMTrain {
 	        //We need to get the classification instead of the stock gain itself.
 	        svmProblem.y[i] = stockIndicatorArray.getStockGainClassification(i);
 	    }
-	    
+	}
+	
+	public void createDefaultParameter() {	
 	    svmParameter = new svm_parameter();
 	    //whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
-	    svmParameter.probability = 1;  
+	    svmParameter.probability = 0;  
 	    //set gamma in kernel function (default 1/num_features)
+	    //Ideal value of Gamma needs to be searched.
 	    svmParameter.gamma = 0.5;
 	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
 	    svmParameter.nu = 0.5;
 	    //set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)
+	    //Ideal value of C needs to be searched.
 	    svmParameter.C = 1;
 //	    svm_type : set type of SVM (default 0)
 //		0 -- C-SVC		(multi-class classification)
@@ -96,10 +108,11 @@ public class SVMTrain {
 //	    set the epsilon in loss function of epsilon-SVR (default 0.1)
 	    svmParameter.eps = 0.001;     
 	    
+	}
+	
+	public void startTraining() {
 	    System.out.println("Training SVM model...");
 	    svmModel = svm.svm_train(svmProblem, svmParameter);
-	    
-	    
 	}
 	
 	public double predictSingleDay(StockIndicator stockIndicator) {
@@ -113,8 +126,10 @@ public class SVMTrain {
 		int[] labels = new int[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
 		svm.svm_get_labels(svmModel, labels);
 		
-	    double[] prob_estimates = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
-	    double predict = svm.svm_predict_probability(svmModel, nodes, prob_estimates);
+//	    double[] prob_estimates = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
+//	    double predict = svm.svm_predict_probability(svmModel, nodes, prob_estimates);
+		double[] dec_values = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
+	    double predict = svm.svm_predict_values(svmModel, nodes, dec_values);
 	 
 	    return predict;
 	}

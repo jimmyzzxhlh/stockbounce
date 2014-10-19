@@ -16,7 +16,7 @@ public class StockIndicatorConst {
 	public static final String INDICATOR_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\Indicators_CSV\\";
 	
 	public static final int STOCK_INDICATOR_COUNT = 4;
-	public static final int STOCK_GAIN_CLASSIFICATION_COUNT = 5;
+	public static final int STOCK_GAIN_CLASSIFICATION_COUNT = 2;
 	
 	//Define indicator period constants
 	public static final int STOCKGAINS_PERIOD = 20;

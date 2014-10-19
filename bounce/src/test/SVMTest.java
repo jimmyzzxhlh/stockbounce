@@ -89,7 +89,7 @@ public class SVMTest {
 //		4 -- precomputed kernel (kernel values in training_set_file)
 	    param.kernel_type = svm_parameter.LINEAR;
 //	    Set cache memory size in MB (default 100)
-	    param.cache_size = 20000;
+	    param.cache_size = 2000;
 //	    set the epsilon in loss function of epsilon-SVR (default 0.1)
 	    param.eps = 0.001;      
 
@@ -148,37 +148,83 @@ public class SVMTest {
 	 * Testing SVM using indicator CSV files.
 	 */
 	private static void testSVMUsingRealData() {
-		SVMTrain svmTrain = new SVMTrain();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Date trainStartDate = null;
 		Date trainEndDate = null;
 		//Specify the date range to test only a certain period.
 		try {
-			trainStartDate = formatter.parse("2013-01-01");
-			trainEndDate = formatter.parse("2013-06-30");
+			trainStartDate = formatter.parse("2014-01-01");
+			trainEndDate = formatter.parse("2014-01-31");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		SVMTrain svmTrain = new SVMTrain();
 		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH, trainStartDate, trainEndDate);
+		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
 		System.out.println("Total training data: " + svmTrain.getStockIndicatorArray().size());
-		svmTrain.createSVMModel();
-		System.out.println("Model created. Predicting data...");
-		//Right now just testing using the trained data (which, ideally, should be 100% accurate)
-		int correct = 0;
-		int wrong = 0;
-		for (int i = 0; i < svmTrain.getStockIndicatorArray().size(); i++) {
-			StockIndicator stockIndicator = svmTrain.getStockIndicatorArray().get(i);
-			int predict = (int)svmTrain.predictSingleDay(stockIndicator);
-			if (stockIndicator.getStockGainClassification() == predict) {
-				correct++;
+		
+		svmTrain.createProblem();
+		svmTrain.createDefaultParameter();
+		
+		//Loop through a combination of Gamma and C values and determine the best ones.
+		
+		int bestC = 0;
+		int bestGamma = 0;
+		double bestAccuracy = 0;
+		
+		for (int powerC = -5; powerC <= 15; powerC++) {
+			double currentC = Math.pow(2, powerC);
+//			svmTrain.setC(currentC);
+			for (int powerGamma = -15; powerGamma <= 3; powerGamma++) {
+				double currentGamma = Math.pow(2, powerGamma);
+//				svmTrain.setGamma(currentGamma);
+				System.out.println("Training with C = 2^" + powerC + ", Gamma = 2^" + powerGamma);
+				svmTrain.startTraining();
+				System.out.println("Model created. Predicting data...");
+				int correct = 0;
+				int wrong = 0;
+				int predictSample = 0;
+				//Right now just testing using the trained data (which, ideally, should be 100% accurate)
+				for (int i = 0; i < svmTrain.getStockIndicatorArray().size(); i++) {
+					StockIndicator stockIndicator = svmTrain.getStockIndicatorArray().get(i);
+					int predict = (int)svmTrain.predictSingleDay(stockIndicator);
+					if (predict == 1) {
+						predictSample++;
+					}
+					if (stockIndicator.getStockGainClassification() == predict) {
+						correct++;
+					}
+//					else if ((predict == 1) && (stockIndicator.getStockGain() >= 10)) {
+//						//If we are expecting the stock to have gain >= 20% but it actually has gain >= 10% then still count it as correct.
+//						correct++;
+//					}
+					else {
+						wrong++;
+					}			
+				}
+				double accuracy = correct * 1.0 / (correct + wrong);
+				System.out.println("Correct: " + correct + ", Wrong: " + wrong + ", Accuracy: " + accuracy);
+				if (accuracy > bestAccuracy) {
+					bestAccuracy = accuracy;
+					bestC = powerC;
+					bestGamma = powerGamma;
+				}
+				System.out.println("Predict >= 0% sample: " + predictSample);
+				break;
 			}
-			else {
-				wrong++;
-			}			
+			break;
 		}
-		System.out.println("Correct: " + correct);
-		System.out.println("Wrong: " + wrong);
+		System.out.println("Best Accuracy = " + bestAccuracy + ", C = 2^" + bestC + ", Gamma = 2^" + bestGamma);
+		int sample = 0;
+		for (int i = 0; i < stockIndicatorArray.size(); i++) {
+			if (stockIndicatorArray.getStockGain(i) >= 0) {
+				sample++;
+			}
+		}
+		System.out.println(sample + " out of " + stockIndicatorArray.size() + " actually increased 0%.");
+		
 	}
 	
 	/**
@@ -191,10 +237,10 @@ public class SVMTest {
 		SVMTrain svmTrain = new SVMTrain();
 		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
 		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
-		int[] stockGainArray = new int[200];
+		int[] stockGainArray = new int[201];
 		for (int i = 0; i < stockIndicatorArray.size(); i++) {
 			int stockGain = (int)(Math.round(stockIndicatorArray.getStockGain(i))) + 100;
-			if (stockGain >= 200) stockGain = 199;
+			if (stockGain >= 200) stockGain = 200;
 			if (stockGain < 0) stockGain = 0;
 			stockGainArray[stockGain]++;
 //			if (stockGain == 199) {
