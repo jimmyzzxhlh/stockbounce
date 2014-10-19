@@ -8,10 +8,10 @@ import java.nio.channels.ReadableByteChannel;
 
 import javax.swing.WindowConstants;
 
-import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockFrame;
 import yahoo.YahooParser;
+import download.StockData;
 
 //To get historical price:
 //http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=0&e=28&f=2010&g=d&a=3&b=12&c=1996&ignore=.csv
@@ -32,8 +32,8 @@ public class YahooDrawChartTest {
 	private static final int MAX_CANDLES = 200;
 	
 	public static void main(String args[]) throws Exception {
-		//StockData stockData = new StockData(null,null);
-		//stockData.downloadStocks();
+//		StockData stockData = new StockData(null,null);
+//		stockData.downloadStocks();
 		drawChart();
 		
 		

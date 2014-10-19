@@ -57,7 +57,7 @@ public class StockData {
 	public void downloadStocks() throws Exception{
 		String line;
 		if (this.startDate == null)
-			this.startDate = "4/1/2010";
+			this.startDate = "1/1/2006";
 		
 		startReadFile();
 		
