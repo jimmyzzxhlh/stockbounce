@@ -13,6 +13,10 @@ import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 
 public class YahooParser extends StockParser {
+	
+	//Consider stock split. This should be turned off if you want to compare the indicator value
+	//with some third party chart.
+	private static final boolean USE_ADJ_CLOSE = true;  
 
 	private static final int DATE_PIECE = 0;
 	private static final int OPEN_PIECE = 1;
@@ -20,6 +24,7 @@ public class YahooParser extends StockParser {
 	private static final int LOW_PIECE = 3;
 	private static final int CLOSE_PIECE = 4;
 	private static final int VOLUME_PIECE = 5;
+	private static final int ADJ_CLOSE_PIECE = 6;
 	private static final String DELIMITER = ","; 
 	
 	 
@@ -48,6 +53,7 @@ public class YahooParser extends StockParser {
 		stockCandle.low = Double.parseDouble(lineArray[LOW_PIECE]);
 		stockCandle.close = Double.parseDouble(lineArray[CLOSE_PIECE]);
 		stockCandle.volume = Integer.parseInt(lineArray[VOLUME_PIECE]);
+		stockCandle.adjClose = Double.parseDouble(lineArray[ADJ_CLOSE_PIECE]);
 		
 	}
 	
@@ -83,6 +89,11 @@ public class YahooParser extends StockParser {
 				if ((maxCandle > 0) & (candleCount > maxCandle)) break;
 				StockCandle stockCandle = new StockCandle();
 				parser.parseLine(line, stockCandle);
+				//Get the raw price in case that stock split happens.
+				if (USE_ADJ_CLOSE) {
+					stockCandle.setPriceFromAdjClose();
+				}
+				//Ignore holiday or no trade date.
 				if ((stockCandle.volume <= 0) || (m.isHoliday(new LocalDate(stockCandle.getDate())))) {
 //					System.out.println(stockCandle.getDate() + " is a holiday. Data will be ignored.");
 					continue;

@@ -23,7 +23,7 @@ package comment;
  * http://stackoverflow.com/questions/18078084/how-should-i-teach-machine-learning-algorithm-using-data-with-big-disproportion/18088148#18088148
  * http://www.csie.ntu.edu.tw/~cjlin/libsvm/faq.html#f410
  * @author jimmyzzxhlh-Dell
- *
+ * 5. 是不是应该在Indicator本身上加一些条件然后再去做training，现在可能有太多noise了，比如说emaDistance似乎明显<75的时候比较好。
  *
  * 一个非常非常基本的关于support vector的介绍：
  * http://stackoverflow.com/questions/9480605/what-is-the-relation-between-the-number-of-support-vectors-and-training-data-and

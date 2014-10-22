@@ -94,8 +94,9 @@ public class StockIndicator {
 		double[] vector = new double[StockIndicatorConst.STOCK_INDICATOR_COUNT];
 		vector[0] = rsi;
 		vector[1] = bollingerBandsPercentB;
-		vector[2] = bollingerBandsBandwidth;
-		vector[3] = emaDistance;
+		vector[2] = emaDistance;
+//		vector[2] = bollingerBandsBandwidth;
+//		vector[3] = emaDistance;
 		//Add new indicators here.
 		
 		//Compute the length
@@ -143,8 +144,8 @@ public class StockIndicator {
 //		if ((stockGain < -5) && (stockGain >= -15))  {stockGainClassification = 4; return;}
 //		if ((stockGain < -15))                       {stockGainClassification = 5; return;}
 		
-		if ((stockGain >= 0))                       {stockGainClassification = 1; return;}
-		if ((stockGain < 0))                        {stockGainClassification = 0; return;}
+		if ((stockGain >= 20))                       {stockGainClassification = 1; return;}
+		if ((stockGain < 20))                        {stockGainClassification = -1; return;}
 		
 	}
 
@@ -160,4 +161,10 @@ public class StockIndicator {
 		//Add new indicators here.
 		return false;
 	}	
+	
+	public boolean filterIndicator() {
+		if (this.rsi > 50) return true;
+		if (this.emaDistance > 70) return true;
+		return false;
+	}
 }

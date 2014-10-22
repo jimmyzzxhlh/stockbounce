@@ -75,6 +75,13 @@ public class SVMTrain {
 	        //We need to get the classification instead of the stock gain itself.
 	        svmProblem.y[i] = stockIndicatorArray.getStockGainClassification(i);
 	    }
+	    
+//	    for (int i = 0; i < dataCount; i++) {
+//	    	for (int j = 0; j < StockIndicatorConst.STOCK_INDICATOR_COUNT; j++) {
+//	    		System.out.print("(" + svmProblem.x[i][j].index + "," + svmProblem.x[i][j].value + ")" + " ");
+//	    	}
+//	    	System.out.println(": " + svmProblem.y[i]);
+//	    }
 	}
 	
 	public void createDefaultParameter() {	
@@ -83,9 +90,9 @@ public class SVMTrain {
 	    svmParameter.probability = 0;  
 	    //set gamma in kernel function (default 1/num_features)
 	    //Ideal value of Gamma needs to be searched.
-	    svmParameter.gamma = 0.5;
+	    svmParameter.gamma = 0.005;
 	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
-	    svmParameter.nu = 0.5;
+//	    svmParameter.nu = 0.5;
 	    //set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)
 	    //Ideal value of C needs to be searched.
 	    svmParameter.C = 1;
@@ -103,14 +110,19 @@ public class SVMTrain {
 //		3 -- sigmoid: tanh(gamma*u'*v + coef0)
 //		4 -- precomputed kernel (kernel values in training_set_file)
 	    svmParameter.kernel_type = svm_parameter.RBF;
+//	    svmParameter.kernel_type = svm_parameter.LINEAR;
 //	    Set cache memory size in MB (default 100)
 	    svmParameter.cache_size = 1000;
 //	    set the epsilon in loss function of epsilon-SVR (default 0.1)
-	    svmParameter.eps = 0.001;     
+	    svmParameter.eps = 0.1; 
+	    svmParameter.nr_weight = 2;
+	    svmParameter.weight = new double[]{25, 1};
+	    svmParameter.weight_label = new int[]{1, -1};
 	    
 	}
 	
 	public void startTraining() {
+		System.out.println("Any problem for parameters? : " + svm.svm_check_parameter(svmProblem, svmParameter));
 	    System.out.println("Training SVM model...");
 	    svmModel = svm.svm_train(svmProblem, svmParameter);
 	}
@@ -125,12 +137,17 @@ public class SVMTrain {
 		
 		int[] labels = new int[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
 		svm.svm_get_labels(svmModel, labels);
+//		System.out.println("Labels: ");
+//		for (int i = 0; i < labels.length; i++) {
+//			System.out.print(labels[i] + " " );
+//		}
+//		System.out.println();
 		
 //	    double[] prob_estimates = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
 //	    double predict = svm.svm_predict_probability(svmModel, nodes, prob_estimates);
 		double[] dec_values = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
 	    double predict = svm.svm_predict_values(svmModel, nodes, dec_values);
-	 
+//	    System.out.println(stockIndicator.getSymbol() + " " + stockIndicator.getDate() + ": " + predict);
 	    return predict;
 	}
 	
@@ -141,7 +158,7 @@ public class SVMTrain {
         svm_node[] svmNodeArray = new svm_node[indicatorVector.length];
         for (int i = 0; i < indicatorVector.length; i++){
             svm_node node = new svm_node();
-            node.index = i;
+            node.index = i + 1;
             node.value = indicatorVector[i];
             svmNodeArray[i] = node;
         }     

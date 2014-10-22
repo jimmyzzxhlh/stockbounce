@@ -122,6 +122,9 @@ public class StockIndicatorParser extends StockParser {
 				if (stockIndicator.hasNANValue()) {
 					continue;
 				}
+				if (stockIndicator.filterIndicator()) {
+					continue;
+				}
 				stockIndicatorArray.add(stockIndicator);
 				
 			}

@@ -3,7 +3,11 @@ package test;
 import indicator.StockIndicator;
 import indicator.StockIndicatorArray;
 import indicator.StockIndicatorConst;
+import indicator.StockIndicatorParser;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,6 +24,10 @@ public class SVMTest {
 //		testSVMUsingFakeData();
 		testSVMUsingRealData();
 //		testSVMStockGainAnalysis();
+//		testRSIAnalysis();
+//		testBBPercentBAnalysis();
+//		testBBBandwidthAnalysis();
+//		testEMADistanceAnalysis();
 	}
 	
 	/**
@@ -98,7 +106,7 @@ public class SVMTest {
 	    //Create test cases and evaluate 
 	    double[] testFeature = createTestFeature(1, 0, 1001);
 	    testSVMEvaluate(testFeature, model);
-	    testFeature = createTestFeature(0, 0, 500);
+	    testFeature = createTestFeature(0, 0, 600);
 	    testSVMEvaluate(testFeature, model);
 	    testFeature = createTestFeature(0, 0, -1);
 	    testSVMEvaluate(testFeature, model);
@@ -126,13 +134,12 @@ public class SVMTest {
 //	    models, label is unchanged.
 	    svm.svm_get_labels(model, labels);
 
-	    double[] prob_estimates = new double[TOTAL_CLASSES];
-	    double v = svm.svm_predict_probability(model, nodes, prob_estimates);
-	 
-	    for (int i = 0; i < TOTAL_CLASSES; i++) {
-	        System.out.print("(" + labels[i] + ":" + prob_estimates[i] + ")");
-	    }
-	    System.out.println("(Actual:" + features[0] + " Prediction:" + v + ")");            
+//	    double[] prob_estimates = new double[TOTAL_CLASSES];
+//	    double v = svm.svm_predict_probability(model, nodes, prob_estimates);
+	    
+		double[] dec_values = new double[StockIndicatorConst.STOCK_GAIN_CLASSIFICATION_COUNT];
+	    double predict = svm.svm_predict_values(model, nodes, dec_values);
+	    System.out.println("(Actual:" + features[0] + " Prediction:" + predict + ")");            
 	    
 	}
 	
@@ -154,7 +161,7 @@ public class SVMTest {
 		//Specify the date range to test only a certain period.
 		try {
 			trainStartDate = formatter.parse("2014-01-01");
-			trainEndDate = formatter.parse("2014-01-31");
+			trainEndDate = formatter.parse("2014-02-28");
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -163,67 +170,94 @@ public class SVMTest {
 		SVMTrain svmTrain = new SVMTrain();
 		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH, trainStartDate, trainEndDate);
 		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
-		System.out.println("Total training data: " + svmTrain.getStockIndicatorArray().size());
+		System.out.println("Total training data: " + stockIndicatorArray.size());
 		
 		svmTrain.createProblem();
 		svmTrain.createDefaultParameter();
 		
-		//Loop through a combination of Gamma and C values and determine the best ones.
-		
-		int bestC = 0;
-		int bestGamma = 0;
-		double bestAccuracy = 0;
-		
-		for (int powerC = -5; powerC <= 15; powerC++) {
-			double currentC = Math.pow(2, powerC);
-//			svmTrain.setC(currentC);
-			for (int powerGamma = -15; powerGamma <= 3; powerGamma++) {
-				double currentGamma = Math.pow(2, powerGamma);
-//				svmTrain.setGamma(currentGamma);
-				System.out.println("Training with C = 2^" + powerC + ", Gamma = 2^" + powerGamma);
-				svmTrain.startTraining();
-				System.out.println("Model created. Predicting data...");
-				int correct = 0;
-				int wrong = 0;
-				int predictSample = 0;
-				//Right now just testing using the trained data (which, ideally, should be 100% accurate)
-				for (int i = 0; i < svmTrain.getStockIndicatorArray().size(); i++) {
-					StockIndicator stockIndicator = svmTrain.getStockIndicatorArray().get(i);
-					int predict = (int)svmTrain.predictSingleDay(stockIndicator);
-					if (predict == 1) {
-						predictSample++;
-					}
-					if (stockIndicator.getStockGainClassification() == predict) {
-						correct++;
-					}
-//					else if ((predict == 1) && (stockIndicator.getStockGain() >= 10)) {
-//						//If we are expecting the stock to have gain >= 20% but it actually has gain >= 10% then still count it as correct.
-//						correct++;
-//					}
-					else {
-						wrong++;
-					}			
-				}
-				double accuracy = correct * 1.0 / (correct + wrong);
-				System.out.println("Correct: " + correct + ", Wrong: " + wrong + ", Accuracy: " + accuracy);
-				if (accuracy > bestAccuracy) {
-					bestAccuracy = accuracy;
-					bestC = powerC;
-					bestGamma = powerGamma;
-				}
-				System.out.println("Predict >= 0% sample: " + predictSample);
-				break;
-			}
-			break;
-		}
-		System.out.println("Best Accuracy = " + bestAccuracy + ", C = 2^" + bestC + ", Gamma = 2^" + bestGamma);
-		int sample = 0;
+		svmTrain.startTraining();
+		int correct = 0;
+		int wrong = 0;
+		int predictCorrect = 0;
+		int predictWrong = 0;
+		//Right now just testing using the trained data (which, ideally, should be 100% accurate)
 		for (int i = 0; i < stockIndicatorArray.size(); i++) {
-			if (stockIndicatorArray.getStockGain(i) >= 0) {
-				sample++;
+			StockIndicator stockIndicator = stockIndicatorArray.get(i);
+			int predict = (int)svmTrain.predictSingleDay(stockIndicator);
+			if (predict == 1) {
+				if (stockIndicator.getStockGainClassification() == predict) {
+					predictCorrect++;
+				}
+				else if (stockIndicator.getStockGain() >= 10) {
+					predictCorrect++;
+				}
+				else {
+					predictWrong++;
+				}				
 			}
+			if (stockIndicator.getStockGainClassification() == predict) {
+				correct++;
+			}
+			else {
+				wrong++;
+			}					
 		}
-		System.out.println(sample + " out of " + stockIndicatorArray.size() + " actually increased 0%.");
+		double accuracy = correct * 1.0 / (correct + wrong);
+		System.out.println("Correct: " + correct + ", Wrong: " + wrong + ", Accuracy: " + accuracy);
+		accuracy = predictCorrect * 1.0 / (predictCorrect + predictWrong);
+		System.out.println("Predict Correct: " + predictCorrect + ", Wrong: " + predictWrong + ", Accuracy: " + accuracy);
+		
+//		int sample = 0;
+//		for (int i = 0; i < stockIndicatorArray.size(); i++) {
+//			if (stockIndicatorArray.getStockGain(i) >= 10) {
+//				sample++;
+//			}
+//		}
+//		System.out.println(sample + " out of " + stockIndicatorArray.size() + " actually increased 10%.");
+		
+//		try {
+//			trainStartDate = formatter.parse("2014-03-01");
+//			trainEndDate = formatter.parse("2014-03-31");
+//		}
+//		catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		StockIndicatorArray testingStockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH, trainStartDate, trainEndDate);
+//		int correct = 0;
+//		int correctSample = 0;
+//		int wrong = 0;
+//		int wrongSample = 0;
+//		int predictSample = 0;
+//		//Right now just testing using the trained data (which, ideally, should be 100% accurate)
+//		for (int i = 0; i < testingStockIndicatorArray.size(); i++) {
+//			StockIndicator stockIndicator = testingStockIndicatorArray.get(i);
+//			int predict = (int)svmTrain.predictSingleDay(stockIndicator);
+//			if (predict == 1) {
+//				predictSample++;
+//				if (stockIndicator.getStockGainClassification() == predict) {
+//					correctSample++;
+//				}
+//				else {
+//					wrongSample++;
+//				}
+//			}
+//			if (stockIndicator.getStockGainClassification() == predict) {
+//				correct++;
+//			}
+////			else if ((predict == 1) && (stockIndicator.getStockGain() >= 10)) {
+////				//If we are expecting the stock to have gain >= 20% but it actually has gain >= 10% then still count it as correct.
+////				correct++;
+////			}
+//			else {
+//				wrong++;
+//			}			
+//		}
+//		double accuracy = correct * 1.0 / (correct + wrong);
+//		System.out.println("Correct: " + correct + ", Wrong: " + wrong + ", Accuracy: " + accuracy);
+//		System.out.println("Predict >= 10% sample: " + predictSample);
+//		System.out.println("Correct Sample: " + correctSample + ", Wrong Sample: " + wrongSample + ", Accuracy: " + (correctSample * 1.0 / predictSample));
+		
 		
 	}
 	
@@ -251,6 +285,106 @@ public class SVMTest {
 //			System.out.println((i - 100) + " : " + stockGainArray[i]);
 			System.out.println(stockGainArray[i]);
 			
+		}
+	}
+	
+	public static void testRSIAnalysis() {
+		int minStockGain = 100;
+		try {
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			File f = new File("D:\\zzx\\Stock\\RSI_" + minStockGain + ".csv");
+			FileWriter fw = new FileWriter(f.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("Gain,RSI");
+			bw.newLine();
+			for (int i = 0; i < stockIndicatorArray.size(); i++) {
+				double stockGain = stockIndicatorArray.getStockGain(i);
+//				if (stockGain > 1000) {
+//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
+//				}
+				if (stockGain < minStockGain) continue;
+				bw.write(stockGain + "," + stockIndicatorArray.getRSI(i));
+				bw.newLine();
+			}
+			bw.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testBBPercentBAnalysis() {
+		int minStockGain = 40;
+		try {
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			File f = new File("D:\\zzx\\Stock\\BBPercentB_" + minStockGain + ".csv");
+			FileWriter fw = new FileWriter(f.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("Gain,BBPercentB");
+			bw.newLine();
+			for (int i = 0; i < stockIndicatorArray.size(); i++) {
+				double stockGain = stockIndicatorArray.getStockGain(i);
+//				if (stockGain > 1000) {
+//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
+//				}
+				if (stockGain < minStockGain) continue;
+				bw.write(stockGain + "," + stockIndicatorArray.getBollingerBandsPercentB(i));
+				bw.newLine();
+			}
+			bw.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testBBBandwidthAnalysis() {
+		int minStockGain = 40;
+		try {
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			File f = new File("D:\\zzx\\Stock\\BBBandwidth_" + minStockGain + ".csv");
+			FileWriter fw = new FileWriter(f.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("Gain,BBBandwidth");
+			bw.newLine();
+			for (int i = 0; i < stockIndicatorArray.size(); i++) {
+				double stockGain = stockIndicatorArray.getStockGain(i);
+//				if (stockGain > 1000) {
+//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
+//				}
+				if (stockGain < minStockGain) continue;
+				bw.write(stockGain + "," + stockIndicatorArray.getBollingerBandsBandwidth(i));
+				bw.newLine();
+			}
+			bw.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void testEMADistanceAnalysis() {
+		int minStockGain = 40;
+		try {
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			File f = new File("D:\\zzx\\Stock\\emaDistance_" + minStockGain + ".csv");
+			FileWriter fw = new FileWriter(f.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("Gain,emaDistance");
+			bw.newLine();
+			for (int i = 0; i < stockIndicatorArray.size(); i++) {
+				double stockGain = stockIndicatorArray.getStockGain(i);
+//				if (stockGain > 1000) {
+//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
+//				}
+				if (stockGain < minStockGain) continue;
+				bw.write(stockGain + "," + stockIndicatorArray.getEMADistance(i));
+				bw.newLine();
+			}
+			bw.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

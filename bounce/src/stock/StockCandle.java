@@ -11,6 +11,8 @@ public class StockCandle {
 	public double high = 0;
 	public double low = 0;
 	public int volume = 0;
+	public double adjClose = 0;
+
 	public Date date;
 
 	
@@ -25,20 +27,33 @@ public class StockCandle {
 		this.low = inputStockCandle.low;
 		this.volume = inputStockCandle.volume;
 		this.date = inputStockCandle.date;
+		this.adjClose = inputStockCandle.adjClose;
 	}
 	
-	public StockCandle(Date date, double open, double close, double high, double low, int volume) {
+	public StockCandle(Date date, double open, double close, double high, double low, int volume, double adjClose) {
 		this.date = date;
 		this.open = open;
 		this.close = close;
 		this.high = high;
 		this.low = low;
 		this.volume = volume;
+		this.adjClose = adjClose;
+	}
+	
+	/**
+	 * Adj Close is the price that has already considered stock split.
+	 */
+	public void setPriceFromAdjClose() {
+		double ratio = adjClose * 1.0 / close;
+		open = open * ratio;
+		close = adjClose;
+		high = high * ratio;
+		low = low * ratio;
 	}
 	
 	@Override
 	public String toString() {
-		return "Date: " + this.date + " Open: " + this.open + " Close: " + this.close + " High: " + this.high + " Low: " + this.low + " Volume: " + this.volume;
+		return "Date: " + this.date + " Open: " + this.open + " Close: " + this.close + " High: " + this.high + " Low: " + this.low + " Volume: " + this.volume + " Adj Close: " + this.adjClose;
 	}
 	
 	public double getOpen() {
@@ -87,6 +102,14 @@ public class StockCandle {
 	
 	public void setDate(Date date) {
 		this.date = date;
+	}
+	
+	public double getAdjClose() {
+		return adjClose;
+	}
+
+	public void setAdjClose(double adjClose) {
+		this.adjClose = adjClose;
 	}
 	
 	public void setLowOverride(double low) {
