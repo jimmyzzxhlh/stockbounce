@@ -18,15 +18,12 @@ public class StockIndicator {
 	private double bollingerBandsPercentB;
 	private double bollingerBandsBandwidth;
 	private double emaDistance;
+	private int volume;
 	//Add new indicators here.
 	
+
 	public StockIndicator(){}
 	
-	public StockIndicator(Date date, double stockGain, double rsi){
-		this.date = date;
-		this.stockGain = stockGain;
-		this.rsi = rsi;
-	}
 	
 	public Date getDate(){
 		return date;
@@ -84,6 +81,15 @@ public class StockIndicator {
 		this.emaDistance = emaDistance;
 	}
 	
+	public int getVolume() {
+		return volume;
+	}
+
+
+	public void setVolume(int volume) {
+		this.volume = volume;
+	}
+	
 	/**
 	 * Normalize the vector for indicator so that the length of the vector is 1.
 	 * 
@@ -95,8 +101,8 @@ public class StockIndicator {
 		vector[0] = rsi;
 		vector[1] = bollingerBandsPercentB;
 		vector[2] = emaDistance;
-//		vector[2] = bollingerBandsBandwidth;
-//		vector[3] = emaDistance;
+		vector[3] = bollingerBandsBandwidth;
+		//Volume not added yet as it is not a normalized factor.
 		//Add new indicators here.
 		
 		//Compute the length
@@ -158,13 +164,20 @@ public class StockIndicator {
 		if (this.bollingerBandsPercentB == StockIndicatorConst.NAN) return true;
 		if (this.bollingerBandsBandwidth == StockIndicatorConst.NAN) return true;
 		if (this.emaDistance == StockIndicatorConst.NAN) return true;
+		if (this.volume == StockIndicatorConst.NAN) return true;
 		//Add new indicators here.
 		return false;
 	}	
 	
-	public boolean filterIndicator() {
-		if (this.rsi > 50) return true;
-		if (this.emaDistance > 70) return true;
+	
+	public boolean hasEnoughStockGain(double minStockGain) {
+		if (this.stockGain >= minStockGain) return true;
 		return false;
 	}
+	
+//	public boolean filterIndicator() {
+//		if (this.rsi > 50) return true;
+//		if (this.emaDistance > 70) return true;
+//		return false;
+//	}
 }

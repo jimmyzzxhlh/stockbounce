@@ -171,6 +171,7 @@ public class IndicatorTest {
 				System.out.print(df.format(stockIndicatorArray.getBollingerBandsPercentB(i)) + " ");
 				System.out.print(df.format(stockIndicatorArray.getBollingerBandsBandwidth(i)) + " ");
 				System.out.print(df.format(stockIndicatorArray.getEMADistance(i)) + " ");
+				System.out.print(stockIndicatorArray.getVolume(i));
 				//Add new indicators here.
 				
 				System.out.println();

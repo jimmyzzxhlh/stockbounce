@@ -47,6 +47,12 @@ public class StockIndicatorArray {
 		return stockIndicatorArray.get(index).getEMADistance();
 	}
 	
+	public int getVolume(int index) {
+		return stockIndicatorArray.get(index).getVolume();
+	}
+	
+	//Add new indicators here.
+	
 	public ArrayList<StockIndicator> getStockIndicatorArray(){
 		return stockIndicatorArray;
 	}
@@ -61,12 +67,23 @@ public class StockIndicatorArray {
 	
 	/**
 	 * Copy each indicator from one array list to the other.
-	 * @param stockIndicatorArrayOne
-	 * @param stockIndicatorArrayTwo
+	 * @param singleStockIndicatorArray
+	 * @param mainStockIndicatorArray
 	 */
-	public static void copyStockIndicatorArray(StockIndicatorArray stockIndicatorArrayOne, StockIndicatorArray stockIndicatorArrayTwo) {
-		for (int i = 0; i < stockIndicatorArrayOne.size(); i++) {
-			stockIndicatorArrayTwo.add(stockIndicatorArrayOne.get(i));
+	public static void copyStockIndicatorArray(StockIndicatorArray singleStockIndicatorArray, StockIndicatorArray mainStockIndicatorArray) {
+		for (int i = 0; i < singleStockIndicatorArray.size(); i++) {
+			mainStockIndicatorArray.add(singleStockIndicatorArray.get(i));
 		}
+	}
+	
+	public int getStockGainCount(double minStockGain) {
+		int stockGainCount = 0;
+		for (int i = 0; i < stockIndicatorArray.size(); i++) {
+			StockIndicator stockIndicator = stockIndicatorArray.get(i);
+			if (stockIndicator.hasEnoughStockGain(minStockGain)) {
+				stockGainCount++;
+			}
+		}
+		return stockGainCount;
 	}
 }

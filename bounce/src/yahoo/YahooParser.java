@@ -8,6 +8,7 @@ import org.joda.time.LocalDate;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockParser;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
@@ -68,6 +69,15 @@ public class YahooParser extends StockParser {
 		return readCSVFile(csvFile, maxCandle);
 	}
 	
+	public static StockCandleArray readCSVFile(String filename) {
+		File csvFile = new File(filename);
+		return readCSVFile(csvFile, -1);
+	}
+	
+	public static StockCandleArray readCSVFile(File csvFile) {
+		return readCSVFile(csvFile, -1);
+	}
+	
 	public static StockCandleArray readCSVFile(File csvFile, int maxCandle) {
 		StockCandleArray stockCandleArray;
 		
@@ -110,6 +120,6 @@ public class YahooParser extends StockParser {
 		return stockCandleArray;
 	}
 	
-	
+
 	
 }

@@ -1,14 +1,13 @@
 package indicator;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockFileWriter;
 import stock.StockParser;
 import util.StockUtil;
 import yahoo.YahooParser;
@@ -72,6 +71,7 @@ public class StockIndicatorParser extends StockParser {
 		stockIndicator.setBollingerBandsPercentB(Double.parseDouble(lineArray[StockIndicatorConst.BOLLINGER_BANDS_PERCENTB_PIECE]));
 		stockIndicator.setBollingerBandsBandwidth(Double.parseDouble(lineArray[StockIndicatorConst.BOLLINGER_BANDS_BANDWIDTH_PIECE]));
 		stockIndicator.setEMADistance(Double.parseDouble(lineArray[StockIndicatorConst.EMA_DISTANCE_PIECE]));
+		stockIndicator.setVolume(Integer.parseInt(lineArray[StockIndicatorConst.VOLUME_PIECE]));
 		
 		//Add new indicators here
 	}
@@ -122,7 +122,11 @@ public class StockIndicatorParser extends StockParser {
 				if (stockIndicator.hasNANValue()) {
 					continue;
 				}
-				if (stockIndicator.filterIndicator()) {
+//				if (stockIndicator.filterIndicator()) {
+//					continue;
+//				}
+				//If the volume is too low then not counting the indicator.
+				if (stockIndicator.getVolume() < StockIndicatorConst.MIN_VOLUME) {
 					continue;
 				}
 				stockIndicatorArray.add(stockIndicator);
@@ -149,8 +153,8 @@ public class StockIndicatorParser extends StockParser {
 		if (directoryList == null) return null;
 		StockIndicatorArray stockIndicatorArray = new StockIndicatorArray();
 		for (File csvFile : directoryList) {
-			char c = csvFile.getName().charAt(0);
-			if (c >= 'F') break;
+//			char c = csvFile.getName().charAt(0);
+//			if (c >= 'F') break;
 			System.out.println("Reading File: " + csvFile.getName());
 			StockIndicatorArray singleStockIndicatorArray = readCSVFile(csvFile, startDate, endDate);
 			StockIndicatorArray.copyStockIndicatorArray(singleStockIndicatorArray, stockIndicatorArray);
@@ -170,9 +174,7 @@ public class StockIndicatorParser extends StockParser {
 	public static void writeStockIndicators() throws Exception {
 		File directory = new File(StockIndicatorConst.STOCK_CSV_DIRECTORY_PATH);
 		File[] directoryList = directory.listFiles();
-		File outputFile;
-		FileWriter fw;
-		BufferedWriter bw;
+		StockFileWriter sfw;
 		StockCandleArray stockCandleArray;
 		
 		if (directoryList == null) return;
@@ -181,45 +183,44 @@ public class StockIndicatorParser extends StockParser {
 			//Initialize parser and parse each line of the stock data.
 			System.out.println(csvFile.getName());
 			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);
-			outputFile = new File(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleArray.getSymbol() + "_Indicators.csv");
-			outputFile.createNewFile();
-			fw = new FileWriter(outputFile.getAbsoluteFile());
-			bw = new BufferedWriter(fw);
+			sfw = new StockFileWriter(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleArray.getSymbol() + "_Indicators.csv");
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			
-			bw.write("Date" + ",");
-			bw.write("Stock Gain (" + StockIndicatorConst.STOCKGAINS_PERIOD + " days),");
-			bw.write("RSI" + ",");
-			bw.write("Bollinger Bands Percent B" + ",");
-			bw.write("Bollinger Bands Bandwidth" + ",");
-			bw.write("EMA Distance" + ",");
+			sfw.write("Date" + ",");
+			sfw.write("Stock Gain (" + StockIndicatorConst.STOCK_GAIN_PERIOD + " days),");
+			sfw.write("RSI" + ",");
+			sfw.write("Bollinger Bands Percent B" + ",");
+			sfw.write("Bollinger Bands Bandwidth" + ",");
+			sfw.write("EMA Distance" + ",");
+			sfw.write("Volume" + ",");
 			//Add new indicators here
-			bw.newLine();
+			sfw.newLine();
 			
 			Date[] stockDates = new Date[stockCandleArray.size()];
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				stockDates[i] = stockCandleArray.getDate(i);
 			}
-			double[] stockGains = StockGain.getStockGain(stockCandleArray, StockIndicatorConst.STOCKGAINS_PERIOD);
+			double[] stockGains = StockGain.getStockGain(stockCandleArray, StockIndicatorConst.STOCK_GAIN_PERIOD);
 			double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, StockIndicatorConst.RSI_PERIOD);
 			double[] bbandsPercentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
 			double[] bbandsBandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
 			double[] emaDistance = StockIndicatorAPI.getExponentialMovingAverageDistance(stockCandleArray, StockIndicatorConst.EMA_DISTANCE_PERIOD);
+			int[] volume = StockIndicatorAPI.getVolume(stockCandleArray);
 			//Add new indicators here
 			
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				String strDate = formatter.format(stockDates[i]);
-				bw.write(strDate + ",");
-				bw.write(stockGains[i] + ",");
-				bw.write(rsi[i] + ",");
-				bw.write(bbandsPercentB[i] + ",");
-				bw.write(bbandsBandwidth[i] + ",");
-				bw.write(emaDistance[i] + ",");
+				sfw.write(strDate + ",");
+				sfw.write(stockGains[i] + ",");
+				sfw.write(rsi[i] + ",");
+				sfw.write(bbandsPercentB[i] + ",");
+				sfw.write(bbandsBandwidth[i] + ",");
+				sfw.write(emaDistance[i] + ",");
+				sfw.write(volume[i] + ",");
 				//Add new indicators here
-				bw.newLine();
+				sfw.newLine();
 			}		
-			bw.close();
-			fw.close();
+			sfw.close();
 		}
 	}
 }

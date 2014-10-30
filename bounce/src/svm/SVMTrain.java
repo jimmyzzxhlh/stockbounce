@@ -25,7 +25,7 @@ public class SVMTrain {
 	
 	private StockIndicatorArray stockIndicatorArray;
 	private svm_problem svmProblem;
-	private int dataCount;
+	private int dataCount; 	
 	private svm_parameter svmParameter;
 	private svm_model svmModel;
 	
@@ -84,6 +84,28 @@ public class SVMTrain {
 //	    }
 	}
 	
+	public void createProblemForOneClassSVM() {
+		svmProblem = new svm_problem();
+		int totalDataCount = stockIndicatorArray.getStockGainCount(StockIndicatorConst.STOCK_GAIN_MIN_FOR_ONE_CLASS_SVM);
+	    svmProblem.l = totalDataCount;
+	    svmProblem.x = new svm_node[totalDataCount][];
+	    svmProblem.y = new double[totalDataCount];
+	    
+	    int currentDataCount = 0;
+	    for (int i = 0; i < stockIndicatorArray.size(); i++) {
+	    	StockIndicator stockIndicator = stockIndicatorArray.get(i);
+	    	if (!hasEnoughStockGain(stockIndicator)) continue;
+	    	svm_node[] nodes = createSVMNodeArray(stockIndicator);
+	    	if (nodes == null) {
+				System.err.println("NAN values found from " + stockIndicator.getSymbol() + " at " + stockIndicator.getDate().toLocaleString());
+			}
+			svmProblem.x[currentDataCount] = nodes;
+	        //The classification is always 1.
+	        svmProblem.y[currentDataCount] = 1;
+	        currentDataCount++;	    	
+	    }
+	}
+	
 	public void createDefaultParameter() {	
 	    svmParameter = new svm_parameter();
 	    //whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
@@ -121,6 +143,37 @@ public class SVMTrain {
 	    
 	}
 	
+	public void createDefaultParameterForOneClassSVM() {
+	    svmParameter = new svm_parameter();
+	    //whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
+	    svmParameter.probability = 0;  
+	    //set gamma in kernel function (default 1/num_features)
+	    //Ideal value of Gamma needs to be searched.
+//	    svmParameter.gamma = 100;
+	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
+	    //parameter nu in (0,1] is an upper bound on the fraction of training errors and a lower bound of the fraction of support vectors.
+	    svmParameter.nu = 0.95;
+//	    svm_type : set type of SVM (default 0)
+//		0 -- C-SVC		(multi-class classification)
+//		1 -- nu-SVC		(multi-class classification)
+//		2 -- one-class SVM	
+//		3 -- epsilon-SVR	(regression)
+//		4 -- nu-SVR		(regression)
+	    svmParameter.svm_type = svm_parameter.ONE_CLASS;
+//	    kernel_type : set type of kernel function (default 2)
+//		0 -- linear: u'*v
+//		1 -- polynomial: (gamma*u'*v + coef0)^degree
+//		2 -- radial basis function: exp(-gamma*|u-v|^2)
+//		3 -- sigmoid: tanh(gamma*u'*v + coef0)
+//		4 -- precomputed kernel (kernel values in training_set_file)
+	    svmParameter.kernel_type = svm_parameter.RBF;
+//	    svmParameter.kernel_type = svm_parameter.LINEAR;
+//	    Set cache memory size in MB (default 100)
+	    svmParameter.cache_size = 1000;
+//	    set the epsilon in loss function of epsilon-SVR (default 0.1)
+	    svmParameter.eps = 0.1; 
+	}
+	
 	public void startTraining() {
 		System.out.println("Any problem for parameters? : " + svm.svm_check_parameter(svmProblem, svmParameter));
 	    System.out.println("Training SVM model...");
@@ -151,6 +204,19 @@ public class SVMTrain {
 	    return predict;
 	}
 	
+	public double predictSingleDayForOneClassSVM(StockIndicator stockIndicator) {
+		//Notice that if we have done scaling on the training data, then the testing data also needs to be scaled
+		//using the same method.
+		svm_node[] nodes = createSVMNodeArray(stockIndicator);
+		if (nodes == null) {
+			System.err.println("NAN values found from " + stockIndicator.getSymbol() + " at " + stockIndicator.getDate().toLocaleString());
+		}
+		
+//		double predict = svm.svm_predict_values(svmModel, nodes, dec_values);
+		double predict = svm.svm_predict(svmModel, nodes);
+	    return predict;
+	}
+	
 	public static svm_node[] createSVMNodeArray(StockIndicator stockIndicator) { 
     	double[] indicatorVector = stockIndicator.getNormalizedIndicatorVector();
     	//If any indicator value is NAN, then return null
@@ -163,6 +229,11 @@ public class SVMTrain {
             svmNodeArray[i] = node;
         }     
         return svmNodeArray;
+	}
+	
+	public boolean hasEnoughStockGain(StockIndicator stockIndicator) {
+		if (stockIndicator.hasEnoughStockGain(StockIndicatorConst.STOCK_GAIN_MIN_FOR_ONE_CLASS_SVM)) return true;
+		return false;
 	}
 	
 }

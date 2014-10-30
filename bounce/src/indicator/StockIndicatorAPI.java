@@ -373,4 +373,17 @@ public class StockIndicatorAPI {
 		}
 		return emaDistance;		
 	}
+	
+	/**
+	 * Return an array of volume from stock candle array.
+	 * @param stockCandleArray
+	 * @return
+	 */
+	public static int[] getVolume(StockCandleArray stockCandleArray) {
+		int[] volume = new int[stockCandleArray.size()];
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			volume[i] = stockCandleArray.getVolume(i);
+		}
+		return volume;
+	}
 }

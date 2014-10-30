@@ -1,5 +1,7 @@
 package stock;
 
+import indicator.StockIndicatorArray;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -195,7 +197,7 @@ public class StockCandleArray {
 		}
 		return result;		
 	}
-	
+
 
 }
 			

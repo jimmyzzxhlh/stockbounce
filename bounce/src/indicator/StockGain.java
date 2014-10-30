@@ -76,6 +76,10 @@ public class StockGain {
 		return stockGains;
 	}
 	
+	public static double[] getStockGain(StockCandleArray stockCandleArray) {
+		return getStockGain(stockCandleArray, StockIndicatorConst.STOCK_GAIN_PERIOD);
+	}
+	
 	/**
 	 * Get an array of exponential moving average coefficients.
 	 * This can be used by the gain evaluation function and the coefficients can be adjusted in the future.

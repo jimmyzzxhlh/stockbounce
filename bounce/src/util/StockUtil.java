@@ -33,5 +33,46 @@ public class StockUtil {
 		return filename;
 	}
 	
+	public static double getMax(double[] input) {
+		double max = -1e10; 
+		for (int i = 0; i < input.length; i++) {
+			if (input[i] > max) {
+				max = input[i];
+			}
+		}
+		return max;
+	}
+		
+	public static double getMin(double[] input) {
+		double min = 1e10; 
+		for (int i = 0; i < input.length; i++) {
+			if (input[i] < min) {
+				min = input[i];
+			}
+		}
+		return min;
+	}
+	
+	public static int getMax(int[] input) {
+		int max = (int) -1e10; 
+		for (int i = 0; i < input.length; i++) {
+			if (input[i] > max) {
+				max = input[i];
+			}
+		}
+		return max;
+	}
+		
+	public static int getMin(int[] input) {
+		int min = (int) 1e10; 
+		for (int i = 0; i < input.length; i++) {
+			if (input[i] < min) {
+				min = input[i];
+			}
+		}
+		return min;
+	}
+
+	
 	
 }

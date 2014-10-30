@@ -22,12 +22,9 @@ import svm.SVMTrain;
 public class SVMTest {
 	public static void main(String args[]) {
 //		testSVMUsingFakeData();
-		testSVMUsingRealData();
-//		testSVMStockGainAnalysis();
-//		testRSIAnalysis();
-//		testBBPercentBAnalysis();
-//		testBBBandwidthAnalysis();
-//		testEMADistanceAnalysis();
+//		testSVMUsingRealData();
+//		testOneClassSVMUsingFakeData();
+		testOneClassSVMUsingRealData();
 	}
 	
 	/**
@@ -113,6 +110,80 @@ public class SVMTest {
 	   
 	}
 	
+	public static void testOneClassSVMUsingFakeData() {
+
+		//Create training data
+		//Create the model
+		svm_problem svmProblem = new svm_problem();
+	    int dataCount = 1000;
+	    svmProblem.x = new svm_node[dataCount][];
+	    svmProblem.y = new double[dataCount];
+	    svmProblem.l = dataCount;
+	    
+	    for (int i = 0; i < dataCount; i++){            
+	        svmProblem.x[i] = new svm_node[2];
+	        svm_node nodeOne = new svm_node();
+	        nodeOne.index = 1;
+	        nodeOne.value = i + 1000;
+	        svm_node nodeTwo = new svm_node();
+	        nodeTwo.index = 2;
+	        nodeTwo.value = 0;
+	        svmProblem.x[i][0] = nodeOne;
+	        svmProblem.x[i][1] = nodeTwo;
+	        svmProblem.y[i] = 1;
+	    }               
+
+	    //Train the model.
+	    svm_parameter param = new svm_parameter();
+	    //whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 0)
+	    param.probability = 0;  
+	    //set gamma in kernel function (default 1/num_features)
+	    param.gamma = 0.1;
+	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
+	    //parameter nu in (0,1] is an upper bound on the fraction of training errors and a lower bound of the fraction of support vectors.
+	    param.nu = 0.1;	    
+//	    svm_type : set type of SVM (default 0)
+//		0 -- C-SVC		(multi-class classification)
+//		1 -- nu-SVC		(multi-class classification)
+//		2 -- one-class SVM	
+//		3 -- epsilon-SVR	(regression)
+//		4 -- nu-SVR		(regression)
+	    param.svm_type = svm_parameter.ONE_CLASS;
+//	    kernel_type : set type of kernel function (default 2)
+//		0 -- linear: u'*v
+//		1 -- polynomial: (gamma*u'*v + coef0)^degree
+//		2 -- radial basis function: exp(-gamma*|u-v|^2)
+//		3 -- sigmoid: tanh(gamma*u'*v + coef0)
+//		4 -- precomputed kernel (kernel values in training_set_file)
+	    param.kernel_type = svm_parameter.RBF;
+//	    Set cache memory size in MB (default 100)
+	    param.cache_size = 2000;
+//	    set the epsilon in loss function of epsilon-SVR (default 0.1)
+	    param.eps = 0.001;      
+
+	    svm_model model = svm.svm_train(svmProblem, param);
+	    
+	    //Create test cases and evaluate 
+	    svm_node[] testNodes = createOneClassTestNodes(-1);
+	    testOneClassSVMEvaluate(model, testNodes, -1);
+	    testNodes = createOneClassTestNodes(1500.5);
+	    testOneClassSVMEvaluate(model, testNodes, 1);
+	    testNodes = createOneClassTestNodes(1500);
+	    testOneClassSVMEvaluate(model, testNodes, 1);
+	    testNodes = createOneClassTestNodes(10000);
+	    testOneClassSVMEvaluate(model, testNodes, -1);
+	    testNodes = createOneClassTestNodes(2000.5);
+	    testOneClassSVMEvaluate(model, testNodes, -1);
+	    testNodes = createOneClassTestNodes(2000);
+	    testOneClassSVMEvaluate(model, testNodes, -1);
+	    testNodes = createOneClassTestNodes(1999);
+	    testOneClassSVMEvaluate(model, testNodes, 1);
+	    testNodes = createOneClassTestNodes(1998);
+	    testOneClassSVMEvaluate(model, testNodes, 1);
+	    testNodes = createOneClassTestNodes(1998.01);
+	    testOneClassSVMEvaluate(model, testNodes, 1);
+	   
+	}
 	private static void testSVMEvaluate(double[] features, svm_model model) {
 		//Notice that the features array can be in double format.
 		
@@ -143,12 +214,34 @@ public class SVMTest {
 	    
 	}
 	
+	private static void testOneClassSVMEvaluate(svm_model model, svm_node nodes[], double result) {
+//		double[] dec_values = new double[1];
+//		double predict = svm.svm_predict_values(model, nodes, dec_values);
+//	    System.out.println("(Actual:" + result + " Prediction:" + predict + " Dec_values:" + dec_values[0] + ")");
+		double predict = svm.svm_predict(model, nodes);
+	    System.out.println("(Actual:" + result + " Prediction:" + predict + ")");
+	}
+	
 	private static double[] createTestFeature(double result, double x, double y) {
 		double[] feature = new double[3];
 		feature[0] = result;
 		feature[1] = x;
 		feature[2] = y;
 		return feature;
+	}
+	
+	public static svm_node[] createOneClassTestNodes(double x) {
+		svm_node[] nodes = new svm_node[2];
+		svm_node nodeOne = new svm_node();
+		nodeOne.index = 1;
+		nodeOne.value = x;
+	    nodes[0] = nodeOne;
+		svm_node nodeTwo = new svm_node();
+		nodeTwo.index = 2;
+		nodeTwo.value = 0;
+	    nodes[1] = nodeTwo;
+	    return nodes;	    
+	    
 	}
 	
 	/**
@@ -262,129 +355,59 @@ public class SVMTest {
 	}
 	
 	/**
-	 * Analyze the distribution of the stock gain.
-	 * It turns out that the distribution is very symmetric. However most of the training data 
-	 * has gain between -10% to 10%, so we need to adjust SVM parameters, or we need to balance
-	 * the data set.
+	 * Testing SVM using indicator CSV files.
 	 */
-	private static void testSVMStockGainAnalysis() {
+	private static void testOneClassSVMUsingRealData() {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date trainStartDate = null;
+		Date trainEndDate = null;
+		//Specify the date range to test only a certain period.
+		try {
+			trainStartDate = formatter.parse("2011-01-01");
+			trainEndDate = formatter.parse("2013-12-31");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		SVMTrain svmTrain = new SVMTrain();
-		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH, trainStartDate, trainEndDate);
 		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
-		int[] stockGainArray = new int[201];
+		System.out.println("Total training data: " + stockIndicatorArray.size());
+		System.out.println("Total >= 20% gain training data: " + stockIndicatorArray.getStockGainCount(StockIndicatorConst.STOCK_GAIN_MIN_FOR_ONE_CLASS_SVM));
+		
+		svmTrain.createProblemForOneClassSVM();
+		svmTrain.createDefaultParameterForOneClassSVM();
+		
+		svmTrain.startTraining();
+		int correct = 0;
+		int wrong = 0;
+		int predictOne = 0;
+		int predictZero = 0;
+		//Right now just testing using the trained data (which, ideally, should be 100% accurate)
 		for (int i = 0; i < stockIndicatorArray.size(); i++) {
-			int stockGain = (int)(Math.round(stockIndicatorArray.getStockGain(i))) + 100;
-			if (stockGain >= 200) stockGain = 200;
-			if (stockGain < 0) stockGain = 0;
-			stockGainArray[stockGain]++;
-//			if (stockGain == 199) {
-//				System.out.println(stockIndicatorArray.getSymbol(i) + " : " + stockIndicatorArray.getDate(i));
-//			}
-		}
-		for (int i = 0; i < stockGainArray.length; i++) {
-//			System.out.println((i - 100) + " : " + stockGainArray[i]);
-			System.out.println(stockGainArray[i]);
-			
-		}
-	}
-	
-	public static void testRSIAnalysis() {
-		int minStockGain = 100;
-		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
-			File f = new File("D:\\zzx\\Stock\\RSI_" + minStockGain + ".csv");
-			FileWriter fw = new FileWriter(f.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("Gain,RSI");
-			bw.newLine();
-			for (int i = 0; i < stockIndicatorArray.size(); i++) {
-				double stockGain = stockIndicatorArray.getStockGain(i);
-//				if (stockGain > 1000) {
-//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
-//				}
-				if (stockGain < minStockGain) continue;
-				bw.write(stockGain + "," + stockIndicatorArray.getRSI(i));
-				bw.newLine();
+			StockIndicator stockIndicator = stockIndicatorArray.get(i);
+			int predict = (int)svmTrain.predictSingleDayForOneClassSVM(stockIndicator);
+			if (predict == 1) {
+				predictOne++;
+				if (svmTrain.hasEnoughStockGain(stockIndicator)) {
+					correct++;
+				}
+				else if (stockIndicator.getStockGain() >= 10) {
+					correct++;
+				}
+				else {
+					wrong++;
+				}				
+			}		
+			else {
+				predictZero++;
 			}
-			bw.close();
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void testBBPercentBAnalysis() {
-		int minStockGain = 40;
-		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
-			File f = new File("D:\\zzx\\Stock\\BBPercentB_" + minStockGain + ".csv");
-			FileWriter fw = new FileWriter(f.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("Gain,BBPercentB");
-			bw.newLine();
-			for (int i = 0; i < stockIndicatorArray.size(); i++) {
-				double stockGain = stockIndicatorArray.getStockGain(i);
-//				if (stockGain > 1000) {
-//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
-//				}
-				if (stockGain < minStockGain) continue;
-				bw.write(stockGain + "," + stockIndicatorArray.getBollingerBandsPercentB(i));
-				bw.newLine();
-			}
-			bw.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void testBBBandwidthAnalysis() {
-		int minStockGain = 40;
-		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
-			File f = new File("D:\\zzx\\Stock\\BBBandwidth_" + minStockGain + ".csv");
-			FileWriter fw = new FileWriter(f.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("Gain,BBBandwidth");
-			bw.newLine();
-			for (int i = 0; i < stockIndicatorArray.size(); i++) {
-				double stockGain = stockIndicatorArray.getStockGain(i);
-//				if (stockGain > 1000) {
-//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
-//				}
-				if (stockGain < minStockGain) continue;
-				bw.write(stockGain + "," + stockIndicatorArray.getBollingerBandsBandwidth(i));
-				bw.newLine();
-			}
-			bw.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void testEMADistanceAnalysis() {
-		int minStockGain = 40;
-		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
-			File f = new File("D:\\zzx\\Stock\\emaDistance_" + minStockGain + ".csv");
-			FileWriter fw = new FileWriter(f.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("Gain,emaDistance");
-			bw.newLine();
-			for (int i = 0; i < stockIndicatorArray.size(); i++) {
-				double stockGain = stockIndicatorArray.getStockGain(i);
-//				if (stockGain > 1000) {
-//					System.err.println(stockIndicatorArray.getSymbol(i) + " " + stockIndicatorArray.getDate(i) + " " + stockIndicatorArray.getStockGain(i));
-//				}
-				if (stockGain < minStockGain) continue;
-				bw.write(stockGain + "," + stockIndicatorArray.getEMADistance(i));
-				bw.newLine();
-			}
-			bw.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		double accuracy = correct * 1.0 / (correct + wrong);
+		System.out.println("Correct: " + correct + ", Wrong: " + wrong + ", Accuracy: " + accuracy);
+		System.out.println("Predict 1: " + predictOne + ", 0: " + predictZero);
+		
 	}
 }
+
