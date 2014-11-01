@@ -23,7 +23,8 @@ public class DrawCoordinatesFrame extends JFrame {
 	int height;
 	int coordinateWidth;
 	int coordinateHeight;
-	Color color[][];
+	int pointCount[][];
+	Color pointColor[][];
 
 	
 	public DrawCoordinatesFrame(double[] x, double[] y, double scaleX, double scaleY) {
@@ -39,7 +40,8 @@ public class DrawCoordinatesFrame extends JFrame {
 		coordinateHeight = maxY;
 		width = coordinateWidth + 100;
 		height = coordinateHeight + 100;
-		color = new Color[coordinateWidth + 1][coordinateHeight + 1];
+		pointCount = new int[coordinateWidth + 1][coordinateHeight + 1];
+		pointColor = new Color[coordinateWidth + 1][coordinateHeight + 1];
 		
 		this.setSize(width, height);
 		this.setVisible(true);
@@ -55,12 +57,23 @@ public class DrawCoordinatesFrame extends JFrame {
 	public void paint(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		initializeCoordinateSystem(g2);
+		//Count the distribution of each point
 		//We assume that length of X is equal to length of Y.
 		for (int i = 0; i < x.length; i++) {
-			g2.setColor(color[intX[i]][intY[i]]);
+			pointCount[intX[i]][intY[i]]++;
+		}
+		int colorScale = Integer.MAX_VALUE / x.length;
+		System.out.println("Color scale: " + colorScale);
+		//Decide an appropriate color based on the distribution.
+		for (int i = 0; i < x.length; i++) {
+			String hexColor = String.format("#%06X", (0xFFFFFF & (pointCount[intX[i]][intY[i]] * colorScale)));
+			pointColor[intX[i]][intY[i]] = Color.decode(hexColor);
+		}
+		
+		for (int i = 0; i < x.length; i++) {
+			g2.setColor(pointColor[intX[i]][intY[i]]);
 			g2.drawLine(intX[i] - 1, intY[i], intX[i] + 1, intY[i]);
 			g2.drawLine(intX[i], intY[i] - 1, intX[i], intY[i] + 1);
-			color[intX[i]][intY[i]] = color[intX[i]][intY[i]].darker(); 
 		}
 	}
 	
@@ -75,7 +88,6 @@ public class DrawCoordinatesFrame extends JFrame {
 	}
 	
 	private void initializeCoordinateSystem(Graphics2D g2) {
-		Color originalColor = g2.getColor();
 		g2.setColor(Color.black);
 		drawCoordinateLabels(g2);
 		g2.translate(50, height - 50);
@@ -91,11 +103,6 @@ public class DrawCoordinatesFrame extends JFrame {
 		int unitHeight = coordinateHeight / 10;
 		for (int i = unitHeight; i <= coordinateHeight; i += unitHeight) {
 			g2.drawLine(-5, i, 5, i);
-		}
-		for (int i = 0; i <= coordinateWidth; i++) {
-			for (int j = 0; j <= coordinateHeight; j++) {
-				color[i][j] = Color.red; 
-			}
 		}
 		
 	}

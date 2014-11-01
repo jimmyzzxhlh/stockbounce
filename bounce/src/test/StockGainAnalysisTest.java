@@ -92,7 +92,7 @@ public class StockGainAnalysisTest {
 				continue;
 			}
 			if (stockGain <= -100) {
-				x[index] = -100;
+				x[index] = 0;
 				continue;
 			}
 			x[index] = stockGain + 100;
@@ -101,7 +101,7 @@ public class StockGainAnalysisTest {
 		System.out.println("RSI count: " + rsiCount);
 		System.out.println("Total count: " + index);
 		System.out.println("Percentage: " + rsiCount * 100.0 / index);
-//		DrawCoordinatesFrame f = new DrawCoordinatesFrame(x, y, 2, 10);
+		DrawCoordinatesFrame f = new DrawCoordinatesFrame(x, y, 2, 10);
 		
 	}
 	

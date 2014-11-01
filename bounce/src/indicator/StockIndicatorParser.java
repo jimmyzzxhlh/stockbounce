@@ -153,8 +153,8 @@ public class StockIndicatorParser extends StockParser {
 		if (directoryList == null) return null;
 		StockIndicatorArray stockIndicatorArray = new StockIndicatorArray();
 		for (File csvFile : directoryList) {
-//			char c = csvFile.getName().charAt(0);
-//			if (c >= 'F') break;
+			char c = csvFile.getName().charAt(0);
+			if (c >= 'F') break;
 			System.out.println("Reading File: " + csvFile.getName());
 			StockIndicatorArray singleStockIndicatorArray = readCSVFile(csvFile, startDate, endDate);
 			StockIndicatorArray.copyStockIndicatorArray(singleStockIndicatorArray, stockIndicatorArray);
