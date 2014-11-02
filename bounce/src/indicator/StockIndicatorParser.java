@@ -176,30 +176,50 @@ public class StockIndicatorParser extends StockParser {
 		File[] directoryList = directory.listFiles();
 		StockFileWriter sfw;
 		StockCandleArray stockCandleArray;
+		int excludedDays = 0;
+		int includedPoints = 0;
 		
 		if (directoryList == null) return;
 		
 		for (File csvFile : directoryList) {
 			//Initialize parser and parse each line of the stock data.
-			System.out.println(csvFile.getName());
+			//System.out.println(csvFile.getName());
 			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);
 			sfw = new StockFileWriter(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleArray.getSymbol() + "_Indicators.csv");
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			
-			sfw.write("Date" + ",");
-			sfw.write("Stock Gain (" + StockIndicatorConst.STOCK_GAIN_PERIOD + " days),");
-			sfw.write("RSI" + ",");
-			sfw.write("Bollinger Bands Percent B" + ",");
-			sfw.write("Bollinger Bands Bandwidth" + ",");
-			sfw.write("EMA Distance" + ",");
-			sfw.write("Volume" + ",");
+			String headerLine[] = new String[StockIndicatorConst.PIECE_NUMBER];
+			headerLine[StockIndicatorConst.DATE_PIECE] = "Date" + ",";
+			headerLine[StockIndicatorConst.STOCK_OPEN_PIECE] = "Open" + ",";
+			headerLine[StockIndicatorConst.STOCK_CLOSE_PIECE] = "Close" + ",";
+			headerLine[StockIndicatorConst.STOCK_HIGH_PIECE] = "High" + ",";
+			headerLine[StockIndicatorConst.STOCK_LOW_PIECE] = "Low" + ",";
+			headerLine[StockIndicatorConst.STOCKGAIN_PIECE] = "Stock Gain (" + StockIndicatorConst.STOCK_GAIN_PERIOD + " days),";
+			headerLine[StockIndicatorConst.RSI_PIECE] = "RSI" + ",";
+			headerLine[StockIndicatorConst.BOLLINGER_BANDS_PERCENTB_PIECE] = "Bollinger Bands Percent B" + ",";
+			headerLine[StockIndicatorConst.BOLLINGER_BANDS_BANDWIDTH_PIECE] = "Bollinger Bands Bandwidth" + ",";
+			headerLine[StockIndicatorConst.EMA_DISTANCE_PIECE] = "EMA Distance" + ",";
+			headerLine[StockIndicatorConst.VOLUME_PIECE] = "Volume" + ",";
 			//Add new indicators here
+			
+			for (int i=0; i < StockIndicatorConst.PIECE_NUMBER; i ++){
+				sfw.write(headerLine[i]);
+			}
 			sfw.newLine();
 			
 			Date[] stockDates = new Date[stockCandleArray.size()];
+			double[] stockOpens = new double[stockCandleArray.size()];
+			double[] stockCloses = new double[stockCandleArray.size()];
+			double[] stockHighs = new double[stockCandleArray.size()];
+			double[] stockLows = new double[stockCandleArray.size()];
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				stockDates[i] = stockCandleArray.getDate(i);
+				stockOpens[i] = stockCandleArray.getOpen(i);
+				stockCloses[i] = stockCandleArray.getClose(i);
+				stockHighs[i] = stockCandleArray.getHigh(i);
+				stockLows[i] = stockCandleArray.getLow(i);
 			}
+			
 			double[] stockGains = StockGain.getStockGain(stockCandleArray, StockIndicatorConst.STOCK_GAIN_PERIOD);
 			double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, StockIndicatorConst.RSI_PERIOD);
 			double[] bbandsPercentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
@@ -207,20 +227,73 @@ public class StockIndicatorParser extends StockParser {
 			double[] emaDistance = StockIndicatorAPI.getExponentialMovingAverageDistance(stockCandleArray, StockIndicatorConst.EMA_DISTANCE_PERIOD);
 			int[] volume = StockIndicatorAPI.getVolume(stockCandleArray);
 			//Add new indicators here
-			
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+			for (int i = 0; i < stockCandleArray.size(); i++) 
+			{
+				if (stockCandleArray.getClose(i) < 3){
+					continue;
+				}
+				if (stockCandleArray.getVolume(i) < 5e5){
+					continue;
+				}
+				//if (stockCandleArray.getVolume(i) * stockCandleArray.getClose(i) < 1e7){
+				//	continue;
+				//}
+				//Exclude stock gains impacted by breaking news
+				boolean exclude = false;
+				if (i + StockIndicatorConst.STOCK_GAIN_PERIOD < stockCandleArray.size()) 
+				{
+					for (int j = 0; j < StockIndicatorConst.STOCK_GAIN_PERIOD; j ++)
+					{			
+						double closePrice = stockCandleArray.getClose(i + j);
+						double nextdayOpenPrice = stockCandleArray.getOpen(i + j + 1);
+						double nextdayClosePrice = stockCandleArray.getClose(i + j + 1);
+						if (Math.abs(nextdayOpenPrice - closePrice)/closePrice > StockIndicatorConst.NEXTDAY_OPEN_DIFFERENCE_THRESHOLD) {
+							exclude = true;								
+							//System.out.println(stockCandleArray.getSymbol() + " Next day open difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							break;
+						}
+						if (Math.abs(nextdayClosePrice - nextdayOpenPrice)/closePrice > StockIndicatorConst.SAMEDAY_OPEN_CLOSE_DIFFERENCE_THRESHOLD) {
+							exclude = true;
+							//System.out.println(stockCandleArray.getSymbol() + " Same day open/close difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							break;
+						}
+						if (Math.abs(nextdayClosePrice - closePrice)/closePrice > StockIndicatorConst.NEXTDAY_CLOSE_DIFFERENCE_THRESHOLD) {
+							exclude = true;
+							//System.out.println(stockCandleArray.getSymbol() + " Next day close difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							break;
+						}
+					}
+					if (exclude == true){
+						excludedDays ++;
+						continue;
+					}
+				}
+				
+				String indicatorLine[] = new String[StockIndicatorConst.PIECE_NUMBER];
 				String strDate = formatter.format(stockDates[i]);
-				sfw.write(strDate + ",");
-				sfw.write(stockGains[i] + ",");
-				sfw.write(rsi[i] + ",");
-				sfw.write(bbandsPercentB[i] + ",");
-				sfw.write(bbandsBandwidth[i] + ",");
-				sfw.write(emaDistance[i] + ",");
-				sfw.write(volume[i] + ",");
+				indicatorLine[StockIndicatorConst.DATE_PIECE] = strDate + ",";
+				indicatorLine[StockIndicatorConst.STOCK_OPEN_PIECE] = String.valueOf(stockOpens[i]) + ",";
+				indicatorLine[StockIndicatorConst.STOCK_CLOSE_PIECE] = String.valueOf(stockCloses[i]) + ",";
+				indicatorLine[StockIndicatorConst.STOCK_HIGH_PIECE] = String.valueOf(stockHighs[i]) + ",";
+				indicatorLine[StockIndicatorConst.STOCK_LOW_PIECE] = String.valueOf(stockLows[i]) + ",";
+				indicatorLine[StockIndicatorConst.STOCKGAIN_PIECE] = String.valueOf(stockGains[i]) + ",";
+				indicatorLine[StockIndicatorConst.RSI_PIECE] = String.valueOf(rsi[i]) + ",";
+				indicatorLine[StockIndicatorConst.BOLLINGER_BANDS_PERCENTB_PIECE] = String.valueOf(bbandsPercentB[i]) + ",";
+				indicatorLine[StockIndicatorConst.BOLLINGER_BANDS_BANDWIDTH_PIECE] = String.valueOf(bbandsBandwidth[i]) + ",";
+				indicatorLine[StockIndicatorConst.EMA_DISTANCE_PIECE] = String.valueOf(emaDistance[i]) + ",";
+				indicatorLine[StockIndicatorConst.VOLUME_PIECE] = String.valueOf(volume[i]) + ",";
 				//Add new indicators here
+				
+				for (int j = 0; j < StockIndicatorConst.PIECE_NUMBER; j ++){
+					sfw.write(indicatorLine[j]);
+				}
+				
 				sfw.newLine();
+				includedPoints ++;
 			}		
 			sfw.close();
 		}
+		System.out.println("Number of excluded stock indicators: " + excludedDays);
+		System.out.println("Number of included stock indicators: " + includedPoints);
 	}
 }
