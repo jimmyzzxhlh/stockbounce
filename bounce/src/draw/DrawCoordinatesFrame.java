@@ -17,7 +17,7 @@ public class DrawCoordinatesFrame extends JFrame {
 	public double[] y;
 	public int[] intX;
 	public int[] intY;
-	public double scaleX;
+	public double scaleX;    //Scale affects how large the window is.
 	public double scaleY;
 	int width;
 	int height;
@@ -25,6 +25,7 @@ public class DrawCoordinatesFrame extends JFrame {
 	int coordinateHeight;
 	int pointCount[][];
 	Color pointColor[][];
+	boolean hasPainted = false;
 
 	
 	public DrawCoordinatesFrame(double[] x, double[] y, double scaleX, double scaleY) {
@@ -55,6 +56,7 @@ public class DrawCoordinatesFrame extends JFrame {
 	
 	
 	public void paint(Graphics g) {
+		if (hasPainted) return;
 		Graphics2D g2 = (Graphics2D) g;
 		initializeCoordinateSystem(g2);
 		//Count the distribution of each point
@@ -75,6 +77,7 @@ public class DrawCoordinatesFrame extends JFrame {
 			g2.drawLine(intX[i] - 1, intY[i], intX[i] + 1, intY[i]);
 			g2.drawLine(intX[i], intY[i] - 1, intX[i], intY[i] + 1);
 		}
+		hasPainted = true;
 	}
 	
 	private void convertDoubleArrayToIntArray() {

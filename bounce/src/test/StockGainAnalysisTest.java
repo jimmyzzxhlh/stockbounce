@@ -2,6 +2,7 @@ package test;
 
 import indicator.StockIndicatorArray;
 import indicator.StockIndicatorConst;
+import indicator.StockIndicatorConst.INDICATORENUM;
 import indicator.StockIndicatorParser;
 
 import java.io.BufferedWriter;
@@ -9,16 +10,18 @@ import java.io.File;
 import java.io.FileWriter;
 
 import svm.SVMTrain;
+import util.StockUtil;
 import draw.DrawCoordinatesFrame;
 
 public class StockGainAnalysisTest {
 	
 	public static void main(String args[]) throws Exception {
 //		testSVMStockGainAnalysis();
-		testRSIAnalysis();
+//		testRSIAnalysis();
 //		testBBPercentBAnalysis();
 //		testBBBandwidthAnalysis();
 //		testEMADistanceAnalysis();
+		testIndicatorDependency();
 	}
 	
 
@@ -31,7 +34,7 @@ public class StockGainAnalysisTest {
 	 */
 	private static void testSVMStockGainAnalysis() {
 		SVMTrain svmTrain = new SVMTrain();
-		svmTrain.initializeStockIndicatorArray(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+		svmTrain.initializeStockIndicatorArray();
 		StockIndicatorArray stockIndicatorArray = svmTrain.getStockIndicatorArray();
 		int[] stockGainArray = new int[201];
 		for (int i = 0; i < stockIndicatorArray.size(); i++) {
@@ -70,7 +73,7 @@ public class StockGainAnalysisTest {
 		int minStockGain = -10000;
 		double rsiMin = 20;
 		double rsiMax = 60;
-		StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+		StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles();
 		
 //		double x[] = new double[stockIndicatorArray.size()];
 //		double y[] = new double[stockIndicatorArray.size()];
@@ -108,7 +111,7 @@ public class StockGainAnalysisTest {
 	public static void testBBPercentBAnalysis() {
 		int minStockGain = 40;
 		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles();
 			File f = new File("D:\\zzx\\Stock\\BBPercentB_" + minStockGain + ".csv");
 			FileWriter fw = new FileWriter(f.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -133,7 +136,7 @@ public class StockGainAnalysisTest {
 	public static void testBBBandwidthAnalysis() {
 		int minStockGain = 40;
 		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles();
 			File f = new File("D:\\zzx\\Stock\\BBBandwidth_" + minStockGain + ".csv");
 			FileWriter fw = new FileWriter(f.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -158,7 +161,7 @@ public class StockGainAnalysisTest {
 	public static void testEMADistanceAnalysis() {
 		int minStockGain = 40;
 		try {
-			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
+			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles();
 			File f = new File("D:\\zzx\\Stock\\emaDistance_" + minStockGain + ".csv");
 			FileWriter fw = new FileWriter(f.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
@@ -178,5 +181,23 @@ public class StockGainAnalysisTest {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void testIndicatorDependency() {
+		INDICATORENUM indicatorX = INDICATORENUM.RSI;
+		INDICATORENUM indicatorY = INDICATORENUM.BOLLINGER_BANDS_BANDWIDTH;
+		double[] x,y;
+		StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFiles();
+		x = new double[stockIndicatorArray.size()];
+		y = new double[stockIndicatorArray.size()];
+		for (int i = 0; i < stockIndicatorArray.size(); i++) {
+			x[i] = stockIndicatorArray.getIndicatorValue(indicatorX, i);
+			y[i] = stockIndicatorArray.getIndicatorValue(indicatorY, i);
+		}
+		
+		StockUtil.setLimitForArray(x, 0, 100, 0);
+		StockUtil.setLimitForArray(y, 0, 200, 0);
+		DrawCoordinatesFrame f = new DrawCoordinatesFrame(x, y, 10, 5);		
+		
 	}
 }

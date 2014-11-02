@@ -153,8 +153,8 @@ public class StockIndicatorParser extends StockParser {
 		if (directoryList == null) return null;
 		StockIndicatorArray stockIndicatorArray = new StockIndicatorArray();
 		for (File csvFile : directoryList) {
-			char c = csvFile.getName().charAt(0);
-			if (c >= 'F') break;
+//			char c = csvFile.getName().charAt(0);
+//			if (c >= 'F') break;
 			System.out.println("Reading File: " + csvFile.getName());
 			StockIndicatorArray singleStockIndicatorArray = readCSVFile(csvFile, startDate, endDate);
 			StockIndicatorArray.copyStockIndicatorArray(singleStockIndicatorArray, stockIndicatorArray);
@@ -165,6 +165,10 @@ public class StockIndicatorParser extends StockParser {
 	
 	public static StockIndicatorArray readCSVFiles(String directoryName) {
 		return readCSVFiles(directoryName, null, null);
+	}
+	
+	public static StockIndicatorArray readCSVFiles() {
+		return readCSVFiles(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH);
 	}
 	
 	/**
@@ -183,7 +187,7 @@ public class StockIndicatorParser extends StockParser {
 		
 		for (File csvFile : directoryList) {
 			//Initialize parser and parse each line of the stock data.
-			//System.out.println(csvFile.getName());
+			System.out.println(csvFile.getName());
 			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);
 			sfw = new StockFileWriter(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleArray.getSymbol() + "_Indicators.csv");
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

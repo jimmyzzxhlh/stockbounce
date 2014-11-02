@@ -41,8 +41,8 @@ public class SVMTrain {
 		
 	}
 	
-	public void initializeStockIndicatorArray(String directoryName) { 
-		stockIndicatorArray = StockIndicatorParser.readCSVFiles(directoryName);
+	public void initializeStockIndicatorArray() { 
+		stockIndicatorArray = StockIndicatorParser.readCSVFiles();
 	}
 	
 	public void initializeStockIndicatorArray(String directoryName, Date startDate, Date endDate) {
@@ -112,7 +112,7 @@ public class SVMTrain {
 	    svmParameter.probability = 0;  
 	    //set gamma in kernel function (default 1/num_features)
 	    //Ideal value of Gamma needs to be searched.
-	    svmParameter.gamma = 0.005;
+	    svmParameter.gamma = 0.5;
 	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
 //	    svmParameter.nu = 0.5;
 	    //set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default 1)

@@ -72,6 +72,14 @@ public class StockUtil {
 		}
 		return min;
 	}
+	
+	public static void setLimitForArray(double[] inputArray, double min, double max, double shift) {
+		for (int i = 0; i < inputArray.length; i++) {
+			inputArray[i] += shift;
+			if (inputArray[i] < min) inputArray[i] = min;
+			if (inputArray[i] > max) inputArray[i] = max;
+		}
+	}
 
 	
 	

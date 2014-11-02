@@ -214,6 +214,7 @@ public class StockIndicatorAPI {
 	/**
 	 * Return the %b indicator from the bollinger bands. The return value is normalized for percentage (i.e. * 100).
 	 * %b = (Close Price - Lower BB) / (Upper BB - Lower BB)
+	 * Range of the value: Can be either positive or negative, but most of the time it is around -100 to 100.
 	 * If stock price goes up and close price is greater than the upper BB, then %b > 1. If stock price goes down
 	 * and close price is less than the lower BB, then %b < 0. There is no restricted range for %b.
 	 * See the following wiki for the definition of bollinger bands.
@@ -244,6 +245,7 @@ public class StockIndicatorAPI {
 	
 	/**
 	 * Return the bandwidth from the bollinger bands. The return value is normalized for percentage (i.e. * 100)
+	 * Range of the value: >= 0, it is possible that the percentage can be >= 200, but rare.
 	 * Bandwidth = (Upper BB - Lower BB) / Middle BB
 	 * See the following wiki for the definition of bollinger bands.
 	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
@@ -386,4 +388,6 @@ public class StockIndicatorAPI {
 		}
 		return volume;
 	}
+	
+
 }

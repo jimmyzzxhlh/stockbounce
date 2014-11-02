@@ -22,9 +22,9 @@ import svm.SVMTrain;
 public class SVMTest {
 	public static void main(String args[]) {
 //		testSVMUsingFakeData();
-//		testSVMUsingRealData();
+		testSVMUsingRealData();
 //		testOneClassSVMUsingFakeData();
-		testOneClassSVMUsingRealData();
+//		testOneClassSVMUsingRealData();
 	}
 	
 	/**
@@ -254,7 +254,7 @@ public class SVMTest {
 		//Specify the date range to test only a certain period.
 		try {
 			trainStartDate = formatter.parse("2014-01-01");
-			trainEndDate = formatter.parse("2014-02-28");
+			trainEndDate = formatter.parse("2014-06-30");
 		}
 		catch (Exception e) {
 			e.printStackTrace();

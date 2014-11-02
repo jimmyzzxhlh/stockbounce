@@ -35,6 +35,11 @@ public class StockIndicatorConst {
 	public static final int EMA_DISTANCE_PERIOD = 50;
 	//Add new indicator constants here
 	
+	public static enum INDICATORENUM {
+		RSI, BOLLINGER_BANDS_PERCENTB, BOLLINGER_BANDS_BANDWIDTH, EMA_DISTANCE
+	}
+	
+	//Add new indicators here
 	public static final double NEXTDAY_OPEN_DIFFERENCE_THRESHOLD = 0.075;
 	public static final double SAMEDAY_OPEN_CLOSE_DIFFERENCE_THRESHOLD = 0.15;
 	public static final double NEXTDAY_CLOSE_DIFFERENCE_THRESHOLD = 0.20; 

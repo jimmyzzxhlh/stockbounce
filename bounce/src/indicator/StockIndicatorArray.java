@@ -1,5 +1,7 @@
 package indicator;
 
+import indicator.StockIndicatorConst.INDICATORENUM;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -85,5 +87,20 @@ public class StockIndicatorArray {
 			}
 		}
 		return stockGainCount;
+	}
+	
+	public double getIndicatorValue(INDICATORENUM indicatorEnum, int index) {
+		switch (indicatorEnum) {
+		case RSI:
+			return this.getRSI(index);
+		case BOLLINGER_BANDS_PERCENTB:
+			return this.getBollingerBandsPercentB(index);
+		case BOLLINGER_BANDS_BANDWIDTH:
+			return this.getBollingerBandsBandwidth(index);
+		case EMA_DISTANCE:
+			return this.getEMADistance(index);
+		//Add new indicators here.
+		}
+		return StockIndicatorConst.NAN;
 	}
 }
