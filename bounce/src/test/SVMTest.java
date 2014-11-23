@@ -22,9 +22,9 @@ import svm.SVMTrain;
 public class SVMTest {
 	public static void main(String args[]) {
 //		testSVMUsingFakeData();
-		testSVMUsingRealData();
+//		testSVMUsingRealData();
 //		testOneClassSVMUsingFakeData();
-//		testOneClassSVMUsingRealData();
+		testOneClassSVMUsingRealData();
 	}
 	
 	/**
@@ -380,6 +380,7 @@ public class SVMTest {
 		svmTrain.createDefaultParameterForOneClassSVM();
 		
 		svmTrain.startTraining();
+		System.out.println("Predicting...");
 		int correct = 0;
 		int wrong = 0;
 		int predictOne = 0;

@@ -152,7 +152,7 @@ public class SVMTrain {
 //	    svmParameter.gamma = 100;
 	    //set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default 0.5)
 	    //parameter nu in (0,1] is an upper bound on the fraction of training errors and a lower bound of the fraction of support vectors.
-	    svmParameter.nu = 0.95;
+	    svmParameter.nu = 0.1;
 //	    svm_type : set type of SVM (default 0)
 //		0 -- C-SVC		(multi-class classification)
 //		1 -- nu-SVC		(multi-class classification)

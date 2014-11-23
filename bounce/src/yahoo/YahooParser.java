@@ -120,6 +120,7 @@ public class YahooParser extends StockParser {
 		return stockCandleArray;
 	}
 	
+	
 
 	
 }
