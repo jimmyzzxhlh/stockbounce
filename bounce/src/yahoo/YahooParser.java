@@ -121,6 +121,5 @@ public class YahooParser extends StockParser {
 	}
 	
 	
-
 	
 }

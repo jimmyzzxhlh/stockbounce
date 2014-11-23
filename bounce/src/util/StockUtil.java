@@ -1,5 +1,10 @@
 package util;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 
 import stock.StockConst;
@@ -35,6 +40,11 @@ public class StockUtil {
 		int dotPos = filename.indexOf(".");
 		if (dotPos > 0) return filename.substring(0, dotPos);
 		return filename;
+	}
+	
+	public static String getSymbolFromFile(File file) {
+		if (file == null) return null;
+		return getSymbolFromFileName(file.getName());	
 	}
 	
 	public static double getMax(double[] input) {
@@ -107,5 +117,18 @@ public class StockUtil {
 		return found;		
 	}
 	
+	public static void downloadURL(String urlString, String filename) {
+		try {
+			URL site = new URL(urlString);
+		    ReadableByteChannel rbc = Channels.newChannel(site.openStream());
+			FileOutputStream fos = new FileOutputStream(filename);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.close();
+		}
+		catch (Exception e) {
+			System.err.println("Download " + urlString + " failed.");
+		}
+	}
 	
+		
 }

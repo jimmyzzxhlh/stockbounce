@@ -2,6 +2,8 @@ package stock;
 
 public class StockConst {
 	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
+	public static final String MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap.csv";
+	
 	
 	public static final String[] LARGE_MARKET_CAP_SYMBOLS = {
 		"AAL",
