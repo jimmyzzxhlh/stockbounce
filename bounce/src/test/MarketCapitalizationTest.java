@@ -6,6 +6,7 @@ import java.util.HashMap;
 import stock.StockCandleArray;
 import stock.StockConst;
 import stock.StockFileWriter;
+import stock.StockMarketCap;
 import stock.StockSharesOutstandingMap;
 import util.StockUtil;
 import yahoo.YahooParser;
@@ -26,6 +27,11 @@ public class MarketCapitalizationTest {
 		
 	}
 	
+	/**
+	 * Write turnover rate distribution to a CSV file.
+	 * Each line represents the probability that the turnover rate can appear.
+	 * Notice that we are only dealing with large market capitalization stock right now.
+	 */
 	private static void writeTurnoverRateDistribution() {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
 		File[] directoryList = directory.listFiles();
@@ -61,6 +67,8 @@ public class MarketCapitalizationTest {
 				System.err.println(csvFile.getName());
 				return;
 			}
+			//Right now we are only dealing with large market capitalization stock.
+			if (!StockMarketCap.isLargeMarketCap(symbol, stockCandleArray)) continue;
 			totalCandles += stockCandleArray.size();
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				int volume = stockCandleArray.getVolume(i);

@@ -12,6 +12,7 @@ public class StockMarketCap {
 	 * @return A double indicating market capitalization
 	 */
 	public static double getMarketCap(String symbol, StockCandleArray stockCandleArray) {
+		if (stockCandleArray.size() <= 0) return 0;
 		return getMarketCap(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));		
 	}
 	
@@ -22,6 +23,7 @@ public class StockMarketCap {
 	}
 	
 	public static boolean isLargeMarketCap(String symbol, StockCandleArray stockCandleArray) {
+		if (stockCandleArray.size() <= 0) return false;
 		return isLargeMarketCap(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
 	}
 	
