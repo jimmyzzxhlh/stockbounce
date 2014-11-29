@@ -21,12 +21,11 @@ public class StockMarketCap {
 		long sharesOutstanding = sharesOutstandingMap.get(symbol);
 		return currentClose * sharesOutstanding; 		
 	}
-	
+
 	public static boolean isLargeMarketCap(String symbol, StockCandleArray stockCandleArray) {
 		if (stockCandleArray.size() <= 0) return false;
 		return isLargeMarketCap(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
 	}
-	
 	
 	public static boolean isLargeMarketCap(String symbol, double currentClose) {
 		double marketCap = getMarketCap(symbol, currentClose);

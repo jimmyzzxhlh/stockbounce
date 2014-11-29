@@ -388,6 +388,5 @@ public class StockIndicatorAPI {
 		}
 		return volume;
 	}
-	
 
 }
