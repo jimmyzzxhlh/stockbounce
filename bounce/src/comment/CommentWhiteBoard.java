@@ -27,6 +27,21 @@ package comment;
  *
  * 一个非常非常基本的关于support vector的介绍：
  * http://stackoverflow.com/questions/9480605/what-is-the-relation-between-the-number-of-support-vectors-and-training-data-and
+ * 
+ * 
+ * 关于新定义的指标：
+ * 1. 函数f(x): 换手率和有多少day trading之间的关系，换手率越高的话那么做day trading的人会越多，换手率为x，f(x)为day trading的率
+ * 注意换手率可能会超过100%（但是应该非常罕见），f(x)则不会超过100%。
+ * 2. 函数g(d): 股票在某一天被抛掉的概率，是个非连续的函数
+ * 这些函数应当满足如下关系：
+ * 1. 平均下来做day trading的人大概有50%，因此，从网上得到的换手率可以除以2得到实际的换手率
+ * c_rate=c_rate/2
+ * 2. 平均的持有股票时间=1/(平均的换手率)
+ * 3. g(d)在某一段时间内（比如40天）里的和可以认为等于100%，相当于在第0天买的股票会在第1天到第40天之内被全部抛完。
+ * sigma(g(d))=1
+ * 4. 平均的持有股票时间=sigma(g(d)*d)，相当于期望值。
+ * 
+ * 
  */
 
 public class CommentWhiteBoard {

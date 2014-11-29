@@ -164,7 +164,7 @@ public class StockDownload {
 	 */
 	public static void downloadOutstandingSharesCSV() {
 		//Delete the file first so that the existing content is wiped out.
-		File f = new File(StockConst.MARKET_CAP_FILENAME);
+		File f = new File(StockConst.SHARES_OUTSTANDING_FILENAME);
 		f.delete();
 		StringBuilder sb = new StringBuilder();
 		ArrayList<String> symbolList = getSymbolList();
@@ -183,7 +183,7 @@ public class StockDownload {
 				count = 0;
 				StockUtil.downloadURL(urlString, TEMPORARY_MARKET_CAP_FILENAME);
 				//Merge the temporary file to the ultimate output file.
-				mergeFile(TEMPORARY_MARKET_CAP_FILENAME, StockConst.MARKET_CAP_FILENAME);
+				mergeFile(TEMPORARY_MARKET_CAP_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
 				try {
 					Thread.sleep(300);
 				} catch (InterruptedException e) {

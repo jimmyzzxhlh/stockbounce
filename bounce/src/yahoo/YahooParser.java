@@ -11,6 +11,7 @@ import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockParser;
 import stock.StockSharesOutstandingMap;
+import util.StockUtil;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 
@@ -84,7 +85,7 @@ public class YahooParser extends StockParser {
 		
 		YahooParser parser = new YahooParser(csvFile);
 		stockCandleArray = new StockCandleArray();
-		String symbol = csvFile.getName().substring(0, csvFile.getName().length() - 4);
+		String symbol = StockUtil.getSymbolFromFile(csvFile);
 		stockCandleArray.setSymbol(symbol);
 		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
 		stockCandleArray.setSharesOutstanding(sharesOutstandingMap.get(symbol));

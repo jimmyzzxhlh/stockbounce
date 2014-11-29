@@ -7,7 +7,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 
-import stock.StockConst;
+import stock.StockCandleArray;
 
 
 public class StockUtil {
@@ -36,10 +36,10 @@ public class StockUtil {
 	 */
 	public static String getSymbolFromFileName(String filename) {
 		int underscorePos = filename.indexOf("_");
-		if (underscorePos > 0) return filename.substring(0, underscorePos);
+		if (underscorePos > 0) return filename.substring(0, underscorePos).trim();
 		int dotPos = filename.indexOf(".");
-		if (dotPos > 0) return filename.substring(0, dotPos);
-		return filename;
+		if (dotPos > 0) return filename.substring(0, dotPos).trim();
+		return null;
 	}
 	
 	public static String getSymbolFromFile(File file) {
@@ -95,27 +95,6 @@ public class StockUtil {
 		}
 	}
 
-	/**
-	 * Return true if the stock symbol is has large market capitalization.
-	 * The definition is >= 10 billion. 
-	 * @param symbol
-	 * @param largeMarketCapMap Pass this variable if you need to use the function multiple times so that it
-	 * can be more efficient
-	 * @return
-	 */
-	public static boolean isLargeMarketCap(String symbol, HashMap<String, Integer> largeMarketCapMap) {
-		if (largeMarketCapMap != null) {
-			return largeMarketCapMap.containsKey(symbol);
-		}
-		largeMarketCapMap = new HashMap<String, Integer>();
-		boolean found = false;
-//		for (int i = 0; i < StockConst.LARGE_MARKET_CAP_SYMBOLS.length; i++) {
-//			String currentSymbol = StockConst.LARGE_MARKET_CAP_SYMBOLS[i];
-//			if (symbol.equals(currentSymbol)) found = true;
-//			largeMarketCapMap.put(currentSymbol, 1);			
-//		}
-		return found;		
-	}
 	
 	public static void downloadURL(String urlString, String filename) {
 		try {

@@ -3,137 +3,23 @@ package stock;
 public class StockConst {
 	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	public static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
-	public static final String MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap.csv";
+	public static final String SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\SharesOutstanding.csv";
+	public static final String TURNOVER_RATE_DISTRIBUTION_FILENAME = "D:\\zzx\\Stock\\TurnoverRateDistribution.csv";
+	public static final int TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH = 1000;
+	
+	//Market capitalization definition:
+	//Large: >= 10 billion
+	//Middle: 2-10 billion
+	//Small: < 2 billion
+	public static final double LARGE_MARKET_CAP_MIN = 1e10;
+	public static final double MIDDLE_MARKET_CAP_MAX = LARGE_MARKET_CAP_MIN - 1;
+	public static final double MIDDLE_MARKET_CAP_MIN = 2e9;
+	public static final double SMALL_MARKET_CAP_MAX = MIDDLE_MARKET_CAP_MIN - 1;
+	public static final double SMALL_MARKET_CAP_MIN = 0;
+	
 	public static final String COMPANY_LIST_NASDAQ_FILENAME = "D:\\zzx\\Stock\\companylist.csv";
 	
 	public static final String COMMA_DELIMITER = ",";
 	public static final String QUOTE_DELIMITER = "\"";
-	/*
-	public static final String[] LARGE_MARKET_CAP_SYMBOLS = {
-		"AAL",
-		"AAPL",
-		"ADBE",
-		"ADI",
-		"ADP",
-		"ADSK",
-		"AKAM",
-		"ALTR",
-		"ALXN",
-		"AMAT",
-		"AMGN",
-		"AMZN",
-		"ARMH",
-		"ASML",
-		"ATVI",
-		"AVGO",
-		"BBBY",
-		"BIDU",
-		"BIIB",
-		"BMRN",
-		"BRCM",
-		"CA",
-		"CELG",
-		"CERN",
-		"CHKP",
-		"CHRW",
-		"CHTR",
-		"CMCSA",
-		"CME",
-		"COST",
-		"CSCO",
-		"CTRX",
-		"CTSH",
-		"CTXS",
-		"DISCA",
-		"DISCK",
-		"DISH",
-		"DLTR",
-		"DTV",
-		"EA",
-		"EBAY",
-		"ENDP",
-		"EQIX",
-		"ERIC",
-		"ESRX",
-		"EXPE",
-		"FAST",
-		"FB",
-		"FISV",
-		"FITB",
-		"FOXA",
-		"GILD",
-		"GMCR",
-		"GOOG",
-		"GOOGL",
-		"GRMN",
-		"HSIC",
-		"IEP",
-		"ILMN",
-		"INCY",
-		"INTC",
-		"INTU",
-		"ISRG",
-		"JAZZ",
-		"JD",
-		"KLAC",
-		"KRFT",
-		"LBTYA",
-		"LLTC",
-		"LMCA",
-		"LRCX",
-		"LVNTA",
-		"MAR",
-		"MAT",
-		"MDLZ",
-		"MNST",
-		"MPEL",
-		"MSFT",
-		"MU",
-		"MYL",
-		"NFLX",
-		"NTAP",
-		"NTES",
-		"NTRS",
-		"NVDA",
-		"NXPI",
-		"ORLY",
-		"PAYX",
-		"PCAR",
-		"PCLN",
-		"PCYC",
-		"QCOM",
-		"QVCA",
-		"REGN",
-		"ROST",
-		"RYAAY",
-		"SBAC",
-		"SBUX",
-		"SHPG",
-		"SIAL",
-		"SIRI",
-		"SNDK",
-		"SRCL",
-		"STX",
-		"SWKS",
-		"SYMC",
-		"TRIP",
-		"TROW",
-		"TSCO",
-		"TSLA",
-		"TXN",
-		"VIAB",
-		"VIP",
-		"VOD",
-		"VRSK",
-		"VRTX",
-		"WDC",
-		"WFM",
-		"WPPGY",
-		"WYNN",
-		"XLNX",
-		"YHOO",
-	};
-	*/
-
-
+	
 }
