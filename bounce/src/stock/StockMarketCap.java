@@ -1,10 +1,6 @@
 package stock;
 
-import java.io.File;
 import java.util.HashMap;
-
-import util.StockUtil;
-import yahoo.YahooParser;
 
 public class StockMarketCap {
 
@@ -25,7 +21,15 @@ public class StockMarketCap {
 		return currentClose * sharesOutstanding; 		
 	}
 	
+	public static boolean isLargeMarketCap(String symbol, StockCandleArray stockCandleArray) {
+		return isLargeMarketCap(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
+	}
 	
 	
+	public static boolean isLargeMarketCap(String symbol, double currentClose) {
+		double marketCap = getMarketCap(symbol, currentClose);
+		if (marketCap >= StockConst.LARGE_MARKET_CAP_MIN) return true;
+		return false;
+	}
 	
 }
