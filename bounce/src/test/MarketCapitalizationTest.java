@@ -8,6 +8,7 @@ import stock.StockConst;
 import stock.StockFileWriter;
 import stock.StockMarketCap;
 import stock.StockSharesOutstandingMap;
+import stock.StockTurnoverRateDistribution;
 import util.StockUtil;
 import yahoo.YahooParser;
 
@@ -18,7 +19,8 @@ public class MarketCapitalizationTest {
 
 	public static void main(String args[]) throws Exception {
 //		testSharesOutstanding();
-		writeTurnoverRateDistribution();
+//		writeTurnoverRateDistribution();
+		getTurnoverRateDistribution();
 	}
 	
 	private static void testSharesOutstanding() {
@@ -88,6 +90,13 @@ public class MarketCapitalizationTest {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private static void getTurnoverRateDistribution() {
+		double[] distribution = StockTurnoverRateDistribution.getDistribution();
+		for (int i = 0; i < distribution.length; i++) {
+			System.out.println(i + " " + distribution[i]);
 		}
 	}
 

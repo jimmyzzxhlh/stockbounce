@@ -5,7 +5,8 @@ import java.io.FileReader;
 import java.util.HashMap;
 
 /**
- * This is a singleton class to prevent from reading the ouuts
+ * This is a singleton class to prevent from reading the CSV file multiple times.
+ * Get a map for <Symbol, outstanding shares>
  * @author jimmyzzxhlh-Dell
  *
  */

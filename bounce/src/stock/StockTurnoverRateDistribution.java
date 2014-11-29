@@ -27,6 +27,7 @@ public class StockTurnoverRateDistribution {
 			int index = 0;
 			while ((line = br.readLine()) != null) {
 				distribution[index] = Double.parseDouble(line);
+				index++;
 			}
 			br.close();
 		} 
