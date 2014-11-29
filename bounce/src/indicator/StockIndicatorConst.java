@@ -32,7 +32,7 @@ public class StockIndicatorConst {
 	public static final int BOLLINGER_BANDS_PERIOD = 20;
 	public static final int BOLLINGER_BANDS_K = 2;
 	public static final int EMA_DISTANCE_PERIOD = 50;
-	public static final int MAX_SALES_PERIOD = 40; //in days
+	public static final int MAX_SELL_PERIOD = 40; //in days
 	//Add new indicator constants here
 	
 	public static enum INDICATORENUM {
