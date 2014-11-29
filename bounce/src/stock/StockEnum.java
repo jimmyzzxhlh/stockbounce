@@ -11,6 +11,12 @@ public class StockEnum {
 		WEIGHTED_ORDINARY_LINEAR_REGRESSION
 	}
 	
+	public enum Exchange {
+		NASDAQ,
+		NYSE,
+		AMEX
+	}
+	
 	public enum StockPatternType {
 		ADVANCE_BLOCK,
 		BEARISH_BELT_HOLD,

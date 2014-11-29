@@ -3,13 +3,14 @@ package yahoo;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import org.joda.time.LocalDate;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
-import stock.StockConst;
 import stock.StockParser;
+import stock.StockSharesOutstandingMap;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 
@@ -85,13 +86,15 @@ public class YahooParser extends StockParser {
 		stockCandleArray = new StockCandleArray();
 		String symbol = csvFile.getName().substring(0, csvFile.getName().length() - 4);
 		stockCandleArray.setSymbol(symbol);
+		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		stockCandleArray.setSharesOutstanding(sharesOutstandingMap.get(symbol));
 		parser.startReadFile();
 		String line;
 		
 		int candleCount = 0;
 		
 		HolidayManager m = HolidayManager.getInstance(HolidayCalendar.UNITED_STATES);
-		
+		 
 		
 		try {
 			while ((line = parser.nextLine()) != null) {
@@ -108,7 +111,7 @@ public class YahooParser extends StockParser {
 //					System.out.println(stockCandle.getDate() + " is a holiday. Data will be ignored.");
 					continue;
 				}
-				stockCandleArray.add(stockCandle);
+				stockCandleArray.add(stockCandle);				
 				
 			}
 			parser.closeFile();

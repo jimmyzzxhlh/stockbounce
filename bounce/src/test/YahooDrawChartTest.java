@@ -9,9 +9,10 @@ import java.nio.channels.ReadableByteChannel;
 import javax.swing.WindowConstants;
 
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockFrame;
 import yahoo.YahooParser;
-import download.StockData;
+import download.StockDownload;
 
 //To get historical price:
 //http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=0&e=28&f=2010&g=d&a=3&b=12&c=1996&ignore=.csv
@@ -26,7 +27,7 @@ import download.StockData;
 public class YahooDrawChartTest {
 
 	private static final int FRAME_HEIGHT = 500;
-	private static final String filename = "D:\\zzx\\Stock\\CSV\\JD.csv";
+	private static final String filename = StockConst.STOCK_CSV_DIRECTORY_PATH + "JD.csv";
 	private static final int CANDLE_DAYS = 1;
 	private static final int CANDLE_DAYS_OFFSET = 0;
 	private static final int MAX_CANDLES = 200;

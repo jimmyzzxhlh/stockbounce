@@ -7,6 +7,7 @@ import java.util.Date;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockFileWriter;
 import stock.StockParser;
 import util.StockUtil;
@@ -176,7 +177,7 @@ public class StockIndicatorParser extends StockParser {
 	 * @throws Exception
 	 */
 	public static void writeStockIndicators() throws Exception {
-		File directory = new File(StockIndicatorConst.STOCK_CSV_DIRECTORY_PATH);
+		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
 		File[] directoryList = directory.listFiles();
 		StockFileWriter sfw;
 		StockCandleArray stockCandleArray;

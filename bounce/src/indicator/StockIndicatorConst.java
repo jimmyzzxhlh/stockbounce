@@ -19,7 +19,6 @@ public class StockIndicatorConst {
 	public static final double NAN = -1e10;
 	
 	//Related to reading CSV
-	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	public static final String INDICATOR_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\Indicators_CSV\\";
 	public static final int MIN_VOLUME = 0;
 	

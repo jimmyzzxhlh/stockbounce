@@ -2,9 +2,13 @@ package stock;
 
 public class StockConst {
 	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
+	public static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
 	public static final String MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap.csv";
+	public static final String COMPANY_LIST_NASDAQ_FILENAME = "D:\\zzx\\Stock\\companylist.csv";
 	
-	
+	public static final String COMMA_DELIMITER = ",";
+	public static final String QUOTE_DELIMITER = "\"";
+	/*
 	public static final String[] LARGE_MARKET_CAP_SYMBOLS = {
 		"AAL",
 		"AAPL",
@@ -129,6 +133,7 @@ public class StockConst {
 		"XLNX",
 		"YHOO",
 	};
+	*/
 
 
 }

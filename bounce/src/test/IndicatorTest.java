@@ -3,6 +3,7 @@ package test;
 import indicator.StockGain;
 import indicator.StockIndicatorAPI;
 import indicator.StockIndicatorArray;
+import indicator.StockIndicatorConst;
 import indicator.StockIndicatorParser;
 
 import java.text.DecimalFormat;
@@ -11,11 +12,12 @@ import java.util.Date;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import yahoo.YahooParser;
 
 public class IndicatorTest {
 	
-	private final static String FILENAME = "D:\\zzx\\Stock\\CSV\\JD.csv";
+	private final static String FILENAME = StockConst.STOCK_CSV_DIRECTORY_PATH + "JD.csv";
 	private final static int MAX_CANDLE = 500;
 	private final static DecimalFormat df = new DecimalFormat("0.00");
 	
@@ -47,7 +49,7 @@ public class IndicatorTest {
 	}
 	
 //	private static void testSimpleMovingAverageRealData() {
-//		final String filename = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
+//		final String filename = StockConst.STOCK_CSV_DIRECTORY_PATH + "CAMT.csv";
 //		final int maxCandle = 200;
 //		StockCandleArray stockCandleArray = YahooParser.readCSVFile(filename, maxCandle);
 //				
@@ -161,7 +163,7 @@ public class IndicatorTest {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			Date startDate = formatter.parse("2012-01-01");
 			Date endDate = formatter.parse("2012-01-31");
-			String fileName = "D:\\zzx\\Stock\\Indicators_CSV\\ZIPR_Indicators.csv";
+			String fileName = StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + "ZIPR_Indicators.csv";
 			StockIndicatorArray stockIndicatorArray = StockIndicatorParser.readCSVFile(fileName, startDate, endDate);
 			for (int i = 0; i < stockIndicatorArray.size(); i++){
 				System.out.print(stockIndicatorArray.getDate(i) + " ");

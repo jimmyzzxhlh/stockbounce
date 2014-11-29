@@ -109,11 +109,11 @@ public class StockUtil {
 		}
 		largeMarketCapMap = new HashMap<String, Integer>();
 		boolean found = false;
-		for (int i = 0; i < StockConst.LARGE_MARKET_CAP_SYMBOLS.length; i++) {
-			String currentSymbol = StockConst.LARGE_MARKET_CAP_SYMBOLS[i];
-			if (symbol.equals(currentSymbol)) found = true;
-			largeMarketCapMap.put(currentSymbol, 1);			
-		}
+//		for (int i = 0; i < StockConst.LARGE_MARKET_CAP_SYMBOLS.length; i++) {
+//			String currentSymbol = StockConst.LARGE_MARKET_CAP_SYMBOLS[i];
+//			if (symbol.equals(currentSymbol)) found = true;
+//			largeMarketCapMap.put(currentSymbol, 1);			
+//		}
 		return found;		
 	}
 	
@@ -123,10 +123,11 @@ public class StockUtil {
 		    ReadableByteChannel rbc = Channels.newChannel(site.openStream());
 			FileOutputStream fos = new FileOutputStream(filename);
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.flush();
 			fos.close();
 		}
 		catch (Exception e) {
-			System.err.println("Download " + urlString + " failed.");
+			e.printStackTrace();
 		}
 	}
 	

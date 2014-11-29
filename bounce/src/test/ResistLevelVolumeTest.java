@@ -4,11 +4,12 @@ import java.text.DecimalFormat;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import util.StockUtil;
 import yahoo.YahooParser;
 
 public class ResistLevelVolumeTest {
-	private static final String CSV_FILENAME = "D:\\zzx\\Stock\\CSV\\CAMT.csv";
+	private static final String CSV_FILENAME = StockConst.STOCK_CSV_DIRECTORY_PATH + "CAMT.csv";
 	private static final int MAX_CANDLE = 10000;
 	private static final int INTERVAL_DENOMINATOR = 15;
 	

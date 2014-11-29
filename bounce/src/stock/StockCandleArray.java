@@ -17,7 +17,7 @@ import stock.StockEnum.StockCandleDataType;
 public class StockCandleArray {
 	private ArrayList<StockCandle> stockCandleArray;
 	private String symbol;
-	
+	private long sharesOutstanding;
 	
 	public StockCandleArray(StockCandleArray inputStockCandleArray) {
 		this.stockCandleArray = new ArrayList<StockCandle>();
@@ -67,6 +67,14 @@ public class StockCandleArray {
 	
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
+	}
+	
+	public long getSharesOutstanding() {
+		return sharesOutstanding;
+	}
+
+	public void setSharesOutstanding(long sharesOutstanding) {
+		this.sharesOutstanding = sharesOutstanding;
 	}
 	
 	public StockCandleArray() {

@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockFrame;
 
 public class YahooDrawPattern {
@@ -19,7 +20,6 @@ public class YahooDrawPattern {
 	private static final int CANDLE_DAYS = 1;
 	private static final int CANDLE_DAYS_OFFSET = 0;
 	private int patternIndex = -1; 
-	private static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\"; //Assumes the directory exists!
 	private static final int WIDTH = 30; // The duration (days) before/after the indexed candle
 	
 	
@@ -62,12 +62,12 @@ public class YahooDrawPattern {
 		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
 		DateFormat df = new SimpleDateFormat("MM-dd-yyyy");
 		String date = df.format(indexedStockCandle.date);
-		String path = SNAPSHOT_DIRECTORY_PATH + symbol + "_" + date+".png";
+		String path = StockConst.SNAPSHOT_DIRECTORY_PATH + symbol + "_" + date+".png";
 		
 		//Create the directory if the path does not exist.
-		File directory = new File(SNAPSHOT_DIRECTORY_PATH);
+		File directory = new File(StockConst.SNAPSHOT_DIRECTORY_PATH);
 		if (!directory.exists()) {
-			System.out.println("Creating directory: " + SNAPSHOT_DIRECTORY_PATH);
+			System.out.println("Creating directory: " + StockConst.SNAPSHOT_DIRECTORY_PATH);
 			try {
 				directory.mkdir();				
 			}
