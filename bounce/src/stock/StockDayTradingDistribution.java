@@ -1,6 +1,11 @@
 package stock;
 
-
+/**
+ * Compute the relationship between day trading probability and the turnover rate.
+ * Normally, if turnover rate is higher, then day trading probability will be higher.
+ * @author Dongyue Xue
+ *
+ */
 public class StockDayTradingDistribution {
 	private static final double BASE_DAY_TRADING_RATE = 0.25;
 	private static final int DELTA = 50;

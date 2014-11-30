@@ -110,5 +110,11 @@ public class StockUtil {
 		}
 	}
 	
+	public static void createNewDirectory(String directory) {
+		File f = new File(directory);
+		if (f.exists()) return;
+		f.mkdir();
+	}
+	
 		
 }

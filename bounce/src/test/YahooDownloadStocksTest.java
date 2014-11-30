@@ -2,7 +2,7 @@ package test;
 
 import download.StockDownload;
 
-public class YahooDownloadStocks {
+public class YahooDownloadStocksTest {
 	
 	private static final String SYMBOL = "VIPS";
 	private static final String START_DATE = "01/01/2012";
@@ -10,7 +10,8 @@ public class YahooDownloadStocks {
 	
 	public static void main(String args[]) throws Exception {
 //		downloadStocks();
-		downloadOutstandingSharesCSV();
+//		downloadOutstandingSharesCSV();
+		downloadIntraDayStocks();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -25,5 +26,9 @@ public class YahooDownloadStocks {
 	
 	private static void downloadOutstandingSharesCSV() {
 		StockDownload.downloadOutstandingSharesCSV();
+	}
+	
+	private static void downloadIntraDayStocks() throws Exception {
+		StockDownload.downloadIntraDayStocks();
 	}
 }

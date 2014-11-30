@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
 
 import stock.StockConst;
 import util.StockUtil;
@@ -25,7 +25,7 @@ public class StockDownload {
 
 	private static final String DEFAULT_START_DATE = "1/1/2006";
 	private static final String TEMPORARY_MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
-	private final int MAX_RETRY = 5;
+	private final static int MAX_RETRY = 5;
 	private String startDate; 
 	private String endDate;
 	
@@ -49,6 +49,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public void downloadStocks() throws Exception {
+		StockUtil.createNewDirectory(StockConst.STOCK_CSV_DIRECTORY_PATH);
 		if (this.startDate == null)
 			this.startDate = DEFAULT_START_DATE;
 		
@@ -215,6 +216,65 @@ public class StockDownload {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * Download intraday data from Google API. 
+	 * Example:
+	 * https://www.google.com/finance/getprices?i=60&p=30d&f=d,o,h,l,c,v&q=TRUE
+	 * @param symbol
+	 * @return True if a request is sent out to Google API. False if the file is already downloaded.
+	 * Used to prevent from downloading again.
+	 * @throws Exception
+	 */
+	public static boolean downloadIntraDayStock(String symbol) throws Exception {
+		String fileStock = StockConst.STOCK_INTRADAY_DIRECTORY_PATH + symbol + ".txt";
+		
+		File file = new File(fileStock);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		else {
+			System.out.println(symbol + " already downloaded, ignored.");
+			return false; //Google prevents us from downloading very aggressively.
+		}
+		String siteAddress = "https://www.google.com/finance/getprices?i=" + StockConst.INTRADAY_DOWNLOAD_INTERVAL + "&p=" + StockConst.INTRADAY_DOWNLOAD_PERIOD + "d&f=d,o,h,l,c,v&q=" + symbol;
+        URL site = new URL(siteAddress);
+        ReadableByteChannel rbc = Channels.newChannel(site.openStream());
+        FileOutputStream fos = new FileOutputStream(file);
+		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+		fos.close();
+		return true;
+	}
+	
+	/**
+	 * Download all intraday stocks from Google API.
+	 * Google does not allow us to download very aggressively. So sleep 
+	 * 
+	 * @throws Exception
+	 */
+	public static void downloadIntraDayStocks() throws Exception {
+		StockUtil.createNewDirectory(StockConst.STOCK_INTRADAY_DIRECTORY_PATH);
+		ArrayList<String> symbolList = getSymbolList();
+		int retry = 0;
+		int index = 0;
+		Random random = new Random();
+		while (index < symbolList.size()) {
+			String symbol = symbolList.get(index);
+			if (retry > 0) {
+				System.out.println(symbol + "Retry: " + retry);
+			}
+			else {
+				System.out.println(symbol);
+			}
+			boolean downloaded = downloadIntraDayStock(symbol);
+			if (downloaded) {
+				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
+				Thread.sleep(sleepTime * 1000);
+			}
+			index++;
 		}
 		
 	}

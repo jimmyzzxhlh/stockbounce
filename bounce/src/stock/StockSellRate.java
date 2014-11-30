@@ -2,6 +2,12 @@ package stock;
 
 import indicator.StockIndicatorConst;
 
+/**
+ * Compute the probability that a stock can be sold after bought on day 0.
+ * The first few days are predefined. Then the probability are computed based on geometric distribution.
+ * @author Dongyue Xue
+ *
+ */
 public class StockSellRate {
 
 	private static double[] sellRates = null; //sellRates[days]:  <days> is the number of holding days 
@@ -32,7 +38,7 @@ public class StockSellRate {
 		double p = 1 - Math.pow(Math.E, Math.log(getSellRateCDF(sellRates, 5)) / (StockIndicatorConst.MAX_SELL_PERIOD - 6));
 		//System.out.println("p: " + p);
 		for (int i = 0; i < StockIndicatorConst.MAX_SELL_PERIOD - 6; i ++){
-			sellRates[6 + i] = Math.pow(1-p, i)*p;
+			sellRates[6 + i] = Math.pow(1 - p, i) * p;
 		}
 		//System.out.println("CDF of Day 4: " + getSellRateCDF(rates, 4));
 		//System.out.println("CDF of Day 9: " + getSellRateCDF(rates, 9));
