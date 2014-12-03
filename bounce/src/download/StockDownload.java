@@ -25,6 +25,7 @@ public class StockDownload {
 
 	private static final String DEFAULT_START_DATE = "1/1/2006";
 	private static final String TEMPORARY_MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
+	private static final String TEMPORARY_PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose_Temp.csv"; 
 	private final static int MAX_RETRY = 5;
 	private String startDate; 
 	private String endDate;
@@ -88,6 +89,8 @@ public class StockDownload {
 	
 	/**
 	 * Download a single stock.
+	 * Example:
+	 * 
 	 * @param symbol
 	 * @throws Exception
 	 */
@@ -120,7 +123,7 @@ public class StockDownload {
         String endDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
         String endYear = Integer.toString(cal.get(Calendar.YEAR));
         String siteAddr = "http://ichart.finance.yahoo.com/table.csv?s="+symbol+"&d="+endMonth+"&e="+endDay+"&f="+endYear+"&g=d&a="+startMonth+"&b="+startDay+"&c="+startYear+"&ignore=.csv";
-		
+		System.out.println(siteAddr);
         URL site = new URL(siteAddr);
         ReadableByteChannel rbc = Channels.newChannel(site.openStream());
 		FileOutputStream fos = new FileOutputStream(file);
@@ -160,8 +163,9 @@ public class StockDownload {
 	}
 	
 	/**
-	 * Static function for downloading outstanding shares and market capitalization
-	 *
+	 * Static function for downloading outstanding shares
+	 * Example:
+	 * http://finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG+YHOO&f=sj2
 	 */
 	public static void downloadOutstandingSharesCSV() {
 		//Delete the file first so that the existing content is wiped out.
@@ -185,6 +189,44 @@ public class StockDownload {
 				StockUtil.downloadURL(urlString, TEMPORARY_MARKET_CAP_FILENAME);
 				//Merge the temporary file to the ultimate output file.
 				mergeFile(TEMPORARY_MARKET_CAP_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+				
+	}
+	
+	/**
+	 * Static function for downloading previous close price, used with outstanding shares CSV to compute
+	 * the market capitalization if an instance of {@StockCandleArray} is not given.
+	 * Example:
+	 * http://finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG+YHOO&f=sp
+	 */
+	public static void downloadPreviousCloseCSV() {
+		//Delete the file first so that the existing content is wiped out.
+		File f = new File(StockConst.PREVIOUS_CLOSE_FILENAME);
+		f.delete();
+		StringBuilder sb = new StringBuilder();
+		ArrayList<String> symbolList = getSymbolList();
+		int count = 0;
+		for (int i = 0; i < symbolList.size(); i++) {
+			count++;
+			if (count > 1) sb.append("+");
+			String symbol = symbolList.get(i);
+			sb.append(symbol);
+			//Download CSV for every 50 symbols. Otherwise, if there are too many symbols then there will be 
+			//URL error.
+			if (count % 50 == 0) {
+				System.out.println("Downloading from " + symbolList.get(i - 49) + " to " + symbol);
+				String urlString = "http://finance.yahoo.com/d/quotes.csv?s=" + sb.toString() + "&f=sp";
+				sb = new StringBuilder();
+				count = 0;
+				StockUtil.downloadURL(urlString, TEMPORARY_PREVIOUS_CLOSE_FILENAME);
+				//Merge the temporary file to the ultimate output file.
+				mergeFile(TEMPORARY_PREVIOUS_CLOSE_FILENAME, StockConst.PREVIOUS_CLOSE_FILENAME);
 				try {
 					Thread.sleep(300);
 				} catch (InterruptedException e) {

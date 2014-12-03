@@ -381,8 +381,8 @@ public class StockIndicatorAPI {
 	 * @param stockCandleArray
 	 * @return
 	 */
-	public static int[] getVolume(StockCandleArray stockCandleArray) {
-		int[] volume = new int[stockCandleArray.size()];
+	public static long[] getVolume(StockCandleArray stockCandleArray) {
+		long[] volume = new long[stockCandleArray.size()];
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			volume[i] = stockCandleArray.getVolume(i);
 		}

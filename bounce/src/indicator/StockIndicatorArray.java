@@ -49,7 +49,7 @@ public class StockIndicatorArray {
 		return stockIndicatorArray.get(index).getEMADistance();
 	}
 	
-	public int getVolume(int index) {
+	public long getVolume(int index) {
 		return stockIndicatorArray.get(index).getVolume();
 	}
 	

@@ -10,7 +10,7 @@ public class StockCandle {
 	public double close = 0;
 	public double high = 0;
 	public double low = 0;
-	public int volume = 0;
+	public long volume = 0;
 	public double adjClose = 0;
 
 	public Date date;
@@ -30,7 +30,7 @@ public class StockCandle {
 		this.adjClose = inputStockCandle.adjClose;
 	}
 	
-	public StockCandle(Date date, double open, double close, double high, double low, int volume, double adjClose) {
+	public StockCandle(Date date, double open, double close, double high, double low, long volume, double adjClose) {
 		this.date = date;
 		this.open = open;
 		this.close = close;
@@ -88,11 +88,11 @@ public class StockCandle {
 		this.low = low;
 	}
 
-	public int getVolume() {
+	public long getVolume() {
 		return volume;
 	}
 
-	public void setVolume(int volume) {
+	public void setVolume(long volume) {
 		this.volume = volume;
 	}
 	

@@ -23,6 +23,22 @@ public class StockMarketCap {
 	}
 	
 	/**
+	 * Similar function for getting market capitalization. It reads the shares outstanding
+	 * and the previous close price from CSV.
+	 * @param symbol
+	 * @return
+	 */
+	public static double getMarketCap(String symbol) {
+		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		if (!sharesOutstandingMap.containsKey(symbol)) return 0;
+		long sharesOutstanding = sharesOutstandingMap.get(symbol).longValue();
+		HashMap<String, Double> previousCloseMap = StockPreviousCloseMap.getMap();
+		if (!previousCloseMap.containsKey(symbol)) return 0;
+		double previousClose = previousCloseMap.get(symbol).doubleValue();
+		return previousClose * sharesOutstanding;
+	}
+	
+	/**
 	 * Return true if the symbol is a large market capitalization stock.
 	 * @param symbol
 	 * @param stockCandleArray
@@ -35,6 +51,12 @@ public class StockMarketCap {
 	
 	public static boolean isLargeMarketCap(String symbol, double currentClose) {
 		double marketCap = getMarketCap(symbol, currentClose);
+		if (marketCap >= StockConst.LARGE_MARKET_CAP_MIN) return true;
+		return false;
+	}
+	
+	public static boolean isLargeMarketCap(String symbol) {
+		double marketCap = getMarketCap(symbol);
 		if (marketCap >= StockConst.LARGE_MARKET_CAP_MIN) return true;
 		return false;
 	}
@@ -56,6 +78,12 @@ public class StockMarketCap {
 		return false;
 	}
 	
+	public static boolean isMiddleMarketCap(String symbol) {
+		double marketCap = getMarketCap(symbol);
+		if ((marketCap >= StockConst.MIDDLE_MARKET_CAP_MIN) && (marketCap <= StockConst.MIDDLE_MARKET_CAP_MAX)) return true;
+		return false;
+	}
+	
 	/**
 	 * Return true if the symbol is a small market capitalization stock.
 	 * @param symbol
@@ -69,6 +97,12 @@ public class StockMarketCap {
 	
 	public static boolean isSmallMarketCap(String symbol, double currentClose) {
 		double marketCap = getMarketCap(symbol, currentClose);
+		if ((marketCap >= StockConst.SMALL_MARKET_CAP_MIN) && (marketCap <= StockConst.SMALL_MARKET_CAP_MAX)) return true;
+		return false;
+	}
+	
+	public static boolean isSmallMarketCap(String symbol) {
+		double marketCap = getMarketCap(symbol);
 		if ((marketCap >= StockConst.SMALL_MARKET_CAP_MIN) && (marketCap <= StockConst.SMALL_MARKET_CAP_MAX)) return true;
 		return false;
 	}

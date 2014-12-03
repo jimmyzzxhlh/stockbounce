@@ -49,7 +49,7 @@ public class StockCandleArray {
 		return stockCandleArray.get(index).close;
 	}
 	
-	public int getVolume(int index) {
+	public long getVolume(int index) {
 		return stockCandleArray.get(index).volume;
 	}
 	

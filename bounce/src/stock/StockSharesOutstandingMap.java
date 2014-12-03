@@ -6,7 +6,9 @@ import java.util.HashMap;
 
 /**
  * This is a singleton class to prevent from reading the CSV file multiple times.
- * Get a map for <Symbol, outstanding shares>
+ * Get the following HashMap
+ * <Symbol, outstanding shares>
+ * 
  * @author jimmyzzxhlh-Dell
  *
  */
@@ -18,11 +20,12 @@ public class StockSharesOutstandingMap {
 	}
 	
 	public static HashMap<String, Long> getMap() { 
-		if (map == null) setSharesOutstandingMap();
+		if (map == null) setSharesOutStandingMap();
 		return map;
 	}
 	
-	private static void setSharesOutstandingMap() {
+
+	private static void setSharesOutStandingMap() {
 		map = new HashMap<String, Long>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(StockConst.SHARES_OUTSTANDING_FILENAME));
@@ -30,9 +33,11 @@ public class StockSharesOutstandingMap {
 			while ((line = br.readLine()) != null) {
 				String[] lineArray = line.split(" ");
 				for (int i = 0; i < lineArray.length; i++) lineArray[i].trim();
+				//Delete quotes and a comma at the end for symbol
 				String symbol = lineArray[0].substring(1, lineArray[0].length() - 2);
 				String sharesOutStandingStr = lineArray[lineArray.length - 1];
 				sharesOutStandingStr = sharesOutStandingStr.replace(",", "");
+				if (sharesOutStandingStr.equals("N/A")) continue;				
 				map.put(symbol, Long.parseLong(sharesOutStandingStr));
 			}
 			br.close();

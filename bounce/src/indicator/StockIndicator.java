@@ -18,7 +18,7 @@ public class StockIndicator {
 	private double bollingerBandsPercentB;
 	private double bollingerBandsBandwidth;
 	private double emaDistance;
-	private int volume;
+	private long volume;
 	//Add new indicators here.
 	
 
@@ -81,12 +81,12 @@ public class StockIndicator {
 		this.emaDistance = emaDistance;
 	}
 	
-	public int getVolume() {
+	public long getVolume() {
 		return volume;
 	}
 
 
-	public void setVolume(int volume) {
+	public void setVolume(long volume) {
 		this.volume = volume;
 	}
 	

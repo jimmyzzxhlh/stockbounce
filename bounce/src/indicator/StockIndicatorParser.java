@@ -72,7 +72,7 @@ public class StockIndicatorParser extends StockParser {
 		stockIndicator.setBollingerBandsPercentB(Double.parseDouble(lineArray[StockIndicatorConst.BOLLINGER_BANDS_PERCENTB_PIECE]));
 		stockIndicator.setBollingerBandsBandwidth(Double.parseDouble(lineArray[StockIndicatorConst.BOLLINGER_BANDS_BANDWIDTH_PIECE]));
 		stockIndicator.setEMADistance(Double.parseDouble(lineArray[StockIndicatorConst.EMA_DISTANCE_PIECE]));
-		stockIndicator.setVolume(Integer.parseInt(lineArray[StockIndicatorConst.VOLUME_PIECE]));
+		stockIndicator.setVolume(Long.parseLong(lineArray[StockIndicatorConst.VOLUME_PIECE]));
 		
 		//Add new indicators here
 	}
@@ -230,7 +230,7 @@ public class StockIndicatorParser extends StockParser {
 			double[] bbandsPercentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
 			double[] bbandsBandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
 			double[] emaDistance = StockIndicatorAPI.getExponentialMovingAverageDistance(stockCandleArray, StockIndicatorConst.EMA_DISTANCE_PERIOD);
-			int[] volume = StockIndicatorAPI.getVolume(stockCandleArray);
+			long[] volume = StockIndicatorAPI.getVolume(stockCandleArray);
 			//Add new indicators here
 			for (int i = 0; i < stockCandleArray.size(); i++) 
 			{
