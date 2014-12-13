@@ -3,6 +3,7 @@ package test;
 import intraday.IntraDayAnalysis;
 import intraday.IntraDayStockCandle;
 import intraday.IntraDayStockCandleArray;
+import intraday.IntraDayVolumeDistribution;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,7 +16,8 @@ import util.StockUtil;
 public class AnalysisIntraDayTest {
 	public static void main(String args[]) throws Exception {
 //		testPrintDailyVolume();
-		testReadIntraDayStockCandleArray();
+//		testReadIntraDayStockCandleArray();
+		testIntraDayVolumeDistribution();
 	}
 	
 	private static void testReadIntraDayStock() throws Exception {
@@ -59,6 +61,10 @@ public class AnalysisIntraDayTest {
 				
 			}
 		}
+	}
+	
+	private static void testIntraDayVolumeDistribution() {
+		System.out.println(IntraDayVolumeDistribution.getVolumeRate(0));
 	}
 	
 }

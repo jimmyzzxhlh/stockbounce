@@ -29,5 +29,6 @@ public class StockConst {
 	public static final int INTRADAY_DOWNLOAD_PERIOD = 15;  //Maximum days for downloading intraday stock data is 15 days.
 	
 	public static final String INTRADAY_LOW_POSITION_DIRECTORY_PATH = "D:\\zzx\\Stock\\IntraDayLowPosition\\";
+	public static final String INTRADAY_VOLUME_DISTRIBUTION_FILENAME = "D:\\zzx\\Stock\\IntraDayVolume\\Distribution_All.txt";
 	
 }
