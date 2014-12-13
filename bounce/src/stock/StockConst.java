@@ -2,7 +2,7 @@ package stock;
 
 public class StockConst {
 	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
-	public static final String STOCK_INTRADAY_DIRECTORY_PATH = "D:\\zzx\\Stock\\IntraDay\\";
+	public static final String INTRADAY_DIRECTORY_PATH = "D:\\zzx\\Stock\\IntraDay\\";
 	public static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
 	public static final String SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\SharesOutstanding.csv";
 	public static final String PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose.csv";
@@ -26,6 +26,8 @@ public class StockConst {
 	
 	//Download intraday stock parameters
 	public static final int INTRADAY_DOWNLOAD_INTERVAL = 60;
-	public static final int INTRADAY_DOWNLOAD_PERIOD = 15;  //Maximum days for downloading intraday stock data is 15 days. 
+	public static final int INTRADAY_DOWNLOAD_PERIOD = 15;  //Maximum days for downloading intraday stock data is 15 days.
+	
+	public static final String INTRADAY_LOW_POSITION_DIRECTORY_PATH = "D:\\zzx\\Stock\\IntraDayLowPosition\\";
 	
 }

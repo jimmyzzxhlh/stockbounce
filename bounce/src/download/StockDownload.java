@@ -96,7 +96,6 @@ public class StockDownload {
 	 */
 	public void downloadStock(String symbol) throws Exception {
 		String fileStock = StockConst.STOCK_CSV_DIRECTORY_PATH + symbol + ".csv";
-		int retry = 0; //Retry if IOException (i.e., HTTP 400)
 		
 		File file = new File(fileStock);
 		if (!file.exists()) {
@@ -272,7 +271,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static boolean downloadIntraDayStock(String symbol) throws Exception {
-		String fileStock = StockConst.STOCK_INTRADAY_DIRECTORY_PATH + symbol + ".txt";
+		String fileStock = StockConst.INTRADAY_DIRECTORY_PATH + symbol + ".txt";
 		
 		File file = new File(fileStock);
 		if (!file.exists()) {
@@ -298,7 +297,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static void downloadIntraDayStocks() throws Exception {
-		StockUtil.createNewDirectory(StockConst.STOCK_INTRADAY_DIRECTORY_PATH);
+		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH);
 		ArrayList<String> symbolList = getSymbolList();
 		int retry = 0;
 		int index = 0;

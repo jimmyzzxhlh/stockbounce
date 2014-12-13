@@ -18,6 +18,7 @@ public class MarketCapitalizationTest {
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
 		testMarketCap();
+		
 	}
 	
 	private static void testSharesOutstanding() {

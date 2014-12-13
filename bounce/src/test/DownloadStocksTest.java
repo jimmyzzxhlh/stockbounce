@@ -1,13 +1,14 @@
 package test;
 
+import intraday.IntraDayAnalysis;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 
 import stock.StockConst;
-import analysis.IntraDayAnalysis;
 import download.StockDownload;
 
-public class YahooDownloadStocksTest {
+public class DownloadStocksTest {
 	
 	private static final String SYMBOL = "ZNGA";
 	private static final String START_DATE = "01/01/2012";
@@ -17,9 +18,9 @@ public class YahooDownloadStocksTest {
 //		downloadSingleStock();
 //		downloadStocks();
 //		downloadOutstandingSharesCSV();
-		downloadPreviousCloseCSV();
+//		downloadPreviousCloseCSV();
 //		downloadIntraDayStocks();
-//		testAnalysisIntraDayStocks();
+
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -43,22 +44,6 @@ public class YahooDownloadStocksTest {
 	private static void downloadIntraDayStocks() throws Exception {
 		StockDownload.downloadIntraDayStocks();
 	}
-	
-	private static void testReadIntraDayStock() throws Exception {
-		BufferedReader br = new BufferedReader(new FileReader(StockConst.STOCK_INTRADAY_DIRECTORY_PATH + "GGACU.txt"));
-		String line;
-		while ((line = br.readLine()) != null) {
-			System.out.println(line);
-		}
-		br.close();
-	}
-	
-	private static void testAnalysisIntraDayStocks() throws Exception {
-		IntraDayAnalysis.analyzeVolume();
-		
-	}
-	
 
-	
 	
 }

@@ -183,6 +183,14 @@ public class StockCandle {
 		}
 		return 0;
 	}
+	
+	public boolean isWhiteCandle() {
+		return (close > open);
+	}
+	
+	public boolean isBlackCandle() {
+		return (close < open);
+	}
 }
 
 

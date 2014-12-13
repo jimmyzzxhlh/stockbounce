@@ -1,7 +1,12 @@
-package analysis;
+package intraday;
 
 import stock.StockCandle;
 
+/**
+ * Class that represents a candle during a certain period during one day (e.g. 1 minute candle).
+ * @author jimmyzzxhlh-Dell
+ *
+ */
 public class IntraDayStockCandle extends StockCandle {
 	private int interval = 0;
 
