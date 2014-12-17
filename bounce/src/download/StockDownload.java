@@ -270,7 +270,7 @@ public class StockDownload {
 	 * Used to prevent from downloading again.
 	 * @throws Exception
 	 */
-	public static boolean downloadIntraDayStock(String symbol) throws Exception {
+	public static boolean downloadIntraDayStockFromGoogle(String symbol) throws Exception {
 		String fileStock = StockConst.INTRADAY_DIRECTORY_PATH + symbol + ".txt";
 		
 		File file = new File(fileStock);
@@ -281,7 +281,7 @@ public class StockDownload {
 			System.out.println(symbol + " already downloaded, ignored.");
 			return false; //Google prevents us from downloading very aggressively.
 		}
-		String siteAddress = "https://www.google.com/finance/getprices?i=" + StockConst.INTRADAY_DOWNLOAD_INTERVAL + "&p=" + StockConst.INTRADAY_DOWNLOAD_PERIOD + "d&f=d,o,h,l,c,v&q=" + symbol;
+		String siteAddress = "https://www.google.com/finance/getprices?i=" + StockConst.INTRADAY_DOWNLOAD_INTERVAL_GOOGLE + "&p=" + StockConst.INTRADAY_DOWNLOAD_PERIOD_GOOGLE + "d&f=d,o,h,l,c,v&q=" + symbol;
         URL site = new URL(siteAddress);
         ReadableByteChannel rbc = Channels.newChannel(site.openStream());
         FileOutputStream fos = new FileOutputStream(file);
@@ -296,7 +296,7 @@ public class StockDownload {
 	 * 
 	 * @throws Exception
 	 */
-	public static void downloadIntraDayStocks() throws Exception {
+	public static void downloadIntraDayStocksFromGoogle() throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH);
 		ArrayList<String> symbolList = getSymbolList();
 		int retry = 0;
@@ -310,13 +310,64 @@ public class StockDownload {
 			else {
 				System.out.println(symbol);
 			}
-			boolean downloaded = downloadIntraDayStock(symbol);
+			boolean downloaded = downloadIntraDayStockFromGoogle(symbol);
 			if (downloaded) {
 				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
 				Thread.sleep(sleepTime * 1000);
 			}
 			index++;
+		}		
+	}
+	
+	public static boolean downloadIntraDayStockFromYahoo(String symbol) throws Exception {
+		//Get today's date
+		DateFormat df = new SimpleDateFormat("yyyyMMdd");
+		Date today = new Date();
+		String directory = StockConst.INTRADAY_DIRECTORY_PATH + symbol + "\\";
+		File directoryFile = new File(directory);
+		if (!directoryFile.exists()) {
+			directoryFile.mkdirs();
 		}
-		
+		String fileStock = directory + df.format(today) + ".txt";
+		File file = new File(fileStock);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		else {
+			System.out.println(symbol + " already downloaded, ignored.");
+			return false; //Google prevents us from downloading very aggressively.
+		}
+//		System.out.println(fileStock);
+		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + symbol + "/chartdata;type=quote;range=1d/csv";
+        URL site = new URL(siteAddress);
+        ReadableByteChannel rbc = Channels.newChannel(site.openStream());
+        FileOutputStream fos = new FileOutputStream(file);
+		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+		fos.close();
+		return true;
+	}
+	
+	public static void downloadIntraDayStocksFromYahoo() throws Exception {
+		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH);
+		ArrayList<String> symbolList = getSymbolList();
+		int retry = 0;
+		int index = 0;
+		Random random = new Random();
+		while (index < symbolList.size()) {
+			String symbol = symbolList.get(index);
+			if (retry > 0) {
+				System.out.println(symbol + "Retry: " + retry);
+			}
+			else {
+				System.out.println(symbol);
+			}
+			boolean downloaded = downloadIntraDayStockFromYahoo(symbol);
+			if (downloaded) {
+//				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
+				int sleepTime = 1;
+				Thread.sleep(sleepTime * 1000);
+			}
+			index++;
+		}	
 	}
 }

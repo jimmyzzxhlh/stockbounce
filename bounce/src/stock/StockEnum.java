@@ -17,6 +17,13 @@ public class StockEnum {
 		AMEX
 	}
 	
+	public enum StockIntraDayClass {
+		WHITE_LONG,
+		BLACK_LONG,
+		UPPER_LONGER,
+		LOWER_LONGER		
+	}
+	
 	public enum StockPatternType {
 		ADVANCE_BLOCK,
 		BEARISH_BELT_HOLD,

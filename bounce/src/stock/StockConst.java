@@ -25,10 +25,12 @@ public class StockConst {
 	public static final String QUOTE_DELIMITER = "\"";
 	
 	//Download intraday stock parameters
-	public static final int INTRADAY_DOWNLOAD_INTERVAL = 60;
-	public static final int INTRADAY_DOWNLOAD_PERIOD = 15;  //Maximum days for downloading intraday stock data is 15 days.
+	public static final int INTRADAY_DOWNLOAD_INTERVAL_GOOGLE = 60;
+	public static final int INTRADAY_DOWNLOAD_PERIOD_GOOGLE = 15;  //Maximum days for downloading intraday stock data is 15 days.
 	
 	public static final String INTRADAY_LOW_POSITION_DIRECTORY_PATH = "D:\\zzx\\Stock\\IntraDayLowPosition\\";
 	public static final String INTRADAY_VOLUME_DISTRIBUTION_FILENAME = "D:\\zzx\\Stock\\IntraDayVolume\\Distribution_All.txt";
+	
+	public static final double LONG_DAY_PERCENTAGE = 0.01;
 	
 }

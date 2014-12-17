@@ -1,11 +1,5 @@
 package test;
 
-import intraday.IntraDayAnalysis;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-
-import stock.StockConst;
 import download.StockDownload;
 
 public class DownloadStocksTest {
@@ -19,8 +13,8 @@ public class DownloadStocksTest {
 //		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
-//		downloadIntraDayStocks();
-
+//		downloadIntraDayStocksFromGoogle();
+		downloadIntraDayStocksFromYahoo();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -41,9 +35,15 @@ public class DownloadStocksTest {
 		StockDownload.downloadPreviousCloseCSV();
 	}
 	
-	private static void downloadIntraDayStocks() throws Exception {
-		StockDownload.downloadIntraDayStocks();
+	private static void downloadIntraDayStocksFromGoogle() throws Exception {
+		StockDownload.downloadIntraDayStocksFromGoogle();
 	}
 
+	private static void downloadIntraDayStockFromYahoo() throws Exception {
+		StockDownload.downloadIntraDayStockFromYahoo("GOOG");
+	}
 	
+	private static void downloadIntraDayStocksFromYahoo() throws Exception {
+		StockDownload.downloadIntraDayStocksFromYahoo();
+	}
 }

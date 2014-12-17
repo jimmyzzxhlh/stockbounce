@@ -3,6 +3,9 @@ package intraday;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+import stock.StockConst;
+import stock.StockEnum.StockIntraDayClass;
+
 /**
  * Class that represents all the candles in a day.
  * @author jimmyzzxhlh-Dell
@@ -10,12 +13,15 @@ import java.util.ArrayList;
  */
 public class IntraDayStockCandleArray {
 	private static final double NAN = -1e10;
+	private static final int NANINT = -1;
 	private ArrayList<IntraDayStockCandle> stockCandleArray = null;
 	private String symbol;
 	private double open = NAN;
 	private double close = NAN;
 	private double high = NAN;
 	private double low = NAN;
+	private ArrayList<Integer> highIntervals = null;
+	private ArrayList<Integer> lowIntervals = null;
 	private Timestamp ts;
 	
 	public IntraDayStockCandleArray() {
@@ -92,7 +98,9 @@ public class IntraDayStockCandleArray {
 		high = NAN;
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			double currentHigh = stockCandleArray.get(i).getHigh();
-			if ((high == NAN) || (currentHigh > high)) high = currentHigh;			
+			if ((high == NAN) || (currentHigh > high)) {
+				high = currentHigh;
+			}
 		}
 	}
 	
@@ -108,12 +116,112 @@ public class IntraDayStockCandleArray {
 		low = NAN;
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			double currentLow = stockCandleArray.get(i).getLow();
-			if ((low == NAN) || (currentLow < low)) low = currentLow;			
+			if ((low == NAN) || (currentLow < low)) {
+				low = currentLow;							
+			}
 		}
 	}
 	
+	public ArrayList<Integer> getHighIntervals() {
+		if (highIntervals == null) {
+			setHighIntervals();
+		}
+		return highIntervals;
+	}
+	
+	public void setHighIntervals() {
+		if (high == NAN) setHigh();
+		highIntervals = new ArrayList<Integer>();
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			IntraDayStockCandle idStockCandle = stockCandleArray.get(i);
+			if (Math.abs(idStockCandle.getHigh() - high) < 0.01) {
+				highIntervals.add(idStockCandle.getInterval());				
+			}
+		}		
+	}
+	
+	public ArrayList<Integer> getLowIntervals() {
+		if (lowIntervals == null) {
+			setLowIntervals();
+		}
+		return lowIntervals;		
+	}
+	
+	public void setLowIntervals() {
+		if (low == NAN) setLow();
+		lowIntervals = new ArrayList<Integer>();
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			IntraDayStockCandle idStockCandle = stockCandleArray.get(i);
+			if (Math.abs(idStockCandle.getLow() - low) < 0.01) {
+				lowIntervals.add(idStockCandle.getInterval());				
+			}
+		}		
+	}
 	
 	
+	public double getUpperShadowLength() {
+		if (hasNANPrice()) {
+			setPrice();
+		}
+		if (isWhite()) {
+			return high - close;
+		}
+		return high - open;
+	}
+	
+	public double getLowerShadowLength() {
+		if (hasNANPrice()) {
+			setPrice();
+		}
+		if (isWhite()) {
+			return open - low;
+		}
+		return close - low;		
+	}
+	
+	public boolean isUpperShadowLonger() {
+		return (getUpperShadowLength() >= getLowerShadowLength());
+	}
+	
+	public boolean isWhite() {
+		return (close > open);
+	}
+	
+	public boolean isBlack() {
+		return (close < open);
+	}
+	
+	public boolean hasNANPrice() {
+		if ((open == NAN) || (close == NAN) || (high == NAN) || (low == NAN)) return true;
+		return false;
+	}
+	
+	public void setPrice() {
+		setOpen();
+		setClose();
+		setHigh();
+		setLow();
+	}
+	
+	public double getBodyLength() {
+		return Math.abs(close - open);
+	}
+	
+	public StockIntraDayClass getIntraDayClass() {
+		if (hasNANPrice()) {
+			setPrice();
+		}
+		double bodyLength = getBodyLength();
+		if (isWhite()) {
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.WHITE_LONG;
+		}
+		if (isBlack()) {
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.BLACK_LONG;
+		}
+		if (isUpperShadowLonger())
+			return StockIntraDayClass.UPPER_LONGER;
+		return StockIntraDayClass.LOWER_LONGER;
+	}
 	
 	
 }
