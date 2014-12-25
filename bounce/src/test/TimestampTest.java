@@ -1,6 +1,7 @@
 package test;
 
-import intraday.IntraDayAnalysis;
+import intraday.IntraDayAnalysisGoogle;
+import intraday.IntraDayAnalysisYahoo;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -15,10 +16,11 @@ import java.util.Date;
 public class TimestampTest {
 	public static void main(String args[]) {
 		testTimestampOne();
+//		testTimestampThree();
 	}
 	
 	private static void testTimestampOne() {
-		Timestamp ts = new Timestamp(1415629800 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
+		Timestamp ts = new Timestamp(1419318000 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
 		System.out.println(ts);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(ts);
@@ -32,6 +34,13 @@ public class TimestampTest {
 	
 	private static void testTimestampTwo() {
 		String line = "a1415629800,12.11,12.11,12.11,12.11,484";
-		System.out.println(IntraDayAnalysis.getTimestamp(line));
+		System.out.println(IntraDayAnalysisGoogle.getTimestamp(line));
+	}
+	
+	private static void testTimestampThree() {
+		Timestamp ts = new Timestamp(1418849881 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
+		System.out.println(ts);
+		System.out.println(IntraDayAnalysisYahoo.getIntervalFromTimestamp(ts));
+		
 	}
 }

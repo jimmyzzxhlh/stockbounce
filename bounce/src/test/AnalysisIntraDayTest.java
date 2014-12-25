@@ -1,6 +1,7 @@
 package test;
 
-import intraday.IntraDayAnalysis;
+import intraday.IntraDayAnalysisGoogle;
+import intraday.IntraDayAnalysisYahoo;
 import intraday.IntraDayStockCandle;
 import intraday.IntraDayStockCandleArray;
 import intraday.IntraDayVolumeDistribution;
@@ -19,37 +20,37 @@ import util.StockUtil;
 public class AnalysisIntraDayTest {
 	public static void main(String args[]) throws Exception {
 //		testPrintDailyVolume();
+		testPrintDailyPrice();
 //		testReadIntraDayStockCandleArray();
 //		testIntraDayVolumeDistribution();
-		testIntraDayHighLowInterval();
+//		testIntraDayHighLowInterval();
+//		testAnalyzeSimplePriceModelGoogle();
 	}
 	
-	private static void testReadIntraDayStock() throws Exception {
-		BufferedReader br = new BufferedReader(new FileReader(StockConst.INTRADAY_DIRECTORY_PATH + "GGACU.txt"));
+	private static void testReadIntraDayStockGoogle() throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + "GGACU.txt"));
 		String line;
 		while ((line = br.readLine()) != null) {
 			System.out.println(line);
 		}
 		br.close();
 	}
-	
-	private static void testAnalysisIntraDayStocks() throws Exception {
-//		IntraDayAnalysis.analyzeVolume();
-		
-	}
+
 	
 	private static void testPrintDailyVolume() throws Exception {
-		IntraDayAnalysis.printDailyVolumeForSingleStock();
+//		IntraDayAnalysisGoogle.printDailyVolumeForSingleStock();
+		IntraDayAnalysisYahoo.printDailyVolumeForSingleStock();
 	}
 	
-	private static void testAnalysisIntraDayPrice() throws Exception {
-		IntraDayAnalysis.analyzePrice();
+	private static void testPrintDailyPrice() throws Exception {
+		IntraDayAnalysisYahoo.printDailyPriceForSingleStock();
 	}
 	
-	private static void testReadIntraDayStockCandleArray() throws Exception {
+	
+	private static void testReadIntraDayStockCandleArrayGoogle() throws Exception {
 		String symbol = "GOOG";
-		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH + symbol + ".txt");
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysis.getIntraDayStockCandleArray(file);
+		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt");
+		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
 			System.out.println(idStockCandleArray.getTimestamp());
@@ -71,8 +72,12 @@ public class AnalysisIntraDayTest {
 		System.out.println(IntraDayVolumeDistribution.getVolumeRate(0));
 	}
 	
+	private static void testAnalyzeSimplePriceModelGoogle() throws Exception {
+		IntraDayAnalysisGoogle.analyzeSimplePriceModel();
+	}
+	
 	private static void testIntraDayHighLowInterval() throws Exception {
-		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH);
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
 		File[] directoryList = directory.listFiles();
 //		int intervalLow[] = new int[391];
 //		int intervalHigh[] = new int[391];
@@ -94,7 +99,7 @@ public class AnalysisIntraDayTest {
 			String symbol = StockUtil.getSymbolFromFile(file);
 			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
 //			if (!symbol.equals("GOOG")) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysis.getIntraDayStockCandleArray(file);
+			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
 			dailyCandleCount += mdStockCandleArray.size(); 
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {
 				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);

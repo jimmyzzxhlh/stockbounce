@@ -271,7 +271,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static boolean downloadIntraDayStockFromGoogle(String symbol) throws Exception {
-		String fileStock = StockConst.INTRADAY_DIRECTORY_PATH + symbol + ".txt";
+		String fileStock = StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt";
 		
 		File file = new File(fileStock);
 		if (!file.exists()) {
@@ -297,7 +297,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static void downloadIntraDayStocksFromGoogle() throws Exception {
-		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH);
+		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
 		ArrayList<String> symbolList = getSymbolList();
 		int retry = 0;
 		int index = 0;
@@ -323,12 +323,13 @@ public class StockDownload {
 		//Get today's date
 		DateFormat df = new SimpleDateFormat("yyyyMMdd");
 		Date today = new Date();
-		String directory = StockConst.INTRADAY_DIRECTORY_PATH + symbol + "\\";
+		String directory = StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
 			directoryFile.mkdirs();
 		}
 		String fileStock = directory + df.format(today) + ".txt";
+//		String fileStock = directory + "20141222.txt";
 		File file = new File(fileStock);
 		if (!file.exists()) {
 			file.createNewFile();
@@ -348,7 +349,7 @@ public class StockDownload {
 	}
 	
 	public static void downloadIntraDayStocksFromYahoo() throws Exception {
-		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH);
+		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
 		ArrayList<String> symbolList = getSymbolList();
 		int retry = 0;
 		int index = 0;
@@ -365,7 +366,7 @@ public class StockDownload {
 			if (downloaded) {
 //				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
 				int sleepTime = 1;
-				Thread.sleep(sleepTime * 1000);
+				Thread.sleep(sleepTime * 800);
 			}
 			index++;
 		}	

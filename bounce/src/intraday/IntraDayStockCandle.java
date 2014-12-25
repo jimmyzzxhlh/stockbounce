@@ -18,8 +18,12 @@ public class IntraDayStockCandle extends StockCandle {
 		this.interval = interval;
 	}
 	
-	public double getMidPrice() {
+	public double getAveragePriceIgnoreHighLow() {
 		return (open + close) * 0.5;
+	}
+	
+	public double getAveragePrice() {
+		return (open + close + high + low) * 0.25; 
 	}
 	
 	/**
@@ -31,7 +35,7 @@ public class IntraDayStockCandle extends StockCandle {
 	public double getPercentageFromLow(double dayHigh, double dayLow) {
 		if (dayHigh < dayLow) return 0;  //Should not happen.
 		double dayBodyLength = dayHigh - dayLow;
-		return (getMidPrice() - dayLow) / dayBodyLength;
+		return (getAveragePriceIgnoreHighLow() - dayLow) / dayBodyLength;
 	}
 	
 }

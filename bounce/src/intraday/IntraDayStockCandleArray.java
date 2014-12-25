@@ -20,6 +20,7 @@ public class IntraDayStockCandleArray {
 	private double close = NAN;
 	private double high = NAN;
 	private double low = NAN;
+	private long volume = NANINT;
 	private ArrayList<Integer> highIntervals = null;
 	private ArrayList<Integer> lowIntervals = null;
 	private Timestamp ts;
@@ -122,6 +123,22 @@ public class IntraDayStockCandleArray {
 		}
 	}
 	
+	public long getVolume() {
+		if (volume > 0) return volume;
+		if (!isStockCandleArrayValid()) return NANINT;
+		setVolume();
+		return volume;
+	}
+	
+	public void setVolume() {
+		if (!isStockCandleArrayValid()) return;
+		volume = 0;
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			long currentVolume = stockCandleArray.get(i).getVolume();
+			volume += currentVolume;
+		}
+	}
+	
 	public ArrayList<Integer> getHighIntervals() {
 		if (highIntervals == null) {
 			setHighIntervals();
@@ -221,6 +238,16 @@ public class IntraDayStockCandleArray {
 		if (isUpperShadowLonger())
 			return StockIntraDayClass.UPPER_LONGER;
 		return StockIntraDayClass.LOWER_LONGER;
+	}
+	
+	public double getTotalCapital() {
+		double totalCapital = 0;
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			IntraDayStockCandle idStockCandle = stockCandleArray.get(i);
+			double averagePrice = idStockCandle.getAveragePrice();
+			totalCapital += averagePrice * idStockCandle.getVolume();			
+		}
+		return totalCapital;
 	}
 	
 	

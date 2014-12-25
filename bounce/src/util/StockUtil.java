@@ -16,6 +16,11 @@ public class StockUtil {
 		return Math.round(input * 100.0) / 100.0;
 	}
 	
+	public static double getRoundDecimals(double input, int decimalCount) {
+		double power = Math.pow(10, decimalCount);
+		return Math.round(input * 1.0 * power) / power;
+	}
+	
 	public static int getIntervalNum(double start, double end, double interval) {
 		if (end < start) return 0;
 		return (int)((end - start) * 1.0 / interval) + 1;
