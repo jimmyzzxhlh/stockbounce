@@ -20,11 +20,11 @@ import util.StockUtil;
 public class AnalysisIntraDayTest {
 	public static void main(String args[]) throws Exception {
 //		testPrintDailyVolume();
-		testPrintDailyPrice();
+//		testPrintDailyPrice();
 //		testReadIntraDayStockCandleArray();
 //		testIntraDayVolumeDistribution();
 //		testIntraDayHighLowInterval();
-//		testAnalyzeSimplePriceModelGoogle();
+		testAnalyzeSimplePriceModelGoogle();
 	}
 	
 	private static void testReadIntraDayStockGoogle() throws Exception {
