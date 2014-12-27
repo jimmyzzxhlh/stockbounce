@@ -1,5 +1,9 @@
 package test;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Scanner;
+
 import download.StockDownload;
 
 public class DownloadStocksTest {
@@ -44,6 +48,16 @@ public class DownloadStocksTest {
 	}
 	
 	private static void downloadIntraDayStocksFromYahoo() throws Exception {
-		StockDownload.downloadIntraDayStocksFromYahoo();
+		System.out.println("Enter date for the file name (e.g. 20141226), nothing then use today.");
+		Scanner reader = new Scanner(System.in);
+		String dateString = reader.next();
+		if (dateString == null) {
+			StockDownload.downloadIntraDayStocksFromYahoo();
+		}
+		else {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			Date date = formatter.parse(dateString);
+			StockDownload.downloadIntraDayStocksFromYahoo(date);
+		}
 	}
 }

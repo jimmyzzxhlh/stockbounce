@@ -320,9 +320,13 @@ public class StockDownload {
 	}
 	
 	public static boolean downloadIntraDayStockFromYahoo(String symbol) throws Exception {
+		Date today = new Date();
+		return downloadIntraDayStockFromYahoo(symbol, today);
+	}
+	
+	public static boolean downloadIntraDayStockFromYahoo(String symbol, Date today) throws Exception {
 		//Get today's date
 		DateFormat df = new SimpleDateFormat("yyyyMMdd");
-		Date today = new Date();
 		String directory = StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
@@ -349,6 +353,11 @@ public class StockDownload {
 	}
 	
 	public static void downloadIntraDayStocksFromYahoo() throws Exception {
+		Date today = new Date();
+		downloadIntraDayStocksFromYahoo(today);
+	}
+	
+	public static void downloadIntraDayStocksFromYahoo(Date date) throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
 		ArrayList<String> symbolList = getSymbolList();
 		int retry = 0;
@@ -362,11 +371,11 @@ public class StockDownload {
 			else {
 				System.out.println(symbol);
 			}
-			boolean downloaded = downloadIntraDayStockFromYahoo(symbol);
+			boolean downloaded = downloadIntraDayStockFromYahoo(symbol, date);
 			if (downloaded) {
 //				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
 				int sleepTime = 1;
-				Thread.sleep(sleepTime * 800);
+				Thread.sleep(sleepTime * 500);
 			}
 			index++;
 		}	
