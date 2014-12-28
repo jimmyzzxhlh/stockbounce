@@ -222,7 +222,7 @@ public class StockCandle {
 			return;
 		}
 		long sharesOutstanding = sharesOutstandingMap.get(symbol);
-		turnoverRate = sharesOutstanding * 1.0 / getVolume();
+		turnoverRate = getVolume() * 1.0 / sharesOutstanding;
 	}
 	
 	

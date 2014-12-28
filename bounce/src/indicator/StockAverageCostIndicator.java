@@ -30,6 +30,10 @@ public class StockAverageCostIndicator {
 		setMapping();
 	}
 	
+	public int size() {
+		return stockCandleArray.size();
+	}
+	
 	private void setMapping() {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
@@ -37,7 +41,6 @@ public class StockAverageCostIndicator {
 			StockCandle stockCandle = stockCandleArray.get(i);
 			HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);
 			priceVolumeMapArray.add(priceVolumeMap);
-			//TODO: Get price volume map.
 			
 		}
 		
@@ -55,7 +58,7 @@ public class StockAverageCostIndicator {
 			int lookbackDays = index - i;
 			double turnoverRate = stockCandleArray.getTurnoverRate(i);
 			int turnoverRateInt = (int) Math.round(turnoverRate * 1000);
-			if (turnoverRateInt > 1000) turnoverRate = 1000;
+			if (turnoverRateInt > 1000) turnoverRateInt = 1000;
 			
 			HashMap<Integer, Long> currentPriceVolumeMap = priceVolumeMapArray.get(i);
 			
@@ -78,6 +81,8 @@ public class StockAverageCostIndicator {
 		}
 		return totalCapital * 1.0 / totalVolume;
 	}
+	
+	
 	
 	
 }

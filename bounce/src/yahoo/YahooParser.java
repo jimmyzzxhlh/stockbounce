@@ -103,6 +103,7 @@ public class YahooParser extends StockParser {
 				if ((maxCandle > 0) & (candleCount > maxCandle)) break;
 				StockCandle stockCandle = new StockCandle();
 				parser.parseLine(line, stockCandle);
+				stockCandle.setSymbol(symbol);
 				//Get the raw price in case that stock split happens.
 				if (USE_ADJ_CLOSE) {
 					stockCandle.setPriceFromAdjClose();
