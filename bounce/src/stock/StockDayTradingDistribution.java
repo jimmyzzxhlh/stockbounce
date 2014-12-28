@@ -7,8 +7,8 @@ package stock;
  *
  */
 public class StockDayTradingDistribution {
-	private static final double BASE_DAY_TRADING_RATE = 0.49;
-	private static final int DELTA = 1;
+	private static final double BASE_DAY_TRADING_RATE = 0.45;
+	private static final int DELTA = 30;
 	private static final double AVERAGE_DAY_TRADING_RATE = 0.50;
 	private static double k;
 	//dayTradingRate(turnoverRate) = baseDayTradingRate, if turnoverRate <= delta;
@@ -30,48 +30,53 @@ public class StockDayTradingDistribution {
 	}
 	
 	/**
-	 * Average day trading rate should be 50%¡£
+	 * Average day trading rate should be 50%
 	 * turnoverRateDistribution(x) means the probability for turnover rate x to happen.
-	 * b = base day trading rate. If turnover rate<=delta, then we always have the base day trading rate (because turnover rate
+	 * b = base day trading rate. 
+	 * If turnover rate<=delta, then we always have linearly increasing day trading rate (because turnover rate
 	 * is not high enough).
+	 * If turnover rate >delta, then day trading rate is fixed over turnover rate
 	 * k is the slope of turnover rate against day trading rate under the condition that turnover rate>delta.
-	 * Sigma(b * turnoverRateDistribution(x), x = 0 -> delta) + Sigma[b + k * (x - delta), x = delta + 1 -> 1000] * turnoverRateDistribution(x) = 50%
+	 * Sigma((b + k * x) * turnoverRateDistribution(x), x = 0 -> delta) + Sigma[b + k * delta, x = delta + 1 -> 1000] * turnoverRateDistribution(x) = 50%
 	 * ->
-	 * b + Sigma[k * (x - delta) * turnoverRateDistribution(x), x = delta + 1 -> 1000] = 50%
+	 * b + Sigma[k * x * turnoverRateDistribution(x), x = delta + 1 -> 1000] + Sigma[k * delta * turnoverRateDistribution(x), x = delta + 1 -> 1000] = 50%
 	 * ->
-	 * k = (0.5 - b) / Sigma[(x - delta) * turnoverRateDistribution(x), x = delta + 1 -> 1000] 
+	 * k = (0.5 - b) / {Sigma[x * turnoverRateDistribution(x), x = delta + 1 -> 1000] + Sigma[delta * turnoverRateDistribution(x), x = delta + 1 -> 1000]}
 	 */
 	private static void setDayTradingRates() {
 		dayTradingRates = new double[StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH];
 		double[] turnoverRates = StockTurnoverRateDistribution.getDistribution();
 		
 		double sum = 0;
+		for (int x = 0; x <= DELTA; x++){
+			sum += x * turnoverRates[x];
+		}
 		for (int x = DELTA + 1; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++) {
-			sum += (x - DELTA) * turnoverRates[x];
+			sum += DELTA * turnoverRates[x];
 		}
 		
 		k = (AVERAGE_DAY_TRADING_RATE - BASE_DAY_TRADING_RATE) / sum;
-		System.out.println("Sum is: " + sum);
-		System.out.println("Parameter k is: " + k);
+		//System.out.println("Sum is: " + sum);
+		//System.out.println("Parameter k is: " + k);
 		
 		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
 		{
 			if (x <= DELTA)
 			{
-				dayTradingRates[x] = BASE_DAY_TRADING_RATE;
+				dayTradingRates[x] = BASE_DAY_TRADING_RATE + k * x;
 			}
 			else 
 			{
-				dayTradingRates[x] = BASE_DAY_TRADING_RATE + k * (x  - DELTA);
+				dayTradingRates[x] = BASE_DAY_TRADING_RATE + k * DELTA;
 			}
 		}
 		
-		sum = 0;
-		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
-		{
-			sum += dayTradingRates[x] * turnoverRates[x];
-		}
-		System.out.println("Average day trading rate is: " + sum);
+		//sum = 0;
+		//for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
+		//{
+		//	sum += dayTradingRates[x] * turnoverRates[x];
+		//}
+		//System.out.println("Average day trading rate is: " + sum);
 	}
 	
 }
