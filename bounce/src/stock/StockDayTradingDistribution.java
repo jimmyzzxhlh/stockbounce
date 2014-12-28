@@ -30,12 +30,13 @@ public class StockDayTradingDistribution {
 	}
 	
 	/**
-	 * 平均day trading rate应该是50%。
-	 * turnoverRateDistribution(x)表示在turnover rate为x的时候，它有多少probability
-	 * b表示base day trading rate，在turnover rate<=delta的时候都假设是这个值
-	 * k表示当turnover rate>delta的时候，随着turnover rate加大，day trading rate加大的斜率
+	 * Average day trading rate should be 50%。
+	 * turnoverRateDistribution(x) means the probability for turnover rate x to happen.
+	 * b = base day trading rate. If turnover rate<=delta, then we always have the base day trading rate (because turnover rate
+	 * is not high enough).
+	 * k is the slope of turnover rate against day trading rate under the condition that turnover rate>delta.
 	 * Sigma(b * turnoverRateDistribution(x), x = 0 -> delta) + Sigma[b + k * (x - delta), x = delta + 1 -> 1000] * turnoverRateDistribution(x) = 50%
-	 * 于是有
+	 * ->
 	 * b + Sigma[k * (x - delta) * turnoverRateDistribution(x), x = delta + 1 -> 1000] = 50%
 	 * ->
 	 * k = (0.5 - b) / Sigma[(x - delta) * turnoverRateDistribution(x), x = delta + 1 -> 1000] 
@@ -49,8 +50,8 @@ public class StockDayTradingDistribution {
 			sum += (x - DELTA) * turnoverRates[x];
 		}
 		
-//		System.out.println("Sum is: " + sum);
 		k = (AVERAGE_DAY_TRADING_RATE - BASE_DAY_TRADING_RATE) / sum;
+//		System.out.println("Sum is: " + sum);
 //		System.out.println("Parameter k is: " + k);
 		
 		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
