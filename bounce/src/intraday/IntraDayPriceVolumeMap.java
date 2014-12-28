@@ -62,12 +62,13 @@ public class IntraDayPriceVolumeMap {
 		}
 		double[] volumeDistribution = IntraDayVolumeDistribution.getDistribution();
 		for (int interval = 0; interval < priceArray.length; interval ++){
-			if (map.containsKey(priceArray[interval])){
-				map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
-			}
-			else{
-				map.put(priceArray[interval], (long) (volumeDistribution[interval] * volume));
-			}
+			map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
+//			if (map.containsKey(priceArray[interval])){
+//				map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
+//			}
+//			else{
+//				map.put(priceArray[interval], (long) (volumeDistribution[interval] * volume));
+//			}
 		}
 
 		return map;
