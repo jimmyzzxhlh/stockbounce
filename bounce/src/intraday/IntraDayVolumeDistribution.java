@@ -5,6 +5,13 @@ import java.io.FileReader;
 
 import stock.StockConst;
 
+/**
+ * Return intraday volume distribution.
+ * The length of the array is 390.
+ * distribution[i] = Volume percentage of the interval i.
+ * @author jimmyzzxhlh-Dell
+ *
+ */
 public class IntraDayVolumeDistribution {
 	
 	private static double distribution[] = null;

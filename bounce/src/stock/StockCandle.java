@@ -1,17 +1,23 @@
 package stock;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import stock.StockEnum.StockCandleDataType;
+import stock.StockEnum.StockIntraDayClass;
 
 public class StockCandle {
 	
+	private static final double NAN = -1e10;
 	public double open = 0;
 	public double close = 0;
 	public double high = 0;
 	public double low = 0;
 	public long volume = 0;
 	public double adjClose = 0;
+	public String symbol;
+	private double turnoverRate = NAN;
+	private HashMap<String, Long> sharesOutstandingMap = null;
 
 	public Date date;
 
@@ -28,6 +34,7 @@ public class StockCandle {
 		this.volume = inputStockCandle.volume;
 		this.date = inputStockCandle.date;
 		this.adjClose = inputStockCandle.adjClose;
+		this.symbol = inputStockCandle.symbol;
 	}
 	
 	public StockCandle(Date date, double open, double close, double high, double low, long volume, double adjClose) {
@@ -190,6 +197,58 @@ public class StockCandle {
 	
 	public boolean isBlackCandle() {
 		return (close < open);
+	}
+	
+	public String getSymbol() {
+		return symbol;
+	}
+	
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+	
+	public double getTurnoverRate() {
+		if (turnoverRate > 0) return turnoverRate;
+		setTurnoverRate();
+		return turnoverRate;		
+	}
+	
+	public void setTurnoverRate() {
+		if (sharesOutstandingMap == null) {
+			sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		}
+		if (symbol == null) {
+			System.err.println("Symbol not set. Cannot get shares outstanding mapping for turnover rate.");
+			return;
+		}
+		long sharesOutstanding = sharesOutstandingMap.get(symbol);
+		turnoverRate = sharesOutstanding * 1.0 / getVolume();
+	}
+	
+	
+	public boolean isUpperShadowLonger() {
+		return (getUpperShadowLength() >= getLowerShadowLength());
+	}
+	
+	public boolean isWhite() {
+		return (close > open);
+	}
+	
+	public boolean isBlack() {
+		return (close < open);
+	}
+	
+	public StockIntraDayClass getIntraDayClass() {
+		double bodyLength = getBodyLength();
+		if (isWhite()) {
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.WHITE_LONG;
+		}
+		if (isBlack()) {
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.BLACK_LONG;
+		}
+		if (isUpperShadowLonger())
+			return StockIntraDayClass.UPPER_LONGER;
+		return StockIntraDayClass.LOWER_LONGER;
 	}
 }
 

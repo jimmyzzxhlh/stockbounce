@@ -2,8 +2,10 @@ package intraday;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import stock.StockConst;
+import stock.StockSharesOutstandingMap;
 import stock.StockEnum.StockIntraDayClass;
 
 /**
@@ -24,6 +26,8 @@ public class IntraDayStockCandleArray {
 	private ArrayList<Integer> highIntervals = null;
 	private ArrayList<Integer> lowIntervals = null;
 	private Timestamp ts;
+	private double turnoverRate = NAN;  //Not useful for now but just for future use.
+	private HashMap<String, Long> sharesOutstandingMap = null;
 	
 	public IntraDayStockCandleArray() {
 		stockCandleArray = new ArrayList<IntraDayStockCandle>();
@@ -137,6 +141,21 @@ public class IntraDayStockCandleArray {
 			long currentVolume = stockCandleArray.get(i).getVolume();
 			volume += currentVolume;
 		}
+	}
+	
+	public double getTurnoverRate() {
+		if (turnoverRate > 0) return turnoverRate;
+		if (!isStockCandleArrayValid()) return NAN;
+		setTurnoverRate();
+		return turnoverRate;		
+	}
+	
+	public void setTurnoverRate() {
+		if (sharesOutstandingMap == null) {
+			sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		}
+		long sharesOutstanding = sharesOutstandingMap.get(symbol);
+		turnoverRate = sharesOutstanding * 1.0 / getVolume();
 	}
 	
 	public ArrayList<Integer> getHighIntervals() {

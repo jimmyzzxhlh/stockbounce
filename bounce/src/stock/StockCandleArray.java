@@ -21,11 +21,12 @@ public class StockCandleArray {
 	
 	public StockCandleArray(StockCandleArray inputStockCandleArray) {
 		this.stockCandleArray = new ArrayList<StockCandle>();
+		this.symbol = inputStockCandleArray.symbol;
 		for (int i = 0; i < inputStockCandleArray.getStockCandleArray().size(); i++) {
 			StockCandle stockCandle = new StockCandle(inputStockCandleArray.getStockCandleArray().get(i));
 			this.stockCandleArray.add(stockCandle);
 		}		
-		this.symbol = inputStockCandleArray.symbol;
+		
 	}
 	
 	public ArrayList<StockCandle> getStockCandleArray() {
@@ -59,6 +60,14 @@ public class StockCandleArray {
 	
 	public void setStockCandleArray(ArrayList<StockCandle> stockCandleArray) {
 		this.stockCandleArray = stockCandleArray;
+	}
+	
+	public double getTurnoverRate(int index) {
+		return stockCandleArray.get(index).getTurnoverRate();
+	}
+	
+	public void setTurnoverRate(int index) {
+		stockCandleArray.get(index).setTurnoverRate();
 	}
 
 	public String getSymbol() {
