@@ -2,23 +2,24 @@ package intraday;
 
 import java.util.HashMap;
 
+import stock.StockCandle;
 import stock.StockEnum.StockIntraDayClass;
 
 public class IntraDayPriceVolumeMap {
 	public IntraDayPriceVolumeMap() {
 	}
 	
-	public static HashMap<Integer, Long> getMap(IntraDayStockCandleArray idStockCandleArray) {
-		HashMap<Integer, Long> map = null; //Map between price and volume. Price has been multiplied by 100 and rounded.
-		StockIntraDayClass intraDayClass = idStockCandleArray.getIntraDayClass();
+	public static HashMap<Integer, Long> getMap(StockCandle idStockCandle) {
+		HashMap<Integer, Long> map = new HashMap<Integer, Long>(); //Map between price and volume. Price has been multiplied by 100 and rounded.
+		StockIntraDayClass intraDayClass = idStockCandle.getIntraDayClass();
 		int lowInterval = IntraDayGetLowHigh.getLowInterval(intraDayClass);
 		int highInterval = IntraDayGetLowHigh.getHighInterval(intraDayClass);
 		int[] priceArray = new int[391];
-		double open = idStockCandleArray.getOpen() * 100;
-		double close = idStockCandleArray.getClose() * 100;
-		double high = idStockCandleArray.getHigh() * 100;
-		double low = idStockCandleArray.getLow() * 100;
-		double volume = idStockCandleArray.getVolume();
+		double open = idStockCandle.getOpen() * 100;
+		double close = idStockCandle.getClose() * 100;
+		double high = idStockCandle.getHigh() * 100;
+		double low = idStockCandle.getLow() * 100;
+		double volume = idStockCandle.getVolume();
 		for (int interval = 0; interval < priceArray.length; interval ++){
 			if (lowInterval <= highInterval){
 				if (interval <=lowInterval){
@@ -38,6 +39,7 @@ public class IntraDayPriceVolumeMap {
 				//otherwise, lowInterval < interval < highInterval
 					priceArray[interval] = (int) Math.round(low + (high - low) / (highInterval-lowInterval) * (interval-lowInterval));
 			}
+			
 			else //i.e., highInterval < lowInterval
 			{
 				if (interval <=highInterval){
@@ -61,7 +63,7 @@ public class IntraDayPriceVolumeMap {
 		double[] volumeDistribution = IntraDayVolumeDistribution.getDistribution();
 		for (int interval = 0; interval < priceArray.length; interval ++){
 			if (map.containsKey(priceArray[interval])){
-				map.replace(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
+				map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
 			}
 			else{
 				map.put(priceArray[interval], (long) (volumeDistribution[interval] * volume));
