@@ -4,10 +4,9 @@ import indicator.StockGain;
 
 import java.io.File;
 
+import stock.StockAPI;
 import stock.StockCandleArray;
 import stock.StockConst;
-import stock.StockFileWriter;
-import yahoo.YahooParser;
 
 /**
  * 这个测试没啥用，不过有一个结果是，如果能够找出区域最低点的话（比如20天之内的左右最低点），那么考察在最低点之后
@@ -41,7 +40,7 @@ public class LocalMinCloseTest {
 		
 		for (File csvFile : directoryList) {
 			System.out.println("Reading File: " + csvFile.getName());
-			StockCandleArray stockCandleArray = YahooParser.readCSVFile(csvFile);
+			StockCandleArray stockCandleArray = StockAPI.getStockCandleArrayYahoo(csvFile);
 			double[] stockGain = StockGain.getStockGain(stockCandleArray);
 			stockGainTotal += stockGain.length;
 			

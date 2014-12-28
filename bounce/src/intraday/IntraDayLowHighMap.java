@@ -4,10 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.StockIntraDayClass;
 
-public class IntraDayGetLowHigh {
+public class IntraDayLowHighMap {
 
 
 	private static HashMap<StockIntraDayClass, Integer> lowIntervalMap;
@@ -40,10 +41,10 @@ public class IntraDayGetLowHigh {
 		int highIntervalCount = 0;
 		for (File file : directoryList) {
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
+			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {
 				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-				if (idStockCandleArray.getIntraDayClass()!=intraDayClass)	continue;
+				if (idStockCandleArray.getIntraDayClass() != intraDayClass) continue;
 				
 				for (int index = 0; index < idStockCandleArray.getLowIntervals().size(); index ++){
 					lowInterval += idStockCandleArray.getLowIntervals().get(index);
@@ -55,8 +56,8 @@ public class IntraDayGetLowHigh {
 				}
 			}
 		}
-		lowIntervalMap.put(intraDayClass, lowInterval/lowIntervalCount);
-		highIntervalMap.put(intraDayClass,highInterval/highIntervalCount);
+		lowIntervalMap.put(intraDayClass, lowInterval / lowIntervalCount);
+		highIntervalMap.put(intraDayClass, highInterval / highIntervalCount);
 	}
 	
 	public static Integer getHighInterval(StockIntraDayClass intraDayClass) {

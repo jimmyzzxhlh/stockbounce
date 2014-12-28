@@ -4,8 +4,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import stock.StockAPI;
 import stock.StockConst;
-import stock.StockSharesOutstandingMap;
 import stock.StockEnum.StockIntraDayClass;
 
 /**
@@ -152,7 +152,7 @@ public class IntraDayStockCandleArray {
 	
 	public void setTurnoverRate() {
 		if (sharesOutstandingMap == null) {
-			sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+			sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		}
 		long sharesOutstanding = sharesOutstandingMap.get(symbol);
 		turnoverRate = sharesOutstanding * 1.0 / getVolume();

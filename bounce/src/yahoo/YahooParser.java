@@ -7,10 +7,11 @@ import java.util.HashMap;
 
 import org.joda.time.LocalDate;
 
+import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockParser;
-import stock.StockSharesOutstandingMap;
 import util.StockUtil;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
@@ -65,19 +66,19 @@ public class YahooParser extends StockParser {
 		if (this.lineNumber == 1) return false;
 		return true;
 	}
-
-	public static StockCandleArray readCSVFile(String filename, int maxCandle) {
-		File csvFile = new File(filename);
-		return readCSVFile(csvFile, maxCandle);
-	}
-	
-	public static StockCandleArray readCSVFile(String filename) {
-		File csvFile = new File(filename);
-		return readCSVFile(csvFile, -1);
-	}
 	
 	public static StockCandleArray readCSVFile(File csvFile) {
 		return readCSVFile(csvFile, -1);
+	}
+	
+	public static StockCandleArray readCSVFile(String symbol) {
+		return readCSVFile(symbol, -1);
+	}
+	
+	public static StockCandleArray readCSVFile(String symbol, int maxCandle) {
+		String filename = StockConst.STOCK_CSV_DIRECTORY_PATH + symbol + ".csv";
+		File file = new File(filename);
+		return readCSVFile(file, maxCandle);
 	}
 	
 	public static StockCandleArray readCSVFile(File csvFile, int maxCandle) {
@@ -87,7 +88,7 @@ public class YahooParser extends StockParser {
 		stockCandleArray = new StockCandleArray();
 		String symbol = StockUtil.getSymbolFromFile(csvFile);
 		stockCandleArray.setSymbol(symbol);
-		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		HashMap<String, Long> sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		stockCandleArray.setSharesOutstanding(sharesOutstandingMap.get(symbol));
 		parser.startReadFile();
 		String line;

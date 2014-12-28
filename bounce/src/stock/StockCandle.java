@@ -215,7 +215,7 @@ public class StockCandle {
 	
 	public void setTurnoverRate() {
 		if (sharesOutstandingMap == null) {
-			sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+			sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		}
 		if (symbol == null) {
 			System.err.println("Symbol not set. Cannot get shares outstanding mapping for turnover rate.");

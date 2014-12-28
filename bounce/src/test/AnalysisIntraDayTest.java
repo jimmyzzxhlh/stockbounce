@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
+import stock.StockAPI;
 import stock.StockConst;
 import stock.StockDayTradingDistribution;
 import stock.StockMarketCap;
@@ -55,7 +56,7 @@ public class AnalysisIntraDayTest {
 	private static void testReadIntraDayStockCandleArrayGoogle() throws Exception {
 		String symbol = "GOOG";
 		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt");
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
+		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
 			System.out.println(idStockCandleArray.getTimestamp());
@@ -104,7 +105,7 @@ public class AnalysisIntraDayTest {
 			String symbol = StockUtil.getSymbolFromFile(file);
 			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
 //			if (!symbol.equals("GOOG")) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
+			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
 			dailyCandleCount += mdStockCandleArray.size(); 
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {
 				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);

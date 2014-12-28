@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockDayTradingDistribution;
@@ -21,12 +22,12 @@ public class StockAverageCostIndicator {
 	private double[] sellRates;
 	
 	public StockAverageCostIndicator(File file) {
-		stockCandleArray = YahooParser.readCSVFile(file);
+		stockCandleArray = StockAPI.getStockCandleArrayYahoo(file);
 		setMapping();
 	}
 	
-	public StockAverageCostIndicator(String filename) {
-		stockCandleArray = YahooParser.readCSVFile(filename);
+	public StockAverageCostIndicator(String symbol) {
+		stockCandleArray = YahooParser.readCSVFile(symbol);
 		setMapping();
 	}
 	

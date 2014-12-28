@@ -12,8 +12,8 @@ public class IntraDayPriceVolumeMap {
 	public static HashMap<Integer, Long> getMap(StockCandle idStockCandle) {
 		HashMap<Integer, Long> map = new HashMap<Integer, Long>(); //Map between price and volume. Price has been multiplied by 100 and rounded.
 		StockIntraDayClass intraDayClass = idStockCandle.getIntraDayClass();
-		int lowInterval = IntraDayGetLowHigh.getLowInterval(intraDayClass);
-		int highInterval = IntraDayGetLowHigh.getHighInterval(intraDayClass);
+		int lowInterval = IntraDayLowHighMap.getLowInterval(intraDayClass);
+		int highInterval = IntraDayLowHighMap.getHighInterval(intraDayClass);
 		int[] priceArray = new int[391];
 		double open = idStockCandle.getOpen() * 100;
 		double close = idStockCandle.getClose() * 100;

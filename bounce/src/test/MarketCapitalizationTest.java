@@ -2,9 +2,9 @@ package test;
 
 import java.util.HashMap;
 
+import stock.StockAPI;
 import stock.StockMarketCap;
 import stock.StockPreviousCloseMap;
-import stock.StockSharesOutstandingMap;
 import stock.StockTurnoverRateDistribution;
 
 public class MarketCapitalizationTest {
@@ -22,7 +22,7 @@ public class MarketCapitalizationTest {
 	}
 	
 	private static void testSharesOutstanding() {
-		HashMap<String, Long> sharesOutstanding = StockSharesOutstandingMap.getMap();
+		HashMap<String, Long> sharesOutstanding = StockAPI.getSharesOutstandingMap();
 		System.out.println(sharesOutstanding.get("TRUE").longValue());	
 		
 	}
@@ -42,5 +42,9 @@ public class MarketCapitalizationTest {
 	
 	private static void testMarketCap() {
 		System.out.println(StockMarketCap.getMarketCap("ZNGA"));
+	}
+	
+	private static void printMarketCap() {
+		
 	}
 }

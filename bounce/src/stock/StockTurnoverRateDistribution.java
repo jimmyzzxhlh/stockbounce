@@ -55,7 +55,7 @@ public class StockTurnoverRateDistribution {
 			return;		
 		}
 		HashMap<String, Long> sharesOutstandingMap = null;
-		sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		if (sharesOutstandingMap == null) {
 			System.err.println("Cannot get the shares outstanding map.");
 			return;		
@@ -75,7 +75,7 @@ public class StockTurnoverRateDistribution {
 			}
 			StockCandleArray stockCandleArray;
 			try {
-				stockCandleArray = YahooParser.readCSVFile(csvFile);
+				stockCandleArray = StockAPI.getStockCandleArrayYahoo(csvFile);
 			}
 			catch (Exception e) {
 				e.printStackTrace();

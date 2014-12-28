@@ -17,7 +17,7 @@ public class StockMarketCap {
 	}
 	
 	public static double getMarketCap(String symbol, double currentClose) {
-		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		HashMap<String, Long> sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		long sharesOutstanding = sharesOutstandingMap.get(symbol);
 		return currentClose * sharesOutstanding; 		
 	}
@@ -29,7 +29,7 @@ public class StockMarketCap {
 	 * @return
 	 */
 	public static double getMarketCap(String symbol) {
-		HashMap<String, Long> sharesOutstandingMap = StockSharesOutstandingMap.getMap();
+		HashMap<String, Long> sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		if (!sharesOutstandingMap.containsKey(symbol)) return 0;
 		long sharesOutstanding = sharesOutstandingMap.get(symbol).longValue();
 		HashMap<String, Double> previousCloseMap = StockPreviousCloseMap.getMap();
