@@ -33,6 +33,7 @@ public class StockTurnoverRateDistribution {
 			while ((line = br.readLine()) != null) {
 				distribution[index] = Double.parseDouble(line);
 				index++;
+				if (index >= StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH) break;
 			}
 			br.close();
 		} 

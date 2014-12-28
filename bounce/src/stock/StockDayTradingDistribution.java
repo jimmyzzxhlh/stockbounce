@@ -7,8 +7,8 @@ package stock;
  *
  */
 public class StockDayTradingDistribution {
-	private static final double BASE_DAY_TRADING_RATE = 0.25;
-	private static final int DELTA = 50;
+	private static final double BASE_DAY_TRADING_RATE = 0.49;
+	private static final int DELTA = 1;
 	private static final double AVERAGE_DAY_TRADING_RATE = 0.50;
 	private static double k;
 	//dayTradingRate(turnoverRate) = baseDayTradingRate, if turnoverRate <= delta;
@@ -51,8 +51,8 @@ public class StockDayTradingDistribution {
 		}
 		
 		k = (AVERAGE_DAY_TRADING_RATE - BASE_DAY_TRADING_RATE) / sum;
-//		System.out.println("Sum is: " + sum);
-//		System.out.println("Parameter k is: " + k);
+		System.out.println("Sum is: " + sum);
+		System.out.println("Parameter k is: " + k);
 		
 		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
 		{
@@ -66,12 +66,12 @@ public class StockDayTradingDistribution {
 			}
 		}
 		
-//		sum = 0;
-//		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
-//		{
-//			sum += dayTradingRates[x] * turnoverRates[x];
-//		}
-//		System.out.println("Average day trading rate is: " + sum);
+		sum = 0;
+		for (int x = 0; x < StockConst.TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH; x++)
+		{
+			sum += dayTradingRates[x] * turnoverRates[x];
+		}
+		System.out.println("Average day trading rate is: " + sum);
 	}
 	
 }

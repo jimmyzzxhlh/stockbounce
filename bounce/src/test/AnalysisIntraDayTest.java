@@ -13,7 +13,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import stock.StockConst;
+import stock.StockDayTradingDistribution;
 import stock.StockMarketCap;
+import stock.StockTurnoverRateDistribution;
 import stock.StockEnum.StockIntraDayClass;
 import util.StockUtil;
 
@@ -24,7 +26,10 @@ public class AnalysisIntraDayTest {
 //		testReadIntraDayStockCandleArray();
 //		testIntraDayVolumeDistribution();
 //		testIntraDayHighLowInterval();
-		testAnalyzeSimplePriceModelGoogle();
+//		testAnalyzeSimplePriceModelGoogle();
+		testDayTradingDistribution();
+		
+//		testTurnoverRate();
 	}
 	
 	private static void testReadIntraDayStockGoogle() throws Exception {
@@ -193,6 +198,20 @@ public class AnalysisIntraDayTest {
 			intervalCount[interval]++;			
 		}
 		
+	}
+	
+	public static void testDayTradingDistribution() {
+		double[] distribution = StockDayTradingDistribution.getDayTradingDistribution();
+		for (int i = 0; i < distribution.length; i++) {
+			System.out.println(distribution[i]);
+		}
+	}
+	
+	public static void testTurnoverRate() {
+		double[] distribution = StockTurnoverRateDistribution.getDistribution();
+		for (int i = 0; i < distribution.length; i++) {
+			System.out.println(distribution[i]);
+		}
 	}
 	
 }
