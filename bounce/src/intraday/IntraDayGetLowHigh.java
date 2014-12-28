@@ -6,39 +6,62 @@ import java.util.HashMap;
 
 import stock.StockConst;
 import stock.StockEnum.StockIntraDayClass;
-import util.StockUtil;
 
 public class IntraDayGetLowHigh {
 
 
-	private HashMap<StockIntraDayClass, Integer> lowIntervalMap;
-	private HashMap<StockIntraDayClass, Integer> highIntervalMap;
+	private static HashMap<StockIntraDayClass, Integer> lowIntervalMap;
+	private static HashMap<StockIntraDayClass, Integer> highIntervalMap;
 	
 	
 	
 	
-	public static void getLowInterval(StockIntraDayClass intraDayClass) throws Exception {
-		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		File[] directoryList = directory.listFiles();
-		for (File file : directoryList) {
-			String symbol = StockUtil.getSymbolFromFile(file);
-//			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
-			double estimatedTotalCapital = 0;
-			double realTotalCapital = 0;
-			for (int i = 0; i < mdStockCandleArray.size(); i++) {
-				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-				double averagePrice = (idStockCandleArray.getOpen() + idStockCandleArray.getClose() + idStockCandleArray.getHigh() + idStockCandleArray.getLow()) * 0.25;
-				estimatedTotalCapital += averagePrice * idStockCandleArray.getVolume();
-				realTotalCapital += idStockCandleArray.getTotalCapital();				
+	public static Integer getLowInterval(StockIntraDayClass intraDayClass) {
+		if (!lowIntervalMap.containsKey(intraDayClass)){		
+			try {
+				setInterval(intraDayClass);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			double errorTotalCapital = (estimatedTotalCapital - realTotalCapital) / realTotalCapital * 100;
-			System.out.println(symbol + " " + StockUtil.getRoundDecimals(errorTotalCapital, 5) + "%");
 		}
-	}
-	
-	public static void getHighInterval(StockIntraDayClass intraDayClass) {
+		return lowIntervalMap.get(intraDayClass);
 		
 	}
 	
+	private static void setInterval(StockIntraDayClass intraDayClass) throws Exception{
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
+		File[] directoryList = directory.listFiles();
+		int lowInterval = 0;
+		int highInterval = 0;
+		int sum = 0; //number of total intervals
+		for (File file : directoryList) {
+//			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
+			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
+			for (int i = 0; i < mdStockCandleArray.size(); i++) {
+				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
+				if (idStockCandleArray.getIntraDayClass()!=intraDayClass)	continue;
+				
+				for (int index = 0; index < idStockCandleArray.getLowIntervals().size(); index ++){
+					lowInterval += idStockCandleArray.getLowIntervals().get(index);
+					sum ++;
+				}
+				for (int index = 0; index < idStockCandleArray.getHighIntervals().size(); index ++){
+					highInterval += idStockCandleArray.getHighIntervals().get(index);
+				}
+			}
+			lowIntervalMap.put(intraDayClass, lowInterval/sum);
+			highIntervalMap.put(intraDayClass,highInterval/sum);
+		}
+	}
+	
+	public static Integer getHighInterval(StockIntraDayClass intraDayClass) {
+		if (!highIntervalMap.containsKey(intraDayClass)){		
+			try {
+				setInterval(intraDayClass);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return highIntervalMap.get(intraDayClass);
+	}
 }
