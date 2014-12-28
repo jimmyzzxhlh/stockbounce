@@ -34,6 +34,10 @@ public class StockAverageCostIndicator {
 		return stockCandleArray.size();
 	}
 	
+	public StockCandleArray getStockCandleArray() {
+		return stockCandleArray;
+	}
+	
 	private void setMapping() {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
@@ -66,7 +70,12 @@ public class StockAverageCostIndicator {
 				int price = entry.getKey();
 				long volume = entry.getValue();
 				volume = Math.round(volume * (1 - dayTradingDistribution[turnoverRateInt]) * (1 - sellRates[lookbackDays]));
-				priceVolumeMap.put(price, priceVolumeMap.get(price) + volume);
+				if (priceVolumeMap.containsKey(price)) {
+					priceVolumeMap.put(price, priceVolumeMap.get(price) + volume);
+				}
+				else {
+					priceVolumeMap.put(price, volume);
+				}
 			}
 		}
 		

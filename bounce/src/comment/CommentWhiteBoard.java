@@ -42,7 +42,6 @@ package comment;
  * 4. 平均的持有股票时间=sigma(g(d)*d)，相当于期望值。
  * 
  * 12/13/2014
- * TODO:
  * 1. 如果当天涨幅>=1%，最高价基本都出现在最低价之后，概率为P(n>=m)。
  * 2. 最高价出现在第n分钟，最低价出现在第m分钟的情况下，如果当天涨幅>=1%，股价的确定方式为：
  *    开盘价->第m分钟最低价->第n分钟最高价->收盘价
@@ -51,6 +50,31 @@ package comment;
  *    
  *    可是这里有一个假设是最低价和最高价的出现时间是互相独立的，但实际不可能，因为第n分钟出现最低价但第n+1分钟出现最高价的情况几乎
  *    没有。
+ *    
+ * 12/28/2014
+ * Dongyue has his operating system's locale set to Japanese so he cannot read Chinese :(
+ * TODO:
+ * Enhancement for estimating the price/volume relationship: (Notice that this is not useful once we have
+ * sufficient intraday data)
+ * P(m,n) - The probability that low appears at m minute and high appears at n minute.
+ * For long white, we have the pattern:
+ * Open -> Low -> High -> Close
+ * For each interval t that 0 <= t <= m, we have:
+ * Price(m,n,t) = t / m * Low + (1 - t / m) * Open
+ * (When t = m we have Price(m,n,m) = Low. When t = 0 we have Price(m,n,0) = Open)
+ * Similarly, we can get the formula for t > m and also for other patterns such as long black (Open -> High -> Low -> Close).
+ * For each formula:
+ * P-Low(m,n,t) = The coefficient for Low.
+ * P-High(m,n,t) = The coefficient for high.
+ * P-Close(m,n,t)
+ * P-Open(m,n,t)
+ * We can build a hashmap with a key of (P-Low(m,n), P-High(m,n), P-Close(m,n), P-Open(m,n)). The value is the percentage of volume
+ * given m,n (i.e. We know at which interval high/low appear, then we will loop through t and add up the volume percentage for the key).
+ * Hashmap(P-Low(m,n), P-High(m,n), P-Close(m,n), P-Open(m,n)) = Sigma(Volume%(t)) * P(m,n)
+ * Notice that we can normalize the keys so that they have a range of [-100,100]
+ * Then, given a real stock candle with Low, High, Close, Open, we just need to do a dot product with the hash map and we can
+ * get a price <-> volume percentage mapping. 
+ *  
  *    
  */
 

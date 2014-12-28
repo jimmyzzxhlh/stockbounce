@@ -25,7 +25,7 @@ public class StockSellRate {
 	}
 	
 	private static void setSellRates() {
-		double[] sellRates =  new double[StockIndicatorConst.MAX_SELL_PERIOD];
+		sellRates =  new double[StockIndicatorConst.MAX_SELL_PERIOD];
 		//manual rates till day 5
 		//we do not consider HFT here, so rates[0] = 0;
 		sellRates[1] = 0.2;
