@@ -17,7 +17,7 @@ public class StockEnum {
 		AMEX
 	}
 	
-	public enum StockIntraDayClass {
+	public enum StockCandleClass {
 		WHITE_LONG,
 		BLACK_LONG,
 		UPPER_LONGER,

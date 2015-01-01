@@ -14,8 +14,8 @@ public class IntraDayPriceVolumeTest {
 			System.out.println(index + ": " + distribution[index]);
 		}
 		
-		//int lowInterval = IntraDayGetLowHigh.getLowInterval(StockIntraDayClass.BLACK_LONG);
-		//int highInterval = IntraDayGetLowHigh.getHighInterval(StockIntraDayClass.BLACK_LONG);
+		//int lowInterval = IntraDayGetLowHigh.getLowInterval(StockcandleClass.BLACK_LONG);
+		//int highInterval = IntraDayGetLowHigh.getHighInterval(StockcandleClass.BLACK_LONG);
 		//System.out.println("Low interval: " + lowInterval);
 		//System.out.println("High interval: " + highInterval);
 		

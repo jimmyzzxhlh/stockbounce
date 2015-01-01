@@ -53,7 +53,7 @@ package comment;
  *    
  * 12/28/2014
  * Dongyue has his operating system's locale set to Japanese so he cannot read Chinese :(
- * TODO:
+ * TODO (Useful and Optional):
  * Enhancement for estimating the price/volume relationship: (Notice that this is not useful once we have
  * sufficient intraday data)
  * P(m,n) - The probability that low appears at m minute and high appears at n minute.
@@ -75,7 +75,12 @@ package comment;
  * Then, given a real stock candle with Low, High, Close, Open, we just need to do a dot product with the hash map and we can
  * get a price <-> volume percentage mapping. 
  *  
- *    
+ * TODO (Important):
+ * We haven't handled after hour trading appropriately. For now we can assume that interval 0 represents the after hour trading between
+ * the close time of the previous day and the open time of the current day.
+ * If there is a gap between the candles, then we need to distribute the price / volume of the interval 0 to the gap.
+ * 
+ *  
  */
 
 public class CommentWhiteBoard {

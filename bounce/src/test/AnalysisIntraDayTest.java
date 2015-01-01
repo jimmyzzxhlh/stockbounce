@@ -2,6 +2,8 @@ package test;
 
 import intraday.IntraDayAnalysisGoogle;
 import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayLowHighIntervalMap;
+import intraday.IntraDayPriceVolumeMap;
 import intraday.IntraDayStockCandle;
 import intraday.IntraDayStockCandleArray;
 import intraday.IntraDayVolumeDistribution;
@@ -11,13 +13,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 import stock.StockAPI;
+import stock.StockCandle;
 import stock.StockConst;
 import stock.StockDayTradingDistribution;
+import stock.StockEnum.StockCandleClass;
 import stock.StockMarketCap;
 import stock.StockTurnoverRateDistribution;
-import stock.StockEnum.StockIntraDayClass;
 import util.StockUtil;
 
 public class AnalysisIntraDayTest {
@@ -28,9 +32,10 @@ public class AnalysisIntraDayTest {
 //		testIntraDayVolumeDistribution();
 //		testIntraDayHighLowInterval();
 //		testAnalyzeSimplePriceModelGoogle();
-		testDayTradingDistribution();
-		
+		testDayTradingDistribution();		
 //		testTurnoverRate();
+//		testIntraDayLowHighIntervalMap();
+//		testIntraDayPriceVolumeMap();
 	}
 	
 	private static void testReadIntraDayStockGoogle() throws Exception {
@@ -110,8 +115,8 @@ public class AnalysisIntraDayTest {
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {
 				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
 				Timestamp ts = idStockCandleArray.getTimestamp();
-				StockIntraDayClass intraDayClass = idStockCandleArray.getIntraDayClass();
-				switch (intraDayClass) {
+				StockCandleClass candleClass = idStockCandleArray.getCandleClass();
+				switch (candleClass) {
 				case WHITE_LONG:
 //					countInterval(intervalWhiteLongHigh, idStockCandleArray.getHighIntervals());
 //					countInterval(intervalWhiteLongLow, idStockCandleArray.getLowIntervals());
@@ -214,7 +219,27 @@ public class AnalysisIntraDayTest {
 			System.out.println(distribution[i]);
 		}
 	}
+
+	public static void testIntraDayLowHighIntervalMap() throws Exception {
+//		IntraDayLowHighIntervalMap.writeInterval();
+		System.out.println(IntraDayLowHighIntervalMap.getLowInterval(StockCandleClass.WHITE_LONG));
+		System.out.println(IntraDayLowHighIntervalMap.getHighInterval(StockCandleClass.WHITE_LONG));
+		
+	}
 	
+	public static void testIntraDayPriceVolumeMap() {
+		StockCandle stockCandle = new StockCandle();
+		stockCandle.open = 95;
+		stockCandle.close = 105;
+		stockCandle.low = 90;
+		stockCandle.high = 110;
+		stockCandle.volume = 1000000;
+		System.out.println("Candle class: " + stockCandle.getCandleClass());
+		TreeMap<Integer, Long> map = new TreeMap<Integer, Long>(IntraDayPriceVolumeMap.getMap(stockCandle));
+		for (int price : map.keySet()) {
+			System.out.println(price + " " + map.get(price));
+		}
+	}
 }
 
 

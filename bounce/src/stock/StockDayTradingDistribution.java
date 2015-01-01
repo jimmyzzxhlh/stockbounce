@@ -8,7 +8,7 @@ package stock;
  */
 public class StockDayTradingDistribution {
 	private static final double BASE_DAY_TRADING_RATE = 0.45;
-	private static final int DELTA = 30;
+	private static final int DELTA = 60;
 	private static final double AVERAGE_DAY_TRADING_RATE = 0.50;
 	private static double k;
 	//dayTradingRate(turnoverRate) = baseDayTradingRate, if turnoverRate <= delta;

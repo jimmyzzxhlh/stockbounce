@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import stock.StockAPI;
 import stock.StockConst;
-import stock.StockEnum.StockIntraDayClass;
+import stock.StockEnum.StockCandleClass;
 
 /**
  * Class that represents all the candles in a day.
@@ -243,20 +243,20 @@ public class IntraDayStockCandleArray {
 		return Math.abs(close - open);
 	}
 	
-	public StockIntraDayClass getIntraDayClass() {
+	public StockCandleClass getCandleClass() {
 		if (hasNANPrice()) {
 			setPrice();
 		}
 		double bodyLength = getBodyLength();
 		if (isWhite()) {
-			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.WHITE_LONG;
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockCandleClass.WHITE_LONG;
 		}
 		if (isBlack()) {
-			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockIntraDayClass.BLACK_LONG;
+			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockCandleClass.BLACK_LONG;
 		}
 		if (isUpperShadowLonger())
-			return StockIntraDayClass.UPPER_LONGER;
-		return StockIntraDayClass.LOWER_LONGER;
+			return StockCandleClass.UPPER_LONGER;
+		return StockCandleClass.LOWER_LONGER;
 	}
 	
 	public double getTotalCapital() {

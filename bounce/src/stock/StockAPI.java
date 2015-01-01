@@ -18,31 +18,73 @@ import download.StockDownload;
  *
  */
 public class StockAPI {
-
+	
+	/**
+	 * Get a list of symbols.
+	 * TODO: We need to support both NASDAQ and NYSE.
+	 * @return Array list of string that contains symbols.
+	 */
 	public static ArrayList<String> getSymbolList() {
 		return StockDownload.getSymbolList();
 	}
 	
+	/**
+	 * Get intraday data from Google. Will be deprecated in the future.
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
 	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArrayGoogle(File file) throws Exception {
 		return IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
 	}
 	
+	/**
+	 * Get intraday data from Yahoo. Return an array list of intraday stock candle array.
+	 * An intraday stock candle array contains at most 390 candles which represent the trend in one single day.
+	 * @param symbol Symbol of the stock
+	 * @return See description
+	 * @throws Exception
+	 */
 	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
 		return IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
 	}
 	
+	/**
+	 * Get intraday volume distribution based on intervals. The length of the array is 390.
+	 * Normally, the following timing has the largest volume:
+	 * 0 (Before 8:30 AM) - After hour trading between the close time of the previous day and the open time of the curfrent day.
+	 * 210 (1:00 PM) - 12:00 PM at eastern time which is lunch time.
+	 * 390 (3:00 PM) - Market close time. 
+	 * The distribution is percentage based. Sum of the distribution is 1.
+	 * @return
+	 */
 	public static double[] getVolumeDistribution() {
 		return IntraDayVolumeDistribution.getDistribution();
 	}
 	
+	/**
+	 * Get shares outstanding map for each symbol.
+	 * Used to calculate turnover rate as well as market capitalization.
+	 * @return
+	 */
 	public static HashMap<String, Long> getSharesOutstandingMap() {
-		return StockAPI.getSharesOutstandingMap();
+		return StockSharesOutstandingMap.getMap();
 	}
 
+	/**
+	 * Get a daily stock candle array from Yahoo data.
+	 * @param symbol Symbol of the stock
+	 * @return A stock candle array represents daily stock candles.
+	 */
 	public static StockCandleArray getStockCandleArrayYahoo(String symbol) {
 		return YahooParser.readCSVFile(symbol);
 	}
 	
+	/**
+	 * Get a daily stock candle array from Yahoo data.
+	 * @param file
+	 * @return
+	 */
 	public static StockCandleArray getStockCandleArrayYahoo(File file) {
 		return YahooParser.readCSVFile(file);
 	}

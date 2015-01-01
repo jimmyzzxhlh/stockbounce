@@ -1,11 +1,14 @@
 package test;
 
 import indicator.StockAverageCostIndicator;
+
+import java.text.SimpleDateFormat;
+
 import stock.StockCandleArray;
-import stock.StockConst;
+import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String symbol = "YHOO";
+	private static final String symbol = "CTXS";
 	
 	public static void main(String args[]) {
 		testAverageCostIndicator();
@@ -14,8 +17,13 @@ public class AverageCostIndicatorTest {
 	public static void testAverageCostIndicator() {
 		StockAverageCostIndicator indicator = new StockAverageCostIndicator(symbol);
 		StockCandleArray stockCandleArray = indicator.getStockCandleArray();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		for (int i = 0; i < indicator.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + " " + indicator.getAverageCost(i) / 100);
+			double close = stockCandleArray.getClose(i);
+			double averageCost = indicator.getAverageCost(i) / 100;
+			double difference = close - averageCost; 
+			System.out.println(dateFormat.format(stockCandleArray.getDate(i)) + " " + StockUtil.getRoundTwoDecimals(close) +
+					" " + StockUtil.getRoundTwoDecimals(averageCost) + " " + StockUtil.getRoundTwoDecimals(difference));
 		}
 	}
 }

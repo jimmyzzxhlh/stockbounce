@@ -14,6 +14,11 @@ import stock.StockDayTradingDistribution;
 import stock.StockSellRate;
 import yahoo.YahooParser;
 
+/**
+ * Compute the average cost indicator.
+ * @author jimmyzzxhlh-Dell
+ *
+ */
 public class StockAverageCostIndicator {
 
 	private StockCandleArray stockCandleArray;
@@ -21,16 +26,28 @@ public class StockAverageCostIndicator {
 	private double[] dayTradingDistribution;
 	private double[] sellRates;
 	
+	/**
+	 * Read daily stock candles from a file.
+	 * @param file
+	 */
 	public StockAverageCostIndicator(File file) {
 		stockCandleArray = StockAPI.getStockCandleArrayYahoo(file);
 		setMapping();
 	}
 	
+	/**
+	 * Read daily stock candles given a symbol.
+	 * @param symbol
+	 */
 	public StockAverageCostIndicator(String symbol) {
 		stockCandleArray = YahooParser.readCSVFile(symbol);
 		setMapping();
 	}
 	
+	/**
+	 * Return number of stock candles.
+	 * @return
+	 */
 	public int size() {
 		return stockCandleArray.size();
 	}
@@ -39,6 +56,12 @@ public class StockAverageCostIndicator {
 		return stockCandleArray;
 	}
 	
+	/**
+	 * Set the following mapping:
+	 * 1. Price volume mapping.
+	 * 2. Day trading distribution.
+	 * 3. Sell rate distribution.
+	 */
 	private void setMapping() {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
@@ -57,6 +80,25 @@ public class StockAverageCostIndicator {
 		
 	}
 	
+	/**
+	 * Get average cost for the current candle.
+	 * We look back for a few days. For each past candle, we do the following:
+	 * 1. Compute the turnover rate. 
+	 * 2. According to the day trading distribution, we will know how many shares are traded on the same day.
+	 * We subtract those shares from the volume.
+	 * 3. According to the sell rate distribution, we will know how many shares are sold at the current time.
+	 * We subtract those shares from the volume as well.
+	 * 4. For the remaining shares, compute the average cost of those shares.
+	 * We use this indicator as the current cost for all investors. The strategy will be:
+	 * 1. Buy long: We should wait until the stock price is almost on the same level as the current cost.
+	 * Once the stock price starts to raise up, we will initiate a buy.
+	 * 2. Sell long: One strategy is to check whether the cost of the shares significant raise up. For example,
+	 * if huge volumes are traded at the top, then they will largely increase the cost and will be a signal of top.
+	 * Another strategy could be waiting until the price is below the cost of the shares so people start to lose money.
+	 * Strategy for buy short / sell short is similar.
+	 * @param index
+	 * @return
+	 */
 	public double getAverageCost(int index) {
 		HashMap<Integer, Long> priceVolumeMap = new HashMap<Integer, Long>(); 
 		for (int i = index; i >= Math.max(0, index - StockIndicatorConst.MAX_SELL_PERIOD + 1); i--) {

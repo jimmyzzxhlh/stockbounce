@@ -21,6 +21,11 @@ import java.util.Random;
 import stock.StockConst;
 import util.StockUtil;
 
+/**
+ * Class for downloading stock data from source such as Yahoo / Google.
+ * @author jimmyzzxhlh-Dell
+ *
+ */
 public class StockDownload {
 
 	private static final String DEFAULT_START_DATE = "1/1/2006";
@@ -89,8 +94,9 @@ public class StockDownload {
 	
 	/**
 	 * Download a single stock.
-	 * Example:
-	 * 
+	 * Example: Download Yahoo stock from 1/2/2014 to 12/23/2014.
+	 * Notice that month range is 0 to 11.
+	 * http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=11&e=23&f=2014&g=d&a=0&b=2&c=2014&ignore=.csv
 	 * @param symbol
 	 * @throws Exception
 	 */
@@ -133,6 +139,7 @@ public class StockDownload {
 	
 	/**
 	 * Static function for getting a list of symbols from the company list CSV file.
+	 * TODO: Add support for NYSE.
 	 * @return
 	 */
 	public static ArrayList<String> getSymbolList() {
@@ -162,7 +169,7 @@ public class StockDownload {
 	}
 	
 	/**
-	 * Static function for downloading outstanding shares
+	 * Static function for downloading outstanding shares data from Yahoo.
 	 * Example:
 	 * http://finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG+YHOO&f=sj2
 	 */
@@ -319,11 +326,24 @@ public class StockDownload {
 		}		
 	}
 	
+	/**
+	 * Download Intraday data for one single stock from Yahoo. The filename is defauted as today's date, i.e. yyyyMMdd.txt
+	 * @param symbol
+	 * @return
+	 * @throws Exception
+	 */
 	public static boolean downloadIntraDayStockFromYahoo(String symbol) throws Exception {
 		Date today = new Date();
 		return downloadIntraDayStockFromYahoo(symbol, today);
 	}
 	
+	/**
+	 * Download Intraday data for one single stock from Yahoo.
+	 * @param symbol
+	 * @param today
+	 * @return
+	 * @throws Exception
+	 */
 	public static boolean downloadIntraDayStockFromYahoo(String symbol, Date today) throws Exception {
 		//Get today's date
 		DateFormat df = new SimpleDateFormat("yyyyMMdd");
@@ -352,11 +372,20 @@ public class StockDownload {
 		return true;
 	}
 	
+	/**
+	 * Download Intraday data for all stocks from Yahoo. The filename is defauted as today's date, i.e. yyyyMMdd.txt
+	 * @throws Exception
+	 */
 	public static void downloadIntraDayStocksFromYahoo() throws Exception {
 		Date today = new Date();
 		downloadIntraDayStocksFromYahoo(today);
 	}
 	
+	/**
+	 * Download Intraday data for all stocks from Yahoo.
+	 * @param date
+	 * @throws Exception
+	 */
 	public static void downloadIntraDayStocksFromYahoo(Date date) throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
 		ArrayList<String> symbolList = getSymbolList();
