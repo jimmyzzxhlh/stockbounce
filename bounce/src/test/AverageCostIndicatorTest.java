@@ -8,7 +8,7 @@ import stock.StockCandleArray;
 import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String symbol = "CTXS";
+	private static final String symbol = "JD";
 	
 	public static void main(String args[]) {
 		testAverageCostIndicator();

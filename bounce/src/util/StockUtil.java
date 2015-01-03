@@ -133,5 +133,19 @@ public class StockUtil {
 	    }
 	    throw new IllegalArgumentException("There is no value with name '" + name + " in Enum " + enumeration.getClass().getName());        
 	}
+	
+	/**
+	 * Split a CSV line.
+	 * Remove the quote as well.
+	 * @param line
+	 * @return
+	 */
+	public static String[] splitCSVLine(String line) {
+		String[] data = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+		for (int i = 0; i < data.length; i++) {
+			data[i] = data[i].trim().replaceAll("^\"|\"$", "").trim();
+		}
+		return data;
+	}
 		
 }

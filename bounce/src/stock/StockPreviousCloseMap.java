@@ -4,6 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
 
+import util.StockUtil;
+
+/**
+ * Not really useful for now.
+ * @author jimmyzzxhlh-Dell
+ *
+ */
 public class StockPreviousCloseMap {
 	private static HashMap<String, Double> map = null;
 	
@@ -22,7 +29,7 @@ public class StockPreviousCloseMap {
 			BufferedReader br = new BufferedReader(new FileReader(StockConst.PREVIOUS_CLOSE_FILENAME));
 			String line;			
 			while ((line = br.readLine()) != null) {
-				String[] lineArray = line.split(",");
+				String[] lineArray = StockUtil.splitCSVLine(line);
 				for (int i = 0; i < lineArray.length; i++) lineArray[i].trim();
 				//Delete quotes. Notice that it is different from shares outstanding that we already
 				//use comma to split the string, so there is no comma in the symbol!

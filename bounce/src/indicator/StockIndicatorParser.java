@@ -28,7 +28,6 @@ import yahoo.YahooParser;
  */
 
 public class StockIndicatorParser extends StockParser {
-	private static final String DELIMITER = ","; 
 	
 	public StockIndicatorParser() {
 		super();
@@ -59,7 +58,7 @@ public class StockIndicatorParser extends StockParser {
 	 * @param stockIndicator
 	 */
 	public void parseIndicatorLine(String line, StockIndicator stockIndicator) {
-		String lineArray[] = line.split(DELIMITER);
+		String lineArray[] = StockUtil.splitCSVLine(line);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			stockIndicator.setDate(formatter.parse(lineArray[StockIndicatorConst.DATE_PIECE]));

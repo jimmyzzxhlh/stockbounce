@@ -21,11 +21,10 @@ public class StockAPI {
 	
 	/**
 	 * Get a list of symbols.
-	 * TODO: We need to support both NASDAQ and NYSE.
 	 * @return Array list of string that contains symbols.
 	 */
 	public static ArrayList<String> getSymbolList() {
-		return StockDownload.getSymbolList();
+		return StockMarketCap.getSymbolList();
 	}
 	
 	/**

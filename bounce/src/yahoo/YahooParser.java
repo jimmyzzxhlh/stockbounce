@@ -29,7 +29,6 @@ public class YahooParser extends StockParser {
 	private static final int CLOSE_PIECE = 4;
 	private static final int VOLUME_PIECE = 5;
 	private static final int ADJ_CLOSE_PIECE = 6;
-	private static final String DELIMITER = ","; 
 	
 	 
 	public YahooParser() {
@@ -45,7 +44,7 @@ public class YahooParser extends StockParser {
 	}
 	@Override
 	public void parseLine(String line, StockCandle stockCandle) {
-		String lineArray[] = line.split(DELIMITER);
+		String lineArray[] = StockUtil.splitCSVLine(line);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		try {
 			stockCandle.date = formatter.parse(lineArray[DATE_PIECE]);

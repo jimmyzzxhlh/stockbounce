@@ -8,17 +8,18 @@ import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "ZNGA";
-	private static final String START_DATE = "01/01/2012";
-	private static final String END_DATE = "11/28/2014";
+	private static final String SYMBOL = "BITA";
+	private static final String START_DATE = "01/01/2005";
+	private static final String END_DATE = "12/31/2014";
 	
 	public static void main(String args[]) throws Exception {
 //		downloadSingleStock();
-//		downloadStocks();
+//		downloadShtocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
 		downloadIntraDayStocksFromYahoo();
+//		downloadCompanyLists();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -47,17 +48,40 @@ public class DownloadStocksTest {
 		StockDownload.downloadIntraDayStockFromYahoo("GOOG");
 	}
 	
-	private static void downloadIntraDayStocksFromYahoo() throws Exception {
-		System.out.println("Enter date for the file name (e.g. 20141226), nothing then use today.");
-		Scanner reader = new Scanner(System.in);
-		String dateString = reader.next();
-		if (dateString == null) {
-			StockDownload.downloadIntraDayStocksFromYahoo();
+	private static void downloadIntraDayStocksFromYahoo() {
+		try {
+			System.out.println("Enter date for the file name (e.g. 20141226), nothing then use today.");
+			Scanner reader = new Scanner(System.in);
+			String dateString = reader.nextLine().trim();
+			if (dateString.length() <= 0) {
+				StockDownload.downloadIntraDayStocksFromYahoo();
+			}
+			else {
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+				Date date = formatter.parse(dateString);
+				StockDownload.downloadIntraDayStocksFromYahoo(date);
+			}
+			reader.close();
+
+			
 		}
-		else {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-			Date date = formatter.parse(dateString);
-			StockDownload.downloadIntraDayStocksFromYahoo(date);
+		catch (Exception e) {
+			e.printStackTrace();
 		}
+		try {
+			System.out.println("Press any key to continue...");
+			System.in.read();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+		
 	}
+	
+	private static void downloadCompanyLists() throws Exception {
+		StockDownload.downloadCompanyLists();
+	}
+	
+	
 }

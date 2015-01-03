@@ -83,7 +83,7 @@ public class StockTurnoverRateDistribution {
 				return;
 			}
 			//Right now we are only dealing with large market capitalization stock.
-			if (!StockMarketCap.isLargeMarketCap(symbol, stockCandleArray)) continue;
+			if (!StockMarketCap.isLargeMarketCapFromSharesOutstanding(symbol, stockCandleArray)) continue;
 			totalCandles += stockCandleArray.size();
 			for (int i = 0; i < stockCandleArray.size(); i++) {
 				long volume = stockCandleArray.getVolume(i);

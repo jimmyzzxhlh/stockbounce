@@ -1,5 +1,6 @@
 package test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import stock.StockAPI;
@@ -17,8 +18,8 @@ public class MarketCapitalizationTest {
 //		StockTurnoverRateDistribution.writeTurnoverRateDistribution();
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
-		testMarketCap();
-		
+//		testMarketCap();
+		testGetSymbolList();
 	}
 	
 	private static void testSharesOutstanding() {
@@ -47,4 +48,12 @@ public class MarketCapitalizationTest {
 	private static void printMarketCap() {
 		
 	}
+	
+	private static void testGetSymbolList() {
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		for (int i = 0; i < symbolList.size(); i++) {
+			System.out.println(symbolList.get(i));
+		}
+	}
+	
 }

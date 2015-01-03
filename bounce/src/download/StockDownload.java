@@ -14,11 +14,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
 
+import stock.StockAPI;
 import stock.StockConst;
+import stock.StockEnum.Exchange;
+import stock.StockExchange;
 import util.StockUtil;
 
 /**
@@ -59,7 +61,7 @@ public class StockDownload {
 		if (this.startDate == null)
 			this.startDate = DEFAULT_START_DATE;
 		
-		ArrayList<String> symbolList = getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
 		int retry = 0;
 		int index = 0;
 		while (index < symbolList.size()) {
@@ -137,35 +139,21 @@ public class StockDownload {
    
 	}
 	
-	/**
-	 * Static function for getting a list of symbols from the company list CSV file.
-	 * TODO: Add support for NYSE.
-	 * @return
-	 */
-	public static ArrayList<String> getSymbolList() {
-		ArrayList<String> symbolList = new ArrayList<String>();
+	public static void downloadCompanyLists() {
+		downloadCompanyList(Exchange.NASDAQ);
+		downloadCompanyList(Exchange.NYSE);
+	}
+	
+	private static void downloadCompanyList(Exchange exchange) {
+		String urlString = StockExchange.getDownloadCompanyListURL(exchange);
+		String filename = StockExchange.getCompanyListFilename(exchange);
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(StockConst.COMPANY_LIST_NASDAQ_FILENAME));
-			String line;
-			int lineNumber = 0;
-			while ((line = br.readLine()) != null) {
-				lineNumber++;
-				//Ignore the first line as it is a header.
-				if (lineNumber == 1) continue;
-				//Symbol is the first piece of the comma delimited string
-				String symbol = line.split(StockConst.COMMA_DELIMITER)[0];
-				//Remove quotes.
-				symbol = symbol.split(StockConst.QUOTE_DELIMITER)[1].trim();
-				symbolList.add(symbol);
-			}
-			br.close();
-			
+			StockUtil.downloadURL(urlString, filename);
+			Thread.sleep(1000);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
-		Collections.sort(symbolList);
-		return symbolList;
+		}		
 	}
 	
 	/**
@@ -178,7 +166,7 @@ public class StockDownload {
 		File f = new File(StockConst.SHARES_OUTSTANDING_FILENAME);
 		f.delete();
 		StringBuilder sb = new StringBuilder();
-		ArrayList<String> symbolList = getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -216,7 +204,7 @@ public class StockDownload {
 		File f = new File(StockConst.PREVIOUS_CLOSE_FILENAME);
 		f.delete();
 		StringBuilder sb = new StringBuilder();
-		ArrayList<String> symbolList = getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -305,7 +293,7 @@ public class StockDownload {
 	 */
 	public static void downloadIntraDayStocksFromGoogle() throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		ArrayList<String> symbolList = getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
 		int retry = 0;
 		int index = 0;
 		Random random = new Random();
@@ -388,7 +376,7 @@ public class StockDownload {
 	 */
 	public static void downloadIntraDayStocksFromYahoo(Date date) throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
-		ArrayList<String> symbolList = getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
 		int retry = 0;
 		int index = 0;
 		Random random = new Random();

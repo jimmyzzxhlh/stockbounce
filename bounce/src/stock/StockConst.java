@@ -18,10 +18,11 @@ public class StockConst {
 	public static final double SMALL_MARKET_CAP_MAX = MIDDLE_MARKET_CAP_MIN - 1;
 	public static final double SMALL_MARKET_CAP_MIN = 0;
 	
-	public static final String COMPANY_LIST_NASDAQ_FILENAME = "D:\\zzx\\Stock\\companylist.csv";
+	public static final String COMPANY_LIST_NASDAQ_FILENAME = "D:\\zzx\\Stock\\companylist_nasdaq.csv";
+	public static final String COMPANY_LIST_NYSE_FILENAME = "D:\\zzx\\Stock\\companylist_nyse.csv";
 	
-	public static final String COMMA_DELIMITER = ",";
-	public static final String QUOTE_DELIMITER = "\"";
+//	public static final String COMMA_DELIMITER = ",";  Do not use this comma or quote delimiter. Use StockUtil.splitCSVLine to split a line from CSV.
+//	public static final String QUOTE_DELIMITER = "\"";
 	
 	//Download intraday stock parameters
 	public static final int INTRADAY_DOWNLOAD_INTERVAL_GOOGLE = 60;
