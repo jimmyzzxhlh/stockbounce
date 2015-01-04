@@ -38,4 +38,6 @@ public class StockConst {
 	
 	public static final double LONG_DAY_PERCENTAGE = 0.01;
 	
+	public static final int CLOSE_TO_EARNING_DAYS = 10;
+	
 }

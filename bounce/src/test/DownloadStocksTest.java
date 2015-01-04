@@ -23,7 +23,8 @@ public class DownloadStocksTest {
 //		downloadIntraDayStocksFromGoogle();
 //		downloadIntraDayStocksFromYahoo();
 //		downloadCompanyLists();
-		downloadURL();
+//		downloadURL();
+		downloadEarningsDate();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -92,6 +93,6 @@ public class DownloadStocksTest {
 	}
 	
 	private static void downloadEarningsDate() throws Exception {
-
+		StockDownload.downloadEarningsDate();
 	}
 }

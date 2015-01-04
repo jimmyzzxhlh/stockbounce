@@ -399,8 +399,12 @@ public class StockDownload {
 	}
 	
 	public static void downloadEarningsDate() {
-		
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		String header = "http://www.streetinsider.com/ec_earnings.php?q=";
+		for (int index = 0; index < symbolList.size(); index ++) {
+			String url = header + symbolList.get(index);
+			String filename = "D:\\zzx\\Stock\\Earning_Dates\\" + symbolList.get(index) + "_EarningDate.html";
+			StockUtil.downloadHTMLURL(url, filename);
+		}
 	}
-	
-	
 }
