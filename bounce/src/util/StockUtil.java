@@ -2,12 +2,11 @@ package util;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.HashMap;
-
-import stock.StockCandleArray;
 
 
 public class StockUtil {
@@ -113,6 +112,32 @@ public class StockUtil {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void downloadHTMLURL(String urlString, String filename) {
+		try {
+			URL site = new URL(urlString);
+		    ReadableByteChannel rbc = Channels.newChannel(getURLInputStream(site));
+			FileOutputStream fos = new FileOutputStream(filename);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.flush();
+			fos.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static InputStream getURLInputStream(URL url) {
+		try {
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+			urlConnection.addRequestProperty("User-Agent", "Mozilla/4.0");
+			return urlConnection.getInputStream();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static void createNewDirectory(String directory) {

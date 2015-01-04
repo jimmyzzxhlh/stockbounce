@@ -79,8 +79,11 @@ package comment;
  * We haven't handled after hour trading appropriately. For now we can assume that interval 0 represents the after hour trading between
  * the close time of the previous day and the open time of the current day.
  * If there is a gap between the candles, then we need to distribute the price / volume of the interval 0 to the gap.
+ * We discussed this but we cannot do anything on this because we don't seem to have the data for the before market / after market trading. The first data point may not be the after hour trading.
+ * e.g. AAPL 20141218
+ * 1418913059,111.6300,111.9000,111.4900,111.8700,2375700
+ * The first timestamp is already 8:30:59 so it represents the volume at the first minute.
  * 
- *  
  */
 
 public class CommentWhiteBoard {

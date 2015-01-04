@@ -397,4 +397,10 @@ public class StockDownload {
 			index++;
 		}	
 	}
+	
+	public static void downloadEarningsDate() {
+		
+	}
+	
+	
 }

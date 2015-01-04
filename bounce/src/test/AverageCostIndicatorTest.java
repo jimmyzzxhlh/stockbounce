@@ -8,7 +8,7 @@ import stock.StockCandleArray;
 import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String symbol = "JD";
+	private static final String symbol = "MOMO";
 	
 	public static void main(String args[]) {
 		testAverageCostIndicator();
@@ -23,7 +23,8 @@ public class AverageCostIndicatorTest {
 			double averageCost = indicator.getAverageCost(i) / 100;
 			double difference = close - averageCost; 
 			System.out.println(dateFormat.format(stockCandleArray.getDate(i)) + " " + StockUtil.getRoundTwoDecimals(close) +
-					" " + StockUtil.getRoundTwoDecimals(averageCost) + " " + StockUtil.getRoundTwoDecimals(difference));
+					" " + StockUtil.getRoundTwoDecimals(averageCost) + " " + StockUtil.getRoundTwoDecimals(difference) +
+					" " + StockUtil.getRoundTwoDecimals(difference * 100.0 / close) + "%");
 		}
 	}
 }

@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
+import org.joda.time.LocalDate;
+
+import util.StockUtil;
 import download.StockDownload;
 
 public class DownloadStocksTest {
@@ -18,8 +21,9 @@ public class DownloadStocksTest {
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
-		downloadIntraDayStocksFromYahoo();
+//		downloadIntraDayStocksFromYahoo();
 //		downloadCompanyLists();
+		downloadURL();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -83,5 +87,11 @@ public class DownloadStocksTest {
 		StockDownload.downloadCompanyLists();
 	}
 	
+	private static void downloadURL() {
+		StockUtil.downloadURL("http://biz.yahoo.com/research/earncal/20141215.html", "D:\\zzx\\Stock\\tempDownload.txt");
+	}
 	
+	private static void downloadEarningsDate() throws Exception {
+
+	}
 }
