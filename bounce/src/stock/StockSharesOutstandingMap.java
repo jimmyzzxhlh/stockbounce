@@ -1,8 +1,12 @@
 package stock;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+
+import util.StockUtil;
+import download.StockDownload;
 
 /**
  * This is a singleton class to prevent from reading the CSV file multiple times.
@@ -28,17 +32,28 @@ public class StockSharesOutstandingMap {
 	private static void setSharesOutStandingMap() {
 		map = new HashMap<String, Long>();
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(StockConst.SHARES_OUTSTANDING_FILENAME));
+			File file = new File(StockConst.SHARES_OUTSTANDING_FILENAME);
+			if (!file.exists()) {
+				StockDownload.downloadOutstandingSharesCSV();
+			}
+			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line;			
 			while ((line = br.readLine()) != null) {
-				String[] lineArray = line.split(" ");
-				for (int i = 0; i < lineArray.length; i++) lineArray[i].trim();
-				//Delete quotes and a comma at the end for symbol
-				String symbol = lineArray[0].substring(1, lineArray[0].length() - 2);
-				String sharesOutStandingStr = lineArray[lineArray.length - 1];
-				sharesOutStandingStr = sharesOutStandingStr.replace(",", "");
-				if (sharesOutStandingStr.equals("N/A")) continue;				
-				map.put(symbol, Long.parseLong(sharesOutStandingStr));
+				String data[] = StockUtil.splitCSVLine(line);
+				String symbol = data[0];
+				//Handle N/A condition.
+				boolean hasSharesOutStanding = true;
+				long sharesOutStanding = 0;
+				for (int i = 1; i < data.length; i++) {
+					if (data[i].equals("N/A")) {
+						hasSharesOutStanding = false;
+						break;
+					}
+					sharesOutStanding = sharesOutStanding * 1000L + Long.parseLong(data[i]);
+				}
+				if (!hasSharesOutStanding) continue;
+				//Compute shares outstanding.
+				map.put(symbol, sharesOutStanding);
 			}
 			br.close();
 		} 

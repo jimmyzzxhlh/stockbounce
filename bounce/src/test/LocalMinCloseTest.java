@@ -28,17 +28,13 @@ public class LocalMinCloseTest {
 	
 	public static void testLocalMin() throws Exception {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
-		File[] directoryList = directory.listFiles();
-		if (directoryList == null) return;
-//		StockFileWriter sfw = new StockFileWriter("D:\\zzx\\Stock\\LocalMin.csv");
-//		sfw.writeLine("StockGain");
 		int stockGainNum = 0;
 		int stockGainTotal = 0;
 		int stockGainNumFromMinClose = 0;
 		int minCloseNum = 0;
 		int minCloseGetStockGainNum = 0;
 		
-		for (File csvFile : directoryList) {
+		for (File csvFile : directory.listFiles()) {
 			System.out.println("Reading File: " + csvFile.getName());
 			StockCandleArray stockCandleArray = StockAPI.getStockCandleArrayYahoo(csvFile);
 			double[] stockGain = StockGain.getStockGain(stockCandleArray);

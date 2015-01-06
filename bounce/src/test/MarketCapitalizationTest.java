@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import stock.StockAPI;
@@ -14,17 +15,21 @@ public class MarketCapitalizationTest {
 	private static final double[] turnoverRateDistribution = null;
 
 	public static void main(String args[]) throws Exception {
-//		testSharesOutstanding();
+		testSharesOutstanding();
 //		StockTurnoverRateDistribution.writeTurnoverRateDistribution();
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
 //		testMarketCap();
-		testGetSymbolList();
+//		testGetSymbolList();
 	}
 	
 	private static void testSharesOutstanding() {
 		HashMap<String, Long> sharesOutstanding = StockAPI.getSharesOutstandingMap();
-		System.out.println(sharesOutstanding.get("TRUE").longValue());	
+		ArrayList<String> symbols = new ArrayList(sharesOutstanding.keySet());
+		Collections.sort(symbols);
+		for (String symbol : symbols) {
+			System.out.println(symbol + " " + sharesOutstanding.get(symbol));
+		}
 		
 	}
 		
@@ -50,7 +55,7 @@ public class MarketCapitalizationTest {
 	}
 	
 	private static void testGetSymbolList() {
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getAllSymbolList();
 		for (int i = 0; i < symbolList.size(); i++) {
 			System.out.println(symbolList.get(i));
 		}

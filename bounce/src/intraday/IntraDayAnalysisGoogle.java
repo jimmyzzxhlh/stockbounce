@@ -165,8 +165,7 @@ public class IntraDayAnalysisGoogle {
 	 */
 	public static void analyzeSimplePriceModel() throws Exception {
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		File[] directoryList = directory.listFiles();
-		for (File file : directoryList) {
+		for (File file : directory.listFiles()) {
 			String symbol = StockUtil.getSymbolFromFile(file);
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
 			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = getIntraDayStockCandleArray(file);

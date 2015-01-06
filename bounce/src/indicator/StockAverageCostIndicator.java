@@ -3,7 +3,9 @@ package indicator;
 import intraday.IntraDayPriceVolumeMap;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -25,6 +27,7 @@ public class StockAverageCostIndicator {
 	private ArrayList<HashMap<Integer, Long>> priceVolumeMapArray;
 	private double[] dayTradingDistribution;
 	private double[] sellRates;
+	private String symbol;
 	
 	/**
 	 * Read daily stock candles from a file.
@@ -32,6 +35,7 @@ public class StockAverageCostIndicator {
 	 */
 	public StockAverageCostIndicator(File file) {
 		stockCandleArray = StockAPI.getStockCandleArrayYahoo(file);
+		symbol = stockCandleArray.getSymbol();
 		setMapping();
 	}
 	
@@ -40,6 +44,7 @@ public class StockAverageCostIndicator {
 	 * @param symbol
 	 */
 	public StockAverageCostIndicator(String symbol) {
+		this.symbol = symbol;
 		stockCandleArray = YahooParser.readCSVFile(symbol);
 		setMapping();
 	}
@@ -112,7 +117,14 @@ public class StockAverageCostIndicator {
 			for (Entry<Integer, Long> entry : currentPriceVolumeMap.entrySet()) {
 				int price = entry.getKey();
 				long volume = entry.getValue();
+//				try {
 				volume = Math.round(volume * (1 - dayTradingDistribution[turnoverRateInt]) * (1 - sellRates[lookbackDays]));
+//				}
+//				catch (Exception e) {
+//					e.printStackTrace();
+//					System.out.println(symbol + " " + turnoverRateInt);
+//					System.exit(1);
+//				}
 				if (priceVolumeMap.containsKey(price)) {
 					priceVolumeMap.put(price, priceVolumeMap.get(price) + volume);
 				}
@@ -131,9 +143,26 @@ public class StockAverageCostIndicator {
 			totalCapital += price * volume;
 			totalVolume += volume;
 		}
-		return totalCapital * 1.0 / totalVolume;
+		//Price in the price/volume mapping was multiplied by 100.
+		return totalCapital / totalVolume / 100.0;
 	}
 	
+	public ArrayList<Date> getReverseUpDates() {
+		ArrayList<Date> dateList = new ArrayList<Date>();
+		//Start with the second day as we need the previous close price to calculate the difference.
+		for (int i = 1; i < stockCandleArray.size(); i++) {
+			double previousClose = stockCandleArray.getClose(i - 1);
+			double previousAverageCost = getAverageCost(i - 1);
+			double previousAverageCostDiff = (previousClose - previousAverageCost) / previousClose;
+			double close = stockCandleArray.getClose(i);
+			double averageCost = getAverageCost(i);
+			double averageCostDiff = (close - averageCost) / close;
+			if ((previousAverageCostDiff <= 0) && (averageCostDiff >= 0) && (averageCostDiff - previousAverageCostDiff > StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE)) {
+				dateList.add(stockCandleArray.getDate(i));
+			}
+		}
+		return dateList;
+	}
 	
 	
 	

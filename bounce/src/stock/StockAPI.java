@@ -20,10 +20,21 @@ import download.StockDownload;
 public class StockAPI {
 	
 	/**
-	 * Get a list of symbols.
+	 * Get a list of symbols. Use this function for getting symbols that have market capitalization and
+	 * outstanding shares data.
 	 * @return Array list of string that contains symbols.
 	 */
 	public static ArrayList<String> getSymbolList() {
+		StockMarketCap.returnAllSymbols = false;
+		return StockMarketCap.getSymbolList();
+	}
+	
+	/**
+	 * Get all the symbols from the company list file. Use this function ONLY when downloading outstanding shares CSV.
+	 * @return
+	 */
+	public static ArrayList<String> getAllSymbolList() {
+		StockMarketCap.returnAllSymbols = true;
 		return StockMarketCap.getSymbolList();
 	}
 	

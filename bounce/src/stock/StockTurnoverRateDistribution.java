@@ -49,11 +49,6 @@ public class StockTurnoverRateDistribution {
 	 */
 	public static void writeTurnoverRateDistribution() {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
-		File[] directoryList = directory.listFiles();
-		if (directoryList == null) {
-			System.err.println("Cannot read files from directory: " + StockConst.STOCK_CSV_DIRECTORY_PATH);
-			return;		
-		}
 		HashMap<String, Long> sharesOutstandingMap = null;
 		sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
 		if (sharesOutstandingMap == null) {
@@ -63,7 +58,7 @@ public class StockTurnoverRateDistribution {
 		//Count how many times that the turnover rate appears.
 		int[] turnoverRateDistributionCount = new int[1001];
 		int totalCandles = 0;
-		for (File csvFile : directoryList) {
+		for (File csvFile : directory.listFiles()) {
 			String symbol = StockUtil.getSymbolFromFile(csvFile);
 			long sharesOutstanding = 0;
 			if (sharesOutstandingMap.containsKey(symbol)) {

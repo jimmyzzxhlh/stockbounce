@@ -24,10 +24,8 @@ public abstract class PatternTest {
 	
 	public void testChart() throws Exception {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
-		File[] directoryList = directory.listFiles();
 		File outputFile = new File(OUTPUT_DIRECTORY_PATH + "engulfing.csv");
 		StockCandleArray stockCandleArray, originalStockCandleArray;
-		if (directoryList == null) return;
 		outputFile.createNewFile();
 		FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
@@ -43,7 +41,7 @@ public abstract class PatternTest {
 		}
 		bw.newLine();
 		
-		for (File csvFile : directoryList) {
+		for (File csvFile : directory.listFiles()) {
 			//Initialize parser and parse each line of the stock data.
 			System.out.println(csvFile.getName());
 			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);

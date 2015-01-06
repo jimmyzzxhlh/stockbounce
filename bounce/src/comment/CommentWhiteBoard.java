@@ -84,6 +84,15 @@ package comment;
  * 1418913059,111.6300,111.9000,111.4900,111.8700,2375700
  * The first timestamp is already 8:30:59 so it represents the volume at the first minute.
  * 
+ * TODO (20150103):
+ * Add ability to download index (Dow Jones, NASDAQ, S&P)
+ * Notice that Yahoo does not allow daily Dow Jones index to be downloaded, but only allow intraday, so we need to download intraday data
+ * as well.
+ * Dow Jones symbol: ^DJI (%5EDJI)
+ * Nasdaq symbol: ^IXIC (%5EIXIC)
+ * S&P 500: ^GSPC (%5EGSPC)
+ * But, there is no "outstanding shares" concept. So how do we compute the turnover rate?
+ * Maybe we can use get the symbol lists of each index and sum up the outstanding shares? 
  */
 
 public class CommentWhiteBoard {

@@ -17,6 +17,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Exchange;
@@ -30,12 +34,12 @@ import util.StockUtil;
  */
 public class StockDownload {
 
-	private static final String DEFAULT_START_DATE = "1/1/2006";
+	private static final Date DEFAULT_START_DATE = StockUtil.parseDate("20060101");
 	private static final String TEMPORARY_MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
 	private static final String TEMPORARY_PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose_Temp.csv"; 
 	private final static int MAX_RETRY = 5;
-	private String startDate; 
-	private String endDate;
+	private Date startDate; 
+	private Date endDate;
 	
 
 	/**
@@ -43,10 +47,34 @@ public class StockDownload {
 	 * Download csv files from startDate to endDate. Input null, null to use the default dates. 
 	 * startDate is 4/1/2010 by default. endDate is today by default.
 	 */
-	public StockDownload(String startDate, String endDate){		
+	public StockDownload(String startDateStr, String endDateStr){
+		if (startDateStr == null) {
+			startDate = DEFAULT_START_DATE;
+		}
+		else {
+			startDate = StockUtil.parseDate(startDateStr);
+		}
+
+		if (endDateStr == null) {
+			endDate = new Date();
+		}
+		else {
+			endDate = StockUtil.parseDate(startDateStr);
+		}
+	}	
+	
+
+	public StockDownload(Date startDate, Date endDate) {
 		this.startDate = startDate;
 		this.endDate = endDate;
-	}	
+		if (startDate == null) {
+			startDate = DEFAULT_START_DATE;
+		}
+		if (endDate == null) {
+			endDate = new Date();
+		}
+		
+	}
 	
 	public StockDownload() {
 		
@@ -110,22 +138,13 @@ public class StockDownload {
 			file.createNewFile();
 		}
 		
-		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-		Date fromDate = dateFormat.parse(startDate);
-		Date toDate;
-		if (endDate == null) {
-			toDate = new Date();  //Get current date
-		}
-		else {
-			toDate = dateFormat.parse(endDate);
-		}
 				
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(fromDate);
+		cal.setTime(startDate);
 		String startMonth = Integer.toString(cal.get(Calendar.MONTH));
         String startDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
         String startYear = Integer.toString(cal.get(Calendar.YEAR));
-        cal.setTime(toDate);
+        cal.setTime(endDate);
 		String endMonth = Integer.toString(cal.get(Calendar.MONTH));
         String endDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
         String endYear = Integer.toString(cal.get(Calendar.YEAR));
@@ -147,13 +166,8 @@ public class StockDownload {
 	private static void downloadCompanyList(Exchange exchange) {
 		String urlString = StockExchange.getDownloadCompanyListURL(exchange);
 		String filename = StockExchange.getCompanyListFilename(exchange);
-		try {
-			StockUtil.downloadURL(urlString, filename);
-			Thread.sleep(1000);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}		
+		StockUtil.downloadURL(urlString, filename);
+		StockUtil.sleepThread(1000);
 	}
 	
 	/**
@@ -164,9 +178,10 @@ public class StockDownload {
 	public static void downloadOutstandingSharesCSV() {
 		//Delete the file first so that the existing content is wiped out.
 		File f = new File(StockConst.SHARES_OUTSTANDING_FILENAME);
-		f.delete();
+		if (f.exists()) f.delete();
 		StringBuilder sb = new StringBuilder();
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		//Get all the symbols from company file.
+		ArrayList<String> symbolList = StockAPI.getAllSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -175,7 +190,7 @@ public class StockDownload {
 			sb.append(symbol);
 			//Download CSV for every 50 symbols. Otherwise, if there are too many symbols then there will be 
 			//URL error.
-			if (count % 50 == 0) {
+			if ((count % 50 == 0) || (i == symbolList.size() - 1)) {
 				System.out.println("Downloading from " + symbolList.get(i - 49) + " to " + symbol);
 				String urlString = "http://finance.yahoo.com/d/quotes.csv?s=" + sb.toString() + "&f=sj2";
 				sb = new StringBuilder();
@@ -183,11 +198,7 @@ public class StockDownload {
 				StockUtil.downloadURL(urlString, TEMPORARY_MARKET_CAP_FILENAME);
 				//Merge the temporary file to the ultimate output file.
 				mergeFile(TEMPORARY_MARKET_CAP_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
-				try {
-					Thread.sleep(300);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				StockUtil.sleepThread(300);
 			}
 		}
 				
@@ -221,11 +232,7 @@ public class StockDownload {
 				StockUtil.downloadURL(urlString, TEMPORARY_PREVIOUS_CLOSE_FILENAME);
 				//Merge the temporary file to the ultimate output file.
 				mergeFile(TEMPORARY_PREVIOUS_CLOSE_FILENAME, StockConst.PREVIOUS_CLOSE_FILENAME);
-				try {
-					Thread.sleep(300);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				StockUtil.sleepThread(300);
 			}
 		}
 				
@@ -308,7 +315,7 @@ public class StockDownload {
 			boolean downloaded = downloadIntraDayStockFromGoogle(symbol);
 			if (downloaded) {
 				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
-				Thread.sleep(sleepTime * 1000);
+				StockUtil.sleepThread(sleepTime * 1000);
 			}
 			index++;
 		}		
@@ -332,32 +339,50 @@ public class StockDownload {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean downloadIntraDayStockFromYahoo(String symbol, Date today) throws Exception {
+	public static boolean downloadIntraDayStockFromYahoo(String symbol, Date today) {
 		//Get today's date
-		DateFormat df = new SimpleDateFormat("yyyyMMdd");
 		String directory = StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
 			directoryFile.mkdirs();
 		}
-		String fileStock = directory + df.format(today) + ".txt";
+		String fileStock = directory + StockUtil.formatDate(today) + ".txt";
 //		String fileStock = directory + "20141222.txt";
 		File file = new File(fileStock);
 		if (!file.exists()) {
-			file.createNewFile();
+			try {
+				file.createNewFile();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		else {
 			System.out.println(symbol + " already downloaded, ignored.");
-			return false; //Google prevents us from downloading very aggressively.
+			return false;
 		}
 //		System.out.println(fileStock);
 		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + symbol + "/chartdata;type=quote;range=1d/csv";
-        URL site = new URL(siteAddress);
-        ReadableByteChannel rbc = Channels.newChannel(site.openStream());
-        FileOutputStream fos = new FileOutputStream(file);
-		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-		fos.close();
+		boolean success = false;
+		int retry = 0;
+		while (!success && (retry < MAX_RETRY)) {
+			try {
+				URL site = new URL(siteAddress);
+				ReadableByteChannel rbc = Channels.newChannel(site.openStream());
+				FileOutputStream fos = new FileOutputStream(file);
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				fos.close();
+				success = true;
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				retry++;
+				System.out.println("Retry " + symbol + " " + retry);
+				StockUtil.sleepThread(1000);
+			}
+		}
 		return true;
+
 	}
 	
 	/**
@@ -392,19 +417,31 @@ public class StockDownload {
 			if (downloaded) {
 //				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
 				int sleepTime = 1;
-				Thread.sleep(sleepTime * 500);
+				StockUtil.sleepThread(sleepTime * 500);
 			}
 			index++;
 		}	
 	}
 	
-	public static void downloadEarningsDate() {
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
-		String header = "http://www.streetinsider.com/ec_earnings.php?q=";
-		for (int index = 0; index < symbolList.size(); index ++) {
-			String url = header + symbolList.get(index);
-			String filename = "D:\\zzx\\Stock\\Earning_Dates\\" + symbolList.get(index) + "_EarningDate.html";
-			StockUtil.downloadHTMLURL(url, filename);
+	/**
+	 * Download earnings date data from Zach.
+	 */
+	public void downloadEarningsDatesFromZach() {
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd");
+		//Parse start date.
+		LocalDate startLocalDate = new LocalDate(startDate);
+		//Parse end date.
+		LocalDate endLocalDate = new LocalDate(endDate);
+		
+		StockUtil.createNewDirectory(StockConst.EARNINGS_DATES_DIRECTORY_PATH_ZACH);
+		for (LocalDate localDate = endLocalDate; !localDate.isBefore(startLocalDate); localDate = localDate.minusDays(1)) {
+			System.out.println(localDate.toString(formatter));
+			String urlString = "http://www.zacks.com/research/earnings/earning_export.php?timestamp=" + (localDate.toDate().getTime() / 1000L) + "&tab_id=1";
+//			System.out.println(urlString);
+			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_ZACH + localDate.toString(formatter) + ".txt";
+			if (StockUtil.fileExists(filename)) continue;
+			StockUtil.downloadHTMLURL(urlString, filename);
+			StockUtil.sleepThread(300);
 		}
 	}
 }

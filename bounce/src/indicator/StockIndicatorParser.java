@@ -149,10 +149,8 @@ public class StockIndicatorParser extends StockParser {
 	 */
 	public static StockIndicatorArray readCSVFiles(String directoryName, Date startDate, Date endDate) {
 		File directory = new File(directoryName);
-		File[] directoryList = directory.listFiles();
-		if (directoryList == null) return null;
 		StockIndicatorArray stockIndicatorArray = new StockIndicatorArray();
-		for (File csvFile : directoryList) {
+		for (File csvFile : directory.listFiles()) {
 //			char c = csvFile.getName().charAt(0);
 //			if (c >= 'F') break;
 			System.out.println("Reading File: " + csvFile.getName());
@@ -177,15 +175,12 @@ public class StockIndicatorParser extends StockParser {
 	 */
 	public static void writeStockIndicators() throws Exception {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
-		File[] directoryList = directory.listFiles();
 		StockFileWriter sfw;
 		StockCandleArray stockCandleArray;
 		int excludedDays = 0;
 		int includedPoints = 0;
 		
-		if (directoryList == null) return;
-		
-		for (File csvFile : directoryList) {
+		for (File csvFile : directory.listFiles()) {
 			//Initialize parser and parse each line of the stock data.
 			System.out.println(csvFile.getName());
 			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);

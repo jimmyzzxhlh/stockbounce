@@ -11,20 +11,21 @@ import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "BITA";
-	private static final String START_DATE = "01/01/2005";
-	private static final String END_DATE = "12/31/2014";
+	private static final String SYMBOL = "%5EDJI";
+	private static final String START_DATE = "20050101";
+	private static final String END_DATE = "20141231";
 	
 	public static void main(String args[]) throws Exception {
 //		downloadSingleStock();
-//		downloadShtocks();
+//		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
 //		downloadIntraDayStocksFromYahoo();
 //		downloadCompanyLists();
-//		downloadURL();
-		downloadEarningsDate();
+//		downloadEarningsDate();
+		downloadDailyTask();
+//		downloadHTMLURL();
 	}
 	
 	private static void downloadSingleStock() throws Exception {
@@ -62,37 +63,39 @@ public class DownloadStocksTest {
 				StockDownload.downloadIntraDayStocksFromYahoo();
 			}
 			else {
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-				Date date = formatter.parse(dateString);
+				Date date = StockUtil.parseDate(dateString);
 				StockDownload.downloadIntraDayStocksFromYahoo(date);
 			}
-			reader.close();
-
+			
 			
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		try {
-			System.out.println("Press any key to continue...");
-			System.in.read();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-			
 		
 	}
 	
-	private static void downloadCompanyLists() throws Exception {
-		StockDownload.downloadCompanyLists();
+	private static void downloadDailyTask() { 
+		System.out.println("1. Download Intra Day Data from Yahoo...");
+		downloadIntraDayStocksFromYahoo();
+		System.out.println("2. Download Earnings Date from Zach.");
+		downloadEarningsDateForToday();
+		StockUtil.pressAnyKeyToContinue();
 	}
 	
-	private static void downloadURL() {
-		StockUtil.downloadURL("http://biz.yahoo.com/research/earncal/20141215.html", "D:\\zzx\\Stock\\tempDownload.txt");
+	private static void downloadHTMLURL() {
+		StockUtil.downloadHTMLURL("http://www.streetinsider.com/ec_earnings.php?q=VPFG", "D:\\zzx\\Stock\\EarningsDatesStreetInsider\\VPFG.html");
 	}
 	
 	private static void downloadEarningsDate() throws Exception {
-		StockDownload.downloadEarningsDate();
+		StockDownload stockDownload = new StockDownload(START_DATE, END_DATE);
+		stockDownload.downloadEarningsDatesFromZach();
+		StockUtil.pressAnyKeyToContinue();
+	}
+	
+	private static void downloadEarningsDateForToday() {
+		Date today = new Date();
+		StockDownload stockDownload = new StockDownload(today, today);
+		stockDownload.downloadEarningsDatesFromZach();
 	}
 }

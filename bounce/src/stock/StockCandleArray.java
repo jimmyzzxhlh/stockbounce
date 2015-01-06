@@ -214,8 +214,56 @@ public class StockCandleArray {
 		}
 		return result;		
 	}
+	
+	public double getMaxProfit(int index, int days, StockCandleDataType dataType) {
+		double currentPrice = stockCandleArray.get(index).getStockPrice(dataType);
+		double maxPrice = getMaxStockPrice(index, days, dataType);
+		return maxPrice - currentPrice;
+	}
+	
+	public double getMaxProfit(int index, int days) {
+		return getMaxProfit(index, days, StockCandleDataType.CLOSE);
+	}
+	
+	public double getMaxLoss(int index, int days, StockCandleDataType dataType) {
+		double currentPrice = stockCandleArray.get(index).getStockPrice(dataType);
+		double minClosePrice = getMinStockPrice(index, days, dataType);
+		return minClosePrice - currentPrice;
+	}
+	
+	public double getMaxLoss(int index, int days) {
+		return getMaxLoss(index, days, StockCandleDataType.CLOSE);
+	}
 
-
+	/**
+	 * Use binary search to get the index in the stock candle array given a date.
+	 * @param date
+	 * @return
+	 */
+	public int getDateIndex(Date date) {
+		int start = 0;
+		int end = stockCandleArray.size() - 1;
+		int mid = -1;
+		boolean found = false;
+		while ((!found) && (start <= end)) {
+			mid = (start + end) / 2;
+			Date midDate = stockCandleArray.get(mid).getDate();
+			if (date.before(midDate)) {
+				end = mid - 1;
+			}
+			else if (date.after(midDate)) {
+				start = mid + 1;
+			}
+			else {
+				found = true;
+			}
+		}
+		if (!found) {
+			//Should not happen if the date passed in is a valid date.
+			return -1;
+		}
+		return mid;
+	}
 }
 			
 		

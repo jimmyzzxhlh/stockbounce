@@ -7,9 +7,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class StockUtil {
+	
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 	
 	public static double getRoundTwoDecimals(double input) {
 		return Math.round(input * 100.0) / 100.0;
@@ -172,5 +175,66 @@ public class StockUtil {
 		}
 		return data;
 	}
+	
+	public static void sleepThread(long millis) {
+		try {
+			Thread.sleep(millis);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void pressAnyKeyToContinue() {
+		try {
+			System.out.println("Press any key to continue...");
+			System.in.read();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static boolean fileExists(String filename) {
+		File file = new File(filename);
+		return file.exists();
+	}
+	
+	/**
+	 * Return a string with date format yyyyMMdd.
+	 * @param date
+	 * @return
+	 */
+	public static String formatDate(Date date) {
+		return dateFormat.format(date);
+	}
+	
+	/**
+	 * Parse a date string with date format yyyyMMdd.
+	 * @param dateString
+	 * @return
+	 */
+	public static Date parseDate(String dateString) {
+		Date date = null;
+		try {
+			date = dateFormat.parse(dateString);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return date;
 		
+	}
+	
+	/**
+	 * Given a full filename, return a filename without extension.
+	 * @param filename
+	 * @return
+	 */
+    public static String getFilenameWithoutExtension(String filename) {
+        if (filename == null) return null;
+        int pos = filename.lastIndexOf(".");
+        if (pos == -1) return filename;
+        return filename.substring(0, pos);
+    }
 }

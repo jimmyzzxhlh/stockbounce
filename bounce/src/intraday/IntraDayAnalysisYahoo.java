@@ -118,8 +118,7 @@ public class IntraDayAnalysisYahoo {
 		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
 		//Read from a folder.
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
-		File[] directoryList = directory.listFiles();
-		for (File file : directoryList) {
+		for (File file : directory.listFiles()) {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line;
 			//Skip the first few lines until we hit the first timestamp that needs to be processed.

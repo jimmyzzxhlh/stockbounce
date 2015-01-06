@@ -44,4 +44,12 @@ public class StockIndicatorConst {
 	public static final double SAMEDAY_OPEN_CLOSE_DIFFERENCE_THRESHOLD = 0.15;
 	public static final double NEXTDAY_CLOSE_DIFFERENCE_THRESHOLD = 0.20; 
 			
+	
+	/**
+	 * Stock Average Cost Indicator
+	 */
+	//When a stock is reversed from the bottom, calculate the percentage difference between the close price
+	//and the average cost price. It should be >= 4% for now to indicate a strong reverse.
+	public static final double AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE = 0.04;
+	
 }

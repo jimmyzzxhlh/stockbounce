@@ -89,7 +89,6 @@ public class AnalysisIntraDayTest {
 	
 	private static void testIntraDayHighLowInterval() throws Exception {
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		File[] directoryList = directory.listFiles();
 //		int intervalLow[] = new int[391];
 //		int intervalHigh[] = new int[391];
 		int intervalWhiteLongHigh[] = new int[391];
@@ -105,7 +104,7 @@ public class AnalysisIntraDayTest {
 		int lowCount = 0;
 		int highAfterLowCount = 0;
 		int highBeforeLowCount = 0;
-		for (File file : directoryList) {
+		for (File file : directory.listFiles()) {
 		
 			String symbol = StockUtil.getSymbolFromFile(file);
 			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;

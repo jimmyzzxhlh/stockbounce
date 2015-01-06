@@ -106,14 +106,13 @@ public class IntraDayLowHighIntervalMap {
 	 */
 	public static void writeInterval() throws Exception {
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		File[] directoryList = directory.listFiles();
-
+		
 		HashMap<StockCandleClass, Long> lowIntervalTotalMap = new HashMap<StockCandleClass, Long>();
 		HashMap<StockCandleClass, Long> lowIntervalCountMap = new HashMap<StockCandleClass, Long>();
 		HashMap<StockCandleClass, Long> highIntervalTotalMap = new HashMap<StockCandleClass, Long>();
 		HashMap<StockCandleClass, Long> highIntervalCountMap = new HashMap<StockCandleClass, Long>();
 		
-		for (File file : directoryList) {
+		for (File file : directory.listFiles()) {
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
 			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {

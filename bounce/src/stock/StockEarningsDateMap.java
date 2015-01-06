@@ -1,16 +1,17 @@
 package stock;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import util.StockUtil;
 
 /**
  * Read the text file which contains the earnings date.
@@ -26,99 +27,142 @@ public class StockEarningsDateMap {
 	private static HashMap<String, ArrayList<Date>> map;
 	
 	public static HashMap<String, ArrayList<Date>> getMap() { 
-		if (map == null) setMap();
+//		if (map == null) setMap();
 		return map;
 	}
 	
-	private static void setMap() {
-		String filename = "D:\\zzx\\Stock\\Earning_Dates.csv";
-		try{
-			File file = new File(filename);
-			if (!file.exists()){
-				setup();
-				return;
-			}
-			map = new HashMap<String, ArrayList<Date>>();
-			BufferedReader br = new BufferedReader(new FileReader(file));		
+	
+//	private static void setMap() {
+//		String filename = ;
+//		try{
+//			File file = new File(filename);
+//			if (!file.exists()){
+//				setup();
+//				return;
+//			}
+//			map = new HashMap<String, ArrayList<Date>>();
+//			BufferedReader br = new BufferedReader(new FileReader(file));		
+//			String line;
+//			while ((line = br.readLine()) != null) {
+//				String[] elements = line.split(",");
+//				String symbol = elements[0];
+//				ArrayList<Date> dates = new ArrayList<Date>();
+//				for (int index = 1; index < elements.length; index ++){
+//					DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+//					Date date = format.parse(elements[index]);
+//					dates.add(date);
+//				}
+//				map.put(symbol, dates);
+//			}
+//			br.close();
+//		}
+//		catch(Exception ex){
+//			ex.getMessage();
+//		}
+//
+//	}
+	
+	/**
+	 * Parse earnings data from street insider.
+	 * Notice that street insider has older data but its data might not be exactly correct.
+	 * Use Zach's data if available. If not then use street insider's.
+	 * @throws Exception
+	 */
+	public static void parseStreetInsider() throws Exception {
+		//Find a string with the following format (e.g. 1/2/14)
+		//1. One or two digits first. (Month)
+		//2. Follow by a slash.
+		//3. Follow by one or two digits. (Day)
+		//4. Follow by a slash.
+		//5. Follow by two digits. (Year)
+		//6. Follow by a non-digit.
+		String regEx = "[\\d]{1,2}[/]{1}[\\d]{1,2}[/]{1}[\\d]{2}[\\D]";
+		Pattern pattern = Pattern.compile(regEx);
+		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy");
+		
+		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_STREET_INSIDER);
+		for (String symbol : symbolList) {
+			sfw.write(symbol + ",");
+			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER + symbol + ".html";
+			BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
+			ArrayList<Date> dates = new ArrayList<Date>();
 			String line;
 			while ((line = br.readLine()) != null) {
-				String[] elements = line.split(",");
-				String symbol = elements[0];
-				ArrayList<Date> dates = new ArrayList<Date>();
-				for (int index = 1; index < elements.length; index ++){
-					DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-					Date date = format.parse(elements[index]);
+				Matcher matcher = pattern.matcher(line);
+				if (!matcher.find()) continue;
+				//Cut the last character as it should be a non-digit.
+				String dateString = matcher.group();
+				dateString = dateString.substring(0, dateString.length() - 1);
+				Date date = format.parse(dateString);
+				//If the date is already in the list then do not add it again. (The last earnings date can appear twice)
+				if (dates.contains(date)) continue;
+				//Find the word "Details" in the last grid.
+				boolean detailsFound = false;
+				while (!line.contains("</tr>")) {
+					line = br.readLine();
+					if (line == null) break;  //Should probably not happen.
+					if (line.contains("Details")) {
+						detailsFound = true;
+						break;
+					}
+				}
+				if (detailsFound) {
 					dates.add(date);
 				}
-				map.put(symbol, dates);
+			}
+			for (Date date : dates) {
+				sfw.write(StockUtil.formatDate(date) + ",");
+			}
+			sfw.newLine();
+			br.close();
+		}
+		
+	}
+	
+	/**
+	 * Parse earnings data from Zach.
+	 * @throws Exception
+	 */
+	public static void parseZach() throws Exception {
+		File directory = new File(StockConst.EARNINGS_DATES_DIRECTORY_PATH_ZACH);
+		HashMap<String, ArrayList<Date>> earningsDateMap = new HashMap<String, ArrayList<Date>>();
+		for (File file : directory.listFiles()) {
+			//Get the date from the file name.
+			Date date = StockUtil.parseDate(StockUtil.getFilenameWithoutExtension(file.getName()));
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			//Skip the first line which contains the header.
+			String line = br.readLine(); 
+			while ((line = br.readLine()) != null) {
+				String data[] = line.split("\t");
+//				System.out.println(Arrays.toString(data));
+				String symbol = data[0];
+				ArrayList<Date> dates;
+				if (earningsDateMap.containsKey(symbol)) {
+					dates = earningsDateMap.get(symbol);
+					dates.add(date);
+				}
+				else {
+					dates = new ArrayList<Date>();
+					dates.add(date);
+					earningsDateMap.put(symbol, dates);
+				}				
 			}
 			br.close();
 		}
-		catch(Exception ex){
-			ex.getMessage();
+		ArrayList<String> symbols = new ArrayList<String>(earningsDateMap.keySet());
+		Collections.sort(symbols);
+		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_ZACH);
+		for (String symbol : symbols) {
+			sfw.write(symbol + ",");
+			for (Date date : earningsDateMap.get(symbol)) {
+				sfw.write(StockUtil.formatDate(date) + ",");
+			}
+			sfw.newLine();
 		}
-
+		sfw.close();
 	}
 	
-	private static void setup() {
-		map = new HashMap<String, ArrayList<Date>>();
-		
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
-		for (int index = 0; index < symbolList.size(); index ++) {
-			String symbol = symbolList.get(index);
-			String filename = "D:\\zzx\\Stock\\Earning_Dates\\" + symbol + "_EarningDate.html";
-			try{
-				BufferedReader br = new BufferedReader(new FileReader(new File(filename)));		
-				String line;
-				String dateString;
-
-				while ((line = br.readLine()) != null) {
-					//TODO: should look at "Details" instead of "check-icon"
-					if (line.contains("check-icon")){
-						String[] elements = line.split("/");
-						dateString = elements[0].substring(4) + "/" + elements[1] + "/" + elements[2].substring(0,2);
-						DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
-						Date date = format.parse(dateString);
-						if (!map.containsKey(symbol)){
-							ArrayList<Date> dates = new ArrayList<Date>();
-							dates.add(date);
-							map.put(symbol, dates);
-							}
-						else{
-							map.get(symbol).add(date);
-						}
-					}
-				}
-				br.close();
-			}
-			catch(Exception ex){
-				System.out.println(ex.getMessage());
-			}
-		}
-		
-		String filename = "D:\\zzx\\Stock\\Earning_Dates.csv";
-		try{
-			File file = new File(filename);
-			if (!file.exists()){
-				file.createNewFile();
-			}
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			for (String symbol : map.keySet()){
-				bw.append(symbol);
-				for (Date date : map.get(symbol)){
-					DateFormat df = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-					bw.append("," + df.format(date));
-				}
-				bw.append("\n");
-			}
-			
-			bw.close();
-		}
-		catch(Exception ex){
-			System.out.println(ex.getMessage());
-		}
-	}
 	
 	/**
 	 * Check whether there is an earning date that is right after the current date. 
@@ -127,7 +171,7 @@ public class StockEarningsDateMap {
 	 * @return
 	 */
 	public static boolean isCloseToEarningsDate(String symbol, Date date) {
-		if (map == null) setMap();
+//		if (map == null) setMap();
 		if (!map.containsKey(symbol)){
 			return false;
 		}
@@ -140,5 +184,6 @@ public class StockEarningsDateMap {
 		}
 		return false;
 	}
+	
 	
 }

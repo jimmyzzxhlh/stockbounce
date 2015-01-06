@@ -13,6 +13,8 @@ import util.StockUtil;
 public class StockMarketCap {
 
 	private static HashMap<String, Double> map;
+	public static boolean returnAllSymbols = false;  //Set to true if we do not want to ignore symbols that have market capitalization
+	                                                 //equal to 0 or outstanding shares equal to 0. Use this flag to download oustanding shares CSV.
 	
 	private StockMarketCap() {
 		
@@ -85,6 +87,7 @@ public class StockMarketCap {
 	 */
 	private static void setMap(Exchange exchange) {
 		String filename = StockExchange.getCompanyListFilename(exchange);
+		
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(filename));
 			String line;
@@ -95,11 +98,19 @@ public class StockMarketCap {
 				if (lineNumber == 1) continue;
 				//Split the data
 				String data[] = StockUtil.splitCSVLine(line);
-				//Check market capitalization. If not greater than 0 then ignore the symbol.
-				double marketCap = Double.parseDouble(data[3]);
-				if (marketCap <= 0) continue;
-				//Symbol is the first piece of the comma delimited string
 				String symbol = data[0];
+				double marketCap = Double.parseDouble(data[3]);
+				//Check market capitalization. If not greater than 0 then ignore the symbol.
+				//Do the check only when returnAllSymbols = false.
+				if (!returnAllSymbols) {					
+					if (marketCap <= 0) continue;				
+					//If there is no shares outstanding at all then ignore.
+					HashMap<String, Long> sharesOutStandingMap = StockSharesOutstandingMap.getMap();
+					if (!sharesOutStandingMap.containsKey(symbol) || (sharesOutStandingMap.get(symbol) <= 0)) {
+	//					System.out.println(symbol + " does not have shares outstanding data.");
+						continue;					
+					}
+				}
 				//Remove quotes.
 				map.put(symbol, marketCap);
 			}
