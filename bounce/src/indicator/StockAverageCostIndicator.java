@@ -14,6 +14,7 @@ import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockDayTradingDistribution;
 import stock.StockSellRate;
+import stock.StockEnum.StockCandleDataType;
 import yahoo.YahooParser;
 
 /**
@@ -147,8 +148,8 @@ public class StockAverageCostIndicator {
 		return totalCapital / totalVolume / 100.0;
 	}
 	
-	public ArrayList<Date> getReverseUpDates() {
-		ArrayList<Date> dateList = new ArrayList<Date>();
+	public ArrayList<Integer> getReverseUpDatesIndex() {
+		ArrayList<Integer> dateIndexList = new ArrayList<Integer>();
 		//Start with the second day as we need the previous close price to calculate the difference.
 		for (int i = 1; i < stockCandleArray.size(); i++) {
 			double previousClose = stockCandleArray.getClose(i - 1);
@@ -157,11 +158,12 @@ public class StockAverageCostIndicator {
 			double close = stockCandleArray.getClose(i);
 			double averageCost = getAverageCost(i);
 			double averageCostDiff = (close - averageCost) / close;
-			if ((previousAverageCostDiff <= 0) && (averageCostDiff >= 0) && (averageCostDiff - previousAverageCostDiff > StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE)) {
-				dateList.add(stockCandleArray.getDate(i));
-			}
+			if (previousAverageCostDiff > 0) continue;
+			if (averageCostDiff < 0) continue;
+			if (averageCostDiff - previousAverageCostDiff < StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE) continue;
+			dateIndexList.add(i);
 		}
-		return dateList;
+		return dateIndexList;
 	}
 	
 	

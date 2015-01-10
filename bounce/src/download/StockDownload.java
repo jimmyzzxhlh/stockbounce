@@ -59,7 +59,7 @@ public class StockDownload {
 			endDate = new Date();
 		}
 		else {
-			endDate = StockUtil.parseDate(startDateStr);
+			endDate = StockUtil.parseDate(endDateStr);
 		}
 	}	
 	
@@ -443,5 +443,50 @@ public class StockDownload {
 			StockUtil.downloadHTMLURL(urlString, filename);
 			StockUtil.sleepThread(300);
 		}
+	}
+	
+	private static void downloadEarningsDatesFromStreetInsider(String symbol, String filename) {
+		String urlString = "http://www.streetinsider.com/ec_earnings.php?q=" + symbol;
+		StockUtil.downloadHTMLURL(urlString, filename);
+		StockUtil.sleepThread(300);
+	}
+	
+	public static void downloadEarningsDatesFromStreetInsider() {
+		ArrayList<String> symbols = StockAPI.getAllSymbolList();
+		for (String symbol : symbols) {
+			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER + symbol + ".html";
+			if (StockUtil.fileExists(filename)) {
+				System.out.println(symbol + " exists, skipped.");
+				continue;			
+			}
+			if (symbol.contains("/")) {
+				System.out.println(symbol + " has slash, skipped.");
+				continue;			
+			}
+			System.out.println(symbol + " downloading...");
+			downloadEarningsDatesFromStreetInsider(symbol, filename);
+		}
+	}
+	
+	public static void downloadEarningsDatesFromTheStreet() {
+		ArrayList<String> symbols = StockAPI.getSymbolList();
+		StockUtil.createNewDirectory(StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET);
+		for (String symbol : symbols) {
+			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET + symbol + ".html";
+			if (StockUtil.fileExists(filename)) {
+				System.out.println(symbol + " exists, skipped.");
+				continue;
+			}
+			System.out.print(symbol + " downloading...");
+			downloadEarningsDatesFromTheStreet(symbol, filename);
+			System.out.println("Done");
+		}
+	}
+	
+	private static void downloadEarningsDatesFromTheStreet(String symbol, String filename) {
+		String urlString = "http://zacks.thestreet.com/CompanyView.php";
+		String urlParameters = "ticker=" + symbol;
+		StockUtil.downloadHTMLURLWithPost(urlString, filename, urlParameters);
+		StockUtil.sleepThread(300);
 	}
 }

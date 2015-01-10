@@ -41,9 +41,11 @@ public class StockConst {
 	//Earnings related
 	public static final String EARNINGS_DATES_DIRECTORY_PATH_ZACH = "D:\\zzx\\Stock\\EarningsDatesZach\\";
 	public static final String EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER = "D:\\zzx\\Stock\\EarningsDatesStreetInsider\\";
-	public static final String EARNINGS_DATES_STREET_INSIDER = "D:\\zzx\\Stock\\EarningsDatesStreetInsider.csv";
-	public static final String EARNINGS_DATES_ZACH = "D:\\zzx\\Stock\\EarningsDatesZach.csv";
-	public static final String EARNINGS_DATES_CSV = "D:\\zzx\\Stock\\EarningsDates.csv";
+	public static final String EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET = "D:\\zzx\\Stock\\EarningsDatesTheStreet\\";
+	public static final String EARNINGS_DATES_STREET_INSIDER_FILENAME = "D:\\zzx\\Stock\\EarningsDatesStreetInsider.csv";
+	public static final String EARNINGS_DATES_ZACH_FILENAME = "D:\\zzx\\Stock\\EarningsDatesZach.csv";
+	public static final String EARNINGS_DATES_THE_STREET_FILENAME = "D:\\zzx\\Stock\\EarningsDatesTheStreet.csv";
+	public static final String EARNINGS_DATES_FILENAME = "D:\\zzx\\Stock\\EarningsDates.csv";
 	public static final int CLOSE_TO_EARNING_DAYS = 10;
 	
 }

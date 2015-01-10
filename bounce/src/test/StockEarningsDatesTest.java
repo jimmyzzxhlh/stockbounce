@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import stock.StockConst;
-import stock.StockEarningsDateMap;
+import stock.StockEarningsDatesMap;
 
 public class StockEarningsDatesTest {
 
@@ -16,7 +16,8 @@ public class StockEarningsDatesTest {
 //		testOne();
 //		renameEarningsDatesHTML();
 //		testParseStreetInsiderHTML();
-		testParseZach();
+//		testParseZach();
+		testCompareZachStreetInsider();
 	}
 
 	
@@ -30,7 +31,7 @@ public class StockEarningsDatesTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(StockEarningsDateMap.isCloseToEarningsDate("MSFT", date));
+		System.out.println(StockEarningsDatesMap.isCloseToEarningsDate("MSFT", date));
 	}
 	
 	public static void renameEarningsDatesHTML() { 
@@ -44,10 +45,14 @@ public class StockEarningsDatesTest {
 	}
 	
 	public static void testParseStreetInsiderHTML() throws Exception {
-		StockEarningsDateMap.parseStreetInsider();
+		StockEarningsDatesMap.parseStreetInsider();
 	}
 	
 	public static void testParseZach() throws Exception {
-		StockEarningsDateMap.parseZach();
+		StockEarningsDatesMap.parseZach();
+	}
+	
+	public static void testCompareZachStreetInsider() throws Exception {
+		StockEarningsDatesMap.compareZachStreetInsider();
 	}
 }

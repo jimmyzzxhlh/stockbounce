@@ -1,5 +1,6 @@
 package test;
 
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,8 +9,9 @@ import util.StockUtil;
 public class GeneralTest {
 
 	public static void main(String args[]) {
-		splitCSVLineTest();
+//		splitCSVLineTest();
 //		regularExpressionTest();
+		testCloseDates();
 	}
 	
 	
@@ -32,5 +34,13 @@ public class GeneralTest {
         }
 		
 				
+	}
+	
+	private static void testCloseDates() {
+		Date dateOne = StockUtil.parseDate("20141120");
+		Date dateTwo = StockUtil.parseDate("20141116");
+		int difference = 3;
+		System.out.println(StockUtil.isCloseDates(dateOne, dateTwo, difference));
+		
 	}
 }

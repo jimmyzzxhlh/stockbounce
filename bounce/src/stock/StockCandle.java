@@ -190,6 +190,7 @@ public class StockCandle {
 		case CLOSE: return close;
 		case HIGH: return high;
 		case LOW: return low;
+		case OPENCLOSEMAX: return Math.max(open, close);
 		default:
 			break;
 		}

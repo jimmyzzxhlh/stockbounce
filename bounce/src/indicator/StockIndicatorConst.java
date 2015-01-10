@@ -50,6 +50,6 @@ public class StockIndicatorConst {
 	 */
 	//When a stock is reversed from the bottom, calculate the percentage difference between the close price
 	//and the average cost price. It should be >= 4% for now to indicate a strong reverse.
-	public static final double AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE = 0.04;
+	public static final double AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE = 0.035;
 	
 }

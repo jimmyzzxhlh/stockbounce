@@ -18,49 +18,29 @@ import util.StockUtil;
  * @author Dongyue Xue
  *
  */
-public class StockEarningsDateMap {
+public class StockEarningsDatesMap {
 	
-	private StockEarningsDateMap() {
+	private StockEarningsDatesMap() {
 		
 	}
 	
 	private static HashMap<String, ArrayList<Date>> map;
 	
 	public static HashMap<String, ArrayList<Date>> getMap() { 
-//		if (map == null) setMap();
+		if (map == null) setMap();
 		return map;
 	}
 	
 	
-//	private static void setMap() {
-//		String filename = ;
-//		try{
-//			File file = new File(filename);
-//			if (!file.exists()){
-//				setup();
-//				return;
-//			}
-//			map = new HashMap<String, ArrayList<Date>>();
-//			BufferedReader br = new BufferedReader(new FileReader(file));		
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				String[] elements = line.split(",");
-//				String symbol = elements[0];
-//				ArrayList<Date> dates = new ArrayList<Date>();
-//				for (int index = 1; index < elements.length; index ++){
-//					DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-//					Date date = format.parse(elements[index]);
-//					dates.add(date);
-//				}
-//				map.put(symbol, dates);
-//			}
-//			br.close();
-//		}
-//		catch(Exception ex){
-//			ex.getMessage();
-//		}
-//
-//	}
+	private static void setMap() {
+		try {
+			map = readEarningsDatesCSV(StockConst.EARNINGS_DATES_FILENAME);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	
 	/**
 	 * Parse earnings data from street insider.
@@ -81,7 +61,7 @@ public class StockEarningsDateMap {
 		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy");
 		
 		ArrayList<String> symbolList = StockAPI.getSymbolList();
-		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_STREET_INSIDER);
+		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_STREET_INSIDER_FILENAME);
 		for (String symbol : symbolList) {
 			sfw.write(symbol + ",");
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER + symbol + ".html";
@@ -122,11 +102,12 @@ public class StockEarningsDateMap {
 	
 	/**
 	 * Parse earnings data from Zach.
+	 * It turns out that Zach does not have accurate earnings date either.
 	 * @throws Exception
 	 */
 	public static void parseZach() throws Exception {
 		File directory = new File(StockConst.EARNINGS_DATES_DIRECTORY_PATH_ZACH);
-		HashMap<String, ArrayList<Date>> earningsDateMap = new HashMap<String, ArrayList<Date>>();
+		HashMap<String, ArrayList<Date>> earningsDatesMap = new HashMap<String, ArrayList<Date>>();
 		for (File file : directory.listFiles()) {
 			//Get the date from the file name.
 			Date date = StockUtil.parseDate(StockUtil.getFilenameWithoutExtension(file.getName()));
@@ -138,24 +119,24 @@ public class StockEarningsDateMap {
 //				System.out.println(Arrays.toString(data));
 				String symbol = data[0];
 				ArrayList<Date> dates;
-				if (earningsDateMap.containsKey(symbol)) {
-					dates = earningsDateMap.get(symbol);
+				if (earningsDatesMap.containsKey(symbol)) {
+					dates = earningsDatesMap.get(symbol);
 					dates.add(date);
 				}
 				else {
 					dates = new ArrayList<Date>();
 					dates.add(date);
-					earningsDateMap.put(symbol, dates);
+					earningsDatesMap.put(symbol, dates);
 				}				
 			}
 			br.close();
 		}
-		ArrayList<String> symbols = new ArrayList<String>(earningsDateMap.keySet());
+		ArrayList<String> symbols = new ArrayList<String>(earningsDatesMap.keySet());
 		Collections.sort(symbols);
-		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_ZACH);
+		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_ZACH_FILENAME);
 		for (String symbol : symbols) {
 			sfw.write(symbol + ",");
-			for (Date date : earningsDateMap.get(symbol)) {
+			for (Date date : earningsDatesMap.get(symbol)) {
 				sfw.write(StockUtil.formatDate(date) + ",");
 			}
 			sfw.newLine();
@@ -163,6 +144,81 @@ public class StockEarningsDateMap {
 		sfw.close();
 	}
 	
+	/**
+	 * Read earnings date CSV from a file.
+	 * @param filename
+	 * @return
+	 * @throws Exception
+	 */
+	public static HashMap<String, ArrayList<Date>> readEarningsDatesCSV(String filename) throws Exception {
+		HashMap<String, ArrayList<Date>> earningsDatesMap = new HashMap<String, ArrayList<Date>>();
+		BufferedReader br = new BufferedReader(new FileReader(filename));
+		String line;
+		while ((line = br.readLine()) != null) {
+			String data[] = line.split(",");
+			String symbol = data[0];
+			ArrayList<Date> dates = new ArrayList<Date>();
+			for (int i = 1; i < data.length; i++) {
+				Date date = StockUtil.parseDate(data[i]);
+				if (date != null) {
+					dates.add(date);
+				}
+			}
+			earningsDatesMap.put(symbol, dates);
+		}
+		br.close();
+		return earningsDatesMap;
+	}
+	
+	/**
+	 * Compare the earnings date for Zach VS street insider.
+	 * It looks like street insider has much more accurate data, but it could possibly miss some earnings date.
+	 * So we are not going to use any of them.
+	 * @throws Exception
+	 */
+	public static void compareZachStreetInsider() throws Exception {
+		StockFileWriter sfw = new StockFileWriter("D:\\zzx\\Stock\\CompareZachStreetInsider.txt");
+		HashMap<String, ArrayList<Date>> earningsDatesMapZach = readEarningsDatesCSV(StockConst.EARNINGS_DATES_ZACH_FILENAME);
+		HashMap<String, ArrayList<Date>> earningsDatesMapStreetInsider = readEarningsDatesCSV(StockConst.EARNINGS_DATES_STREET_INSIDER_FILENAME);
+		ArrayList<String> symbolsStreetInsider = new ArrayList<String>(earningsDatesMapStreetInsider.keySet());
+		Collections.sort(symbolsStreetInsider);
+		for (String symbolStreetInsider : symbolsStreetInsider) {
+			ArrayList<Date> datesZach = earningsDatesMapZach.get(symbolStreetInsider);
+			ArrayList<Date> datesStreetInsider = earningsDatesMapStreetInsider.get(symbolStreetInsider);
+			if (datesZach == null) {
+				sfw.writeLine(symbolStreetInsider + " has no data for Zach.");
+				continue;
+			}
+			for (Date dateStreetInsider : datesStreetInsider) {
+				if (!datesZach.contains(dateStreetInsider) && (datesZach.get(0).before(dateStreetInsider))) {
+					Date closeDateZach = getCloseDate(dateStreetInsider, datesZach, 2);
+					if (closeDateZach != null) {
+						sfw.writeLine(symbolStreetInsider + "'s earning date " + StockUtil.formatDate(dateStreetInsider)
+								+ " is close to Zach's " + StockUtil.formatDate(closeDateZach) + ".");
+					}
+					else {
+						sfw.writeLine(symbolStreetInsider + "'s earning date " + StockUtil.formatDate(dateStreetInsider)
+								+ " is not in Zach and the date is after Zach's first earning date " + StockUtil.formatDate(datesZach.get(0)) + ".");
+					}
+				}
+			}
+		}
+		sfw.close();
+	}
+	
+	/**
+	 * Find a date in a date list that is close enough to the input date.
+	 * @param inputDate
+	 * @param dates
+	 * @param difference
+	 * @return
+	 */
+	private static Date getCloseDate(Date inputDate, ArrayList<Date> dates, int difference) {
+		for (Date date : dates) {
+			if (StockUtil.isCloseDates(inputDate, date, difference)) return date;
+		}
+		return null;
+	}
 	
 	/**
 	 * Check whether there is an earning date that is right after the current date. 
@@ -185,5 +241,15 @@ public class StockEarningsDateMap {
 		return false;
 	}
 	
+	/**
+	 * Parse the earnings date data from the street.
+	 * 
+	 */
+	public static void parseTheStreet() {
+		//TODO:
+		//1. Read each HTMl file.
+		//2. The earnings date is hidden in the comments of the HTML file. Use regular expression to retrive those data.
+	}
 	
 }
+

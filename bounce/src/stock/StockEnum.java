@@ -3,7 +3,7 @@ package stock;
 public class StockEnum {
 	
 	public enum StockCandleDataType {
-		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE
+		OPEN, CLOSE, HIGH, LOW, VOLUME, DATE, OPENCLOSEMAX
 	}
 	
 	public enum TrendCalculationMethod {

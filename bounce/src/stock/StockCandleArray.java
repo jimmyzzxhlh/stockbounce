@@ -264,6 +264,22 @@ public class StockCandleArray {
 		}
 		return mid;
 	}
+	
+	public boolean isLocalMax(int index, int period, StockCandleDataType dataType) {
+		int start = Math.max(index - period, 0);
+		int end = Math.min(index + period, stockCandleArray.size() - 1);
+		double price = stockCandleArray.get(index).getStockPrice(dataType);
+		for (int i = start; i <= end; i++) {
+			if (i == index) continue;
+			if (stockCandleArray.get(i).getStockPrice(dataType) > price) return false; 
+		}
+		return true;
+	}
+	
+	//TODO
+	public boolean isLocalMin(int index, int period, StockCandleDataType dataType) {
+		return false;
+	}
 }
 			
 		

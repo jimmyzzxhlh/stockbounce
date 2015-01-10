@@ -1,14 +1,19 @@
 package util;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.joda.time.LocalDate;
 
 public class StockUtil {
 	
@@ -131,6 +136,35 @@ public class StockUtil {
 		}
 	}
 	
+	public static void downloadHTMLURLWithPost(String urlString, String filename, String urlParameters) {
+		byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
+		try {
+			URL url = new URL(urlString);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setInstanceFollowRedirects(false);
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.setRequestProperty("charset", "utf-8");
+			connection.setRequestProperty("Content-Length", Integer.toString(postData.length));
+			connection.setUseCaches(false);
+			DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
+			dos.write(postData);
+		    ReadableByteChannel rbc = Channels.newChannel(connection.getInputStream());
+			FileOutputStream fos = new FileOutputStream(filename);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.flush();
+			fos.close();
+			dos.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+			
+		
+	}
+	
 	private static InputStream getURLInputStream(URL url) {
 		try {
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -224,6 +258,27 @@ public class StockUtil {
 		}
 		return date;
 		
+	}
+	
+	/**
+	 * Return true if two dates are close to each other.
+	 * For example, if difference = 3, then 20141120 is close to 20141117, but not close to 20141116.
+	 * @param dateOne
+	 * @param dateTwo
+	 * @param difference
+	 * @return
+	 */
+	public static boolean isCloseDates(Date dateOne, Date dateTwo, int difference) {
+		if (difference < 0) return false;
+		LocalDate localDateOne = new LocalDate(dateOne);
+		LocalDate localDateTwo = new LocalDate(dateTwo);
+		LocalDate localDateOnePlus = localDateOne.plusDays(difference);
+		//If the second date is between the first date and the first date + diff days then they are close.
+		if (!localDateOne.isAfter(localDateTwo) && !localDateOnePlus.isBefore(localDateTwo)) return true;
+		LocalDate localDateOneMinus = localDateOne.minusDays(difference);
+		//If the second date is between the first date and the first date - diff days then they are close.
+		if (!localDateOne.isBefore(localDateTwo) && !localDateOneMinus.isAfter(localDateTwo)) return true;
+		return false;		
 	}
 	
 	/**
