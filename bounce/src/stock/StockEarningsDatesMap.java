@@ -158,7 +158,6 @@ public class StockEarningsDatesMap {
 			String data[] = line.split(",");
 			String symbol = data[0];
 			ArrayList<StockEarningDate> dates = new ArrayList<StockEarningDate>();	
-			System.out.println(symbol);
 			for (int i = 1; i < data.length; i++) {
 				Date date = null;
 				double estimate = -1;
@@ -182,7 +181,6 @@ public class StockEarningsDatesMap {
 					}
 				}
 			}
-			Collections.sort(dates);
 			earningsDatesMap.put(symbol, dates);
 		}
 		br.close();
@@ -285,7 +283,8 @@ public class StockEarningsDatesMap {
 			sfw.write(symbol + ",");
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET + symbol + ".html";
 			BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
-			ArrayList<Date> dates = new ArrayList<Date>();
+			//ArrayList<Date> dates = new ArrayList<Date>();
+			ArrayList<StockEarningDate> dates = new ArrayList<StockEarningDate>();
 			String line;
 			while ((line = br.readLine()) != null) {
 				Matcher matcher = pattern.matcher(line);
@@ -294,47 +293,46 @@ public class StockEarningsDatesMap {
 				dateString = dateString.substring(7);
 				dateString = dateString.substring(0, 2) + "/" + dateString.substring(2, 4) + "/" + dateString.substring(4);
 				Date date = format.parse(dateString);
-				//If the date is already in the list then do not add it again. (The last earnings date can appear twice)
-				if (dates.contains(date)) continue;
-				//
-				sfw.write(StockUtil.formatDate(date) + ";");
 				//[1] => <Stock name>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date));
 					break;
 				}
 				//[2] => <Stock symbol>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date));
 					break;
 				}
 				//[3] => <Stock earning month>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date));
 					break;
 				}
 				//[4] => <estimate>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date));
 					break;
 				}
 				String estimate = line.replace(" ", "").substring(5);
-				sfw.write(estimate + ";");
 				//[5] => <AMC, NONE, BTO>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),"NONE",999));
 					break;
 				}
 				String type = line.replace(" ", "").substring(5);
-				sfw.write(type + ";");
 				//[6] => <reported>
 				if ((line = br.readLine()) == null) {
-					sfw.write(",");
+					dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),type,999));
 					break;
 				}
 				String reported = line.replace(" ", "").substring(5);
-				sfw.write(reported + ",");
-			}			
+				dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),type,Double.parseDouble(reported)));
+			}
+			Collections.sort(dates);
+			for (int index = 0; index < dates.size(); index ++){
+				StockEarningDate stockEarningDate = dates.get(index);
+				sfw.write(StockUtil.formatDate(stockEarningDate.getDate()) + ";" + stockEarningDate.getEstimate() + ";" + stockEarningDate.getType() + ";" + stockEarningDate.getReported() + ",");
+			}
 			sfw.newLine();
 			br.close();
 		}
