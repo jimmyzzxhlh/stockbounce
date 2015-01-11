@@ -2,7 +2,7 @@ package stock;
 
 import java.util.Date;
 
-public class StockEarningDate {
+public class StockEarningDate implements Comparable<StockEarningDate>{
 
 	/**
 	 * @author Dongyue Xue
@@ -12,6 +12,19 @@ public class StockEarningDate {
 	private String type; //AMC, NONE, BTO
 	private double estimate;
 	private double reported;//999: N/A
+	
+	//true if dates are equal
+	public boolean equals(Object o){
+		if (!(o instanceof StockEarningDate)){
+			return false;
+		}
+		StockEarningDate stockEarningDate = (StockEarningDate) o;
+		return (stockEarningDate.getDate() == date);
+	}
+	
+	public int compareTo(StockEarningDate stockEarningDate) {
+		return date.compareTo(stockEarningDate.getDate());
+}
 	
 	public StockEarningDate(String symbol, Date date, double estimate, String type, double reported){
 		this.symbol = symbol;

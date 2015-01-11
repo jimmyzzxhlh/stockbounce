@@ -182,6 +182,7 @@ public class StockEarningsDatesMap {
 					}
 				}
 			}
+			Collections.sort(dates);
 			earningsDatesMap.put(symbol, dates);
 		}
 		br.close();
@@ -337,6 +338,7 @@ public class StockEarningsDatesMap {
 			sfw.newLine();
 			br.close();
 		}
+		sfw.close();
 	}
 	
 }
