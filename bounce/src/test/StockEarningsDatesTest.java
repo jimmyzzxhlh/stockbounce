@@ -4,10 +4,13 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import stock.StockConst;
+import stock.StockEarningDate;
 import stock.StockEarningsDatesMap;
 
 public class StockEarningsDatesTest {
@@ -17,7 +20,9 @@ public class StockEarningsDatesTest {
 //		renameEarningsDatesHTML();
 //		testParseStreetInsiderHTML();
 //		testParseZach();
-		testCompareZachStreetInsider();
+//		testCompareZachStreetInsider();
+		testParseTheStreet();
+		testGetMap();
 	}
 
 	
@@ -54,5 +59,21 @@ public class StockEarningsDatesTest {
 	
 	public static void testCompareZachStreetInsider() throws Exception {
 		StockEarningsDatesMap.compareZachStreetInsider();
+	}
+	
+	public static void testParseTheStreet() throws Exception {
+		StockEarningsDatesMap.parseTheStreet();
+	}
+	
+	public static void testGetMap() throws Exception{
+		HashMap<String, ArrayList<StockEarningDate>> map = StockEarningsDatesMap.getMap();
+		ArrayList<StockEarningDate> dates = map.get("AAPL");
+		for (int index = 0; index < dates.size(); index ++){
+			System.out.println(dates.get(index).getDate());
+			System.out.println(dates.get(index).getEstimate());
+			System.out.println(dates.get(index).getType());
+			System.out.println(dates.get(index).getReported());
+			System.out.println(dates.get(index).getSurprise());
+		}
 	}
 }
