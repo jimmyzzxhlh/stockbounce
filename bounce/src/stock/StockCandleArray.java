@@ -22,6 +22,7 @@ public class StockCandleArray {
 	public StockCandleArray(StockCandleArray inputStockCandleArray) {
 		this.stockCandleArray = new ArrayList<StockCandle>();
 		this.symbol = inputStockCandleArray.symbol;
+		this.sharesOutstanding = inputStockCandleArray.sharesOutstanding;
 		for (int i = 0; i < inputStockCandleArray.getStockCandleArray().size(); i++) {
 			StockCandle stockCandle = new StockCandle(inputStockCandleArray.getStockCandleArray().get(i));
 			this.stockCandleArray.add(stockCandle);
@@ -240,9 +241,10 @@ public class StockCandleArray {
 	 * @param date
 	 * @return
 	 */
-	public int getDateIndex(Date date) {
+	public int getDateIndex(Date date, boolean getNearestIndex) {
 		int start = 0;
-		int end = stockCandleArray.size() - 1;
+		int maxEnd = stockCandleArray.size() - 1;
+		int end = maxEnd;
 		int mid = -1;
 		boolean found = false;
 		while ((!found) && (start <= end)) {
@@ -259,10 +261,21 @@ public class StockCandleArray {
 			}
 		}
 		if (!found) {
+			int dateIndex = -1;
+			//If we need to get the nearest index from the given date
+			if (getNearestIndex) {
+				dateIndex = mid;
+				if (dateIndex < 0) dateIndex = 0;
+				if (dateIndex > maxEnd) dateIndex = maxEnd;				
+			}
 			//Should not happen if the date passed in is a valid date.
-			return -1;
+			return dateIndex;
 		}
 		return mid;
+	}
+	
+	public int getDateIndex(Date date) {
+		return getDateIndex(date, false);
 	}
 	
 	public boolean isLocalMax(int index, int period, StockCandleDataType dataType) {

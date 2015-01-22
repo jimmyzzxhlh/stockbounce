@@ -127,6 +127,15 @@ public class StockDownload {
 	 * Example: Download Yahoo stock from 1/2/2014 to 12/23/2014.
 	 * Notice that month range is 0 to 11.
 	 * http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=11&e=23&f=2014&g=d&a=0&b=2&c=2014&ignore=.csv
+	 * http://ichart.finance.yahoo.com/table.csv?s=YHOO&d=0&e=28&f=2010&g=d&a=3&b=12&c=1996&ignore=.csv
+	 * s = TICKER
+	 * a = fromMonth-1
+     * b = fromDay (two digits)
+	 * c = fromYear
+     * d = toMonth-1
+     * e = toDay (two digits)
+     * f = toYear
+     * g = d for day, m for month, y for yearly
 	 * @param symbol
 	 * @throws Exception
 	 */

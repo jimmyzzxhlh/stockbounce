@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockConst;
-import stock.StockFrame;
+import draw.StockFrame;
 
 public class YahooDrawPattern {
 	private StockFrame stockFrame;

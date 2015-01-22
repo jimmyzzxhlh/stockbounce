@@ -4,7 +4,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -13,11 +12,17 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class StockUtil {
 	
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMdd");
 	
 	public static double getRoundTwoDecimals(double input) {
 		return Math.round(input * 100.0) / 100.0;
@@ -240,7 +245,7 @@ public class StockUtil {
 	 * @return
 	 */
 	public static String formatDate(Date date) {
-		return dateFormat.format(date);
+		return simpleDateFormat.format(date);
 	}
 	
 	/**
@@ -251,13 +256,32 @@ public class StockUtil {
 	public static Date parseDate(String dateString) {
 		Date date = null;
 		try {
-			date = dateFormat.parse(dateString);
+			date = simpleDateFormat.parse(dateString);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return date;
 		
+	}
+	
+	public static LocalDate parseLocalDate(String dateString) {
+		if (dateString == null) return LocalDate.now();
+		dateString = dateString.trim();
+		if (dateString.length() == 0) return LocalDate.now();
+		LocalDate localDate = null;
+		try {
+			localDate = dateTimeFormatter.parseLocalDate(dateString);
+		}
+		catch (Exception e) {
+		
+		}
+		return localDate; 
+	}
+	
+	public static String formatLocalDate(LocalDate localDate) {
+		if (localDate == null) return null;
+		return localDate.toString(dateTimeFormatter);
 	}
 	
 	/**
@@ -292,4 +316,5 @@ public class StockUtil {
         if (pos == -1) return filename;
         return filename.substring(0, pos);
     }
+
 }

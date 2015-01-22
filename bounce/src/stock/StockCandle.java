@@ -40,6 +40,9 @@ public class StockCandle {
 		this.date = inputStockCandle.date;
 		this.adjClose = inputStockCandle.adjClose;
 		this.symbol = inputStockCandle.symbol;
+		this.turnoverRate = inputStockCandle.turnoverRate;
+		this.sharesOutstandingMap = inputStockCandle.sharesOutstandingMap;
+		this.date = inputStockCandle.date;
 	}
 	
 	public StockCandle(Date date, double open, double close, double high, double low, long volume, double adjClose) {

@@ -93,6 +93,33 @@ package comment;
  * S&P 500: ^GSPC (%5EGSPC)
  * But, there is no "outstanding shares" concept. So how do we compute the turnover rate?
  * Maybe we can use get the symbol lists of each index and sum up the outstanding shares? 
+ * 
+ * TODO (20150110):
+ * 1. Read intraday data to replace the model.
+ * 2. Signals - We only find one pattern of signal. Need to find more. Also if we start to buy, when do we sell?
+ * 3. Add ability to automatically return stocks that have triggered the signal.   
+ * 4. Draw chart.
+ * 
+ * TODO (20150114):
+ * 1. To update daily data in a very fast speed, we need to use the following link to download the daily data.
+ * http://download.finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG&f=sohgpc1v
+ * s : Symbol
+ * o : Open
+ * h : High
+ * g : Low
+ * p : Previous close
+ * c1: Change (Close price is Previous close + Change. There doesn't seem to be way to directly download the close price)
+ * v : Volume
+ * This is the link that we download stock shares outstanding data in REST style, which is much faster since we can pass
+ * multiple symbols in one request.
+ * We need a batch to automatically update the daily data, BUT, we need to be very careful about stock splitting because that will
+ * affect the volume! There is no adjacent close data in the above link. Probably there should be a manual update in this case.
+ * Notice that it seems that the volume here is a more accurate volume than the volume from the CSV file itself.
+ * 2. After updating the daily data, we also need to update the intraday data accordingly. The intraday data seems to have less volume
+ * than it should, so we can just distribute those volume into every interval. We still cannot handle the after hour market volume, though.
+ * 
+ * 
+ * 
  */
 
 public class CommentWhiteBoard {

@@ -77,6 +77,7 @@ public class YahooParser extends StockParser {
 	public static StockCandleArray readCSVFile(String symbol, int maxCandle) {
 		String filename = StockConst.STOCK_CSV_DIRECTORY_PATH + symbol + ".csv";
 		File file = new File(filename);
+		if (!file.exists()) return null;
 		return readCSVFile(file, maxCandle);
 	}
 	

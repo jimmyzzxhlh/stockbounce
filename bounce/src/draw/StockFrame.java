@@ -1,4 +1,4 @@
-package stock;
+package draw;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,6 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
+import stock.StockCandle;
 
 
 @SuppressWarnings("serial")
@@ -175,6 +177,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		this.repaint();
 		this.setVisible(true);
 	}
-
 	
 }
+
+
