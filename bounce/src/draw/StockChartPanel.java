@@ -7,12 +7,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Line2D;
 import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import stock.StockAPI;
+import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
@@ -22,6 +24,7 @@ public class StockChartPanel extends JPanel {
 	
 	private StockMainPanel mainPanel;
 	private SettingsPanel settingsPanel;
+	private StockCandleInfoPanel stockCandleInfoPanel;
 	private Date startDate;
 	private Date endDate;
 	private int startDateIndex;
@@ -33,12 +36,9 @@ public class StockChartPanel extends JPanel {
 	
 	private double stockCandleTotalWidth;
 	private double stockCandleBodyWidth;
-//	private double stockCandleShadowWidth;
 	private double stockCandleDistanceWidth;
 	private int chartWidth;
 	private int chartHeight;
-	private double backgroundGridHeight;
-	private double backgroundGridWidth;
 	
 	private double maxHigh;
 	private double minLow;
@@ -50,6 +50,14 @@ public class StockChartPanel extends JPanel {
 	private double xUnit;
 	private double yUnit;
 	
+	private Line2D mouseHorizontalLine;
+	private Line2D mouseVerticalLine;
+	
+	private String priceLabel;
+	private double priceLabelX;
+	private double priceLabelY;
+	private int priceLabelWidth;
+	private int priceLabelHeight; 
 	
 	private StockCandleArray stockCandleArray;
 	private StockCandleArray normalizedStockCandleArray;
@@ -57,12 +65,12 @@ public class StockChartPanel extends JPanel {
 	public StockChartPanel() {
 		//Add mouse motion listener for displaying the current stock candle's information on the top.
 		
-		this.addMouseMotionListener(new MouseAdapter() {;
+		this.addMouseMotionListener(new MouseAdapter() {
 			/**
 			 * Call the stock candle info panel to update the price / volume information.
 			 */
 			public void mouseMoved(MouseEvent e) {
-			
+				handleMouseMoved(e);
 			}
 		});
 		
@@ -72,12 +80,99 @@ public class StockChartPanel extends JPanel {
 		this.setOpaque(false);
 	}
 	
+	private void handleMouseMoved(MouseEvent e) {
+		if ((symbol == null) || (startDate == null) || (endDate == null)) return;
+//		System.out.println(e.getX() + " " + e.getY());
+		handleMouseHorizontalLine(e);
+		handleMouseVerticalLine(e);
+		paintStockCandleInfo(e);
+		handlePriceLabel(e);
+	}
+	
+	private void handleMouseHorizontalLine(MouseEvent e) {
+		repaintLine(mouseHorizontalLine);
+		double y1 = e.getY();
+		if (y1 < StockGUIConst.CHART_TOP_BORDER_DISTANCE) return;
+		if (y1 > getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE) return;
+		double y2 = y1;
+		double x1 = StockGUIConst.CHART_LEFT_BORDER_DISTANCE;
+		double x2 = getPanelWidth() - StockGUIConst.CHART_RIGHT_BORDER_DISTANCE;
+		mouseHorizontalLine = new Line2D.Double(x1, y1, x2, y2);
+		repaintLine(mouseHorizontalLine);
+	}
+	
+	private void handleMouseVerticalLine(MouseEvent e) {
+		repaintLine(mouseVerticalLine);
+		double x1 = e.getX();
+		if (x1 < StockGUIConst.CHART_LEFT_BORDER_DISTANCE) return;
+		if (x1 > getPanelWidth() - StockGUIConst.CHART_RIGHT_BORDER_DISTANCE) return;
+		double x2 = x1;
+		double y1 = StockGUIConst.CHART_TOP_BORDER_DISTANCE;
+		double y2 = getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE;
+		mouseVerticalLine = new Line2D.Double(x1, y1, x2, y2);
+		repaintLine(mouseVerticalLine);
+	}
+	
+	private void repaintLine(Line2D line) {
+		if (line == null) return;
+		int BUFFER = 2;
+		double x1 = line.getX1();
+		double y1 = line.getY1();
+		double x2 = line.getX2();
+		double y2 = line.getY2();
+		int x1Int = (int) Math.floor(x1) - BUFFER;
+		if (x1Int < 0) x1Int = 0;
+		int y1Int = (int) Math.floor(y1) - BUFFER;
+		if (y1Int < 0) y1Int = 0;
+		int height = (int) Math.round(Math.abs(y1 - y2)) + 2 * BUFFER;
+		int width = (int) Math.round(Math.abs(x1 - x2)) + 2 * BUFFER;
+//		System.out.println(x1Int + " " + y1Int + " " + width + " " + height);
+		repaint(x1Int, y1Int, width, height);		
+		
+	}
+	
+	
+	
+	private void paintStockCandleInfo(MouseEvent e) {
+		double x = e.getX();
+		if (!isXWithinChart(x)) return;
+		x = x - StockGUIConst.CHART_LEFT_BORDER_DISTANCE;
+		int index = getIndexFromX(x);
+		StockCandle stockCandle = stockCandleArray.get(index);
+//		System.out.println(x + " " + index);
+		stockCandleInfoPanel.setStockCandle(stockCandle);
+		stockCandleInfoPanel.repaint();
+	}
+	
+	private void handlePriceLabel(MouseEvent e) {
+		if (!isYWithinChart(e.getY())) return;
+		
+		if (priceLabel != null) {
+			int xInt = (int) Math.floor(priceLabelX);
+			int yInt = (int) Math.floor(priceLabelY);
+			repaint(xInt, yInt - priceLabelHeight, priceLabelWidth, priceLabelHeight);			
+		}
+		
+		priceLabelX = e.getX();
+		priceLabelY = e.getY();
+		int xInt = (int) Math.floor(priceLabelX) + 3;  //Add a little distance so that the price label is not right next to the lines.
+		int yInt = (int) Math.floor(priceLabelY) - 3;
+//		System.out.println(xInt + " " + yInt);
+		double price = getPriceFromY(priceLabelY);
+		priceLabel = Double.toString(StockUtil.getRoundTwoDecimals(price));
+		repaint(xInt, yInt - priceLabelHeight, priceLabelWidth, priceLabelHeight);
+	}
+	
 	public void setMainPanel(StockMainPanel mainPanel) {
 		this.mainPanel = mainPanel; 
 	}
 	
 	public void setSettingsPanel(SettingsPanel settingsPanel) {
 		this.settingsPanel = settingsPanel;
+	}
+	
+	public void setStockCandleInfoPanel(StockCandleInfoPanel stockCandleInfoPanel) {
+		this.stockCandleInfoPanel = stockCandleInfoPanel;
 	}
 	
 	public void setStartDate(Date startDate) {
@@ -127,13 +222,16 @@ public class StockChartPanel extends JPanel {
 	protected void paintComponent(Graphics2D g2) {
 		g2.drawString("Stock chart panel", 500, 50);
 		if ((symbol == null) || (startDate == null) || (endDate == null)) return;
-		initializeChartParameters();
+		initializeChartParameters(g2);
 		paintBackgroundLines(g2);
 		paintStockPriceScale(g2);
-		paintStockCandles(g2);
+		paintStockCandles(g2);		
+		paintMouseHorizontalLine(g2);
+		paintMouseVerticalLine(g2);
+		paintPriceLabel(g2);
 	}
 
-	private void initializeChartParameters() {
+	private void initializeChartParameters(Graphics2D g2) {
 		chartWidth = getPanelWidth() - StockGUIConst.CHART_LEFT_BORDER_DISTANCE - StockGUIConst.CHART_RIGHT_BORDER_DISTANCE;
 //		stockCandleShadowWidth = StockGUIConst.STOCK_CANDLE_SHADOW_WIDTH_MAX;
 		stockCandleDistanceWidth = StockGUIConst.STOCK_CANDLE_DISTANCE_WIDTH_MAX;
@@ -157,13 +255,17 @@ public class StockChartPanel extends JPanel {
 		yUnit = chartHeight / (yLineNumber - 1);
 		xUnit = stockCandleTotalWidth;
 		
-		System.out.println("Max High: " + maxHigh);
-		System.out.println("Min Low: " + minLow);
-		System.out.println("Price Unit: " + priceUnit);
-		System.out.println("Min Price on Grid: " + minPriceOnGrid);
-		System.out.println("Max Price on Grid: " + maxPriceOnGrid);
-		System.out.println("Y Line Number: " + yLineNumber);
-		System.out.println("Y Unit: " + yUnit);
+		String maxPriceOnGridStr = Double.toString(StockUtil.getRoundTwoDecimals(maxPriceOnGrid));
+		priceLabelWidth = (int) Math.round(StockGUIUtil.getStringWidth(g2, StockGUIConst.PRICE_LABEL_FONT, maxPriceOnGridStr)) + 1;
+		priceLabelHeight = (int) Math.round(StockGUIUtil.getStringHeight(g2, StockGUIConst.PRICE_LABEL_FONT, maxPriceOnGridStr)) + 1;
+		
+//		System.out.println("Max High: " + maxHigh);
+//		System.out.println("Min Low: " + minLow);
+//		System.out.println("Price Unit: " + priceUnit);
+//		System.out.println("Min Price on Grid: " + minPriceOnGrid);
+//		System.out.println("Max Price on Grid: " + maxPriceOnGrid);
+//		System.out.println("Y Line Number: " + yLineNumber);
+//		System.out.println("Y Unit: " + yUnit);
 	}
 	
 	private double getPriceUnit(double priceRange) {
@@ -176,12 +278,20 @@ public class StockChartPanel extends JPanel {
 		return unit;
 	}
 	
-	private double getYFromPrice(double price) {
+	private double getTransformedYFromPrice(double price) {
 		return (price - minPriceOnGrid) / priceUnit * yUnit;
 	}
 	
-	private double getPriceFromY(double y) {
-		return y / yUnit * priceUnit + minPriceOnGrid;
+	private double getPriceFromTransformedY(double transformedY) {
+		return transformedY / yUnit * priceUnit + minPriceOnGrid;
+	}
+	
+	private double getPriceFromY(double y) { 
+		return getPriceFromTransformedY(getTransformedY(y));
+	}
+	
+	private double getTransformedY(double y) {
+		return (getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE) - y; 
 	}
 	
 	private void paintBackgroundLines(Graphics2D g2Input) {
@@ -191,7 +301,7 @@ public class StockChartPanel extends JPanel {
 		g2.translate(StockGUIConst.CHART_LEFT_BORDER_DISTANCE, getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE);
 		g2.scale(1.0, -1.0);
 		//Paint horizontal lines.
-		for (int i = 0; i <= yLineNumber; i++) {
+		for (int i = 0; i < yLineNumber; i++) {
 			double x1 = 0;
 			double x2 = chartWidth;
 			double y1 = i * yUnit;
@@ -223,7 +333,7 @@ public class StockChartPanel extends JPanel {
 		Graphics2D g2 = (Graphics2D) g2Input.create();
 		g2.setFont(StockGUIConst.PRICE_SCALE_FONT);
 		g2.setColor(StockGUIConst.PRICE_SCALE_COLOR);
-		for (int i = 0; i <= yLineNumber; i++) {
+		for (int i = 0; i < yLineNumber; i++) {
 			double x = 0;
 			double y = getPanelHeight() - (StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE + i * yUnit);
 			double price = StockUtil.getRoundTwoDecimals(minPriceOnGrid + i * priceUnit);
@@ -242,16 +352,39 @@ public class StockChartPanel extends JPanel {
 			StockCandlePaint stockCandlePaint = new StockCandlePaint(normalizedStockCandleArray.get(i));
 			stockCandlePaint.setGraphics2D(g2);
 			stockCandlePaint.setBodyWidth(stockCandleBodyWidth);
-//			stockCandlePaint.setShadowWidth(stockCandleShadowWidth);
 			stockCandlePaint.setX(getXFromIndex(i));
 			stockCandlePaint.paintCandle();
 		}
 		
 	}
 	
+	private void paintMouseHorizontalLine(Graphics2D g2) {
+		if (mouseHorizontalLine == null) return;
+		g2.setColor(StockGUIConst.MOUSE_HORIZONTAL_LINE_COLOR);		
+		g2.draw(mouseHorizontalLine);
+	}
+	
+	private void paintMouseVerticalLine(Graphics2D g2) {
+		if (mouseVerticalLine == null) return;
+		g2.setColor(StockGUIConst.MOUSE_VERTICAL_LINE_COLOR);		
+		g2.draw(mouseVerticalLine);
+	}
+	
+	private void paintPriceLabel(Graphics2D g2) {
+		if (priceLabel == null) return;
+		g2.setFont(StockGUIConst.PRICE_LABEL_FONT);
+		g2.setColor(StockGUIConst.PRICE_LABEL_COLOR);
+		g2.drawString(priceLabel, (float) priceLabelX + 3, (float) priceLabelY - 3);
+	}
+	
 	private double getXFromIndex(int index) {
 		return (index - startDateIndex) * xUnit;
 	}
+	
+	private int getIndexFromX(double x) {
+		return (int) Math.floor(x / xUnit) + startDateIndex;
+	}
+	
 	
 	public int getPanelHeight() {
 		return (int) Math.floor(StockGUIUtil.getScreenHeight() * StockGUIConst.STOCK_CHART_PANEL_HEIGHT_PERCENTAGE);
@@ -260,6 +393,20 @@ public class StockChartPanel extends JPanel {
 	public int getPanelWidth() {
 		return StockGUIUtil.getScreenWidth();
 	}
+	
+	
+	private boolean isXWithinChart(double x) {
+		if (x < StockGUIConst.CHART_LEFT_BORDER_DISTANCE) return false;
+		if (x + StockGUIConst.CHART_RIGHT_BORDER_DISTANCE > getPanelWidth()) return false;
+		return true;
+	}
+	
+	private boolean isYWithinChart(double y) {
+		if (y < StockGUIConst.CHART_TOP_BORDER_DISTANCE) return false;
+		if (y + StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE > getPanelHeight()) return false;
+		return true;
+	}
+	
 	
 	public JFrame getFrame() {
 		return mainPanel.getFrame();

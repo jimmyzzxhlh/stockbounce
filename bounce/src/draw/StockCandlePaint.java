@@ -6,6 +6,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 import stock.StockCandle;
+import stock.StockEarningsDatesMap;
 
 /**
  * This class extends the stock candle and is for painting a single stock candle on the StockCandlesPanel.
@@ -78,6 +79,10 @@ public class StockCandlePaint extends StockCandle {
 			color = StockGUIConst.NOCOLOR_CANDLE_COLOR;
 			minOpenCloseY = this.open;
 			maxOpenCloseY = this.close;
+		}
+		
+		if (this.isEarningsDate()) {
+			color = StockGUIConst.EARNINGS_DATE_CANDLE_COLOR;
 		}
 	}
 	

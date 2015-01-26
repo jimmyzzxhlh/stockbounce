@@ -98,4 +98,5 @@ public class StockAPI {
 	public static StockCandleArray getStockCandleArrayYahoo(File file) {
 		return YahooParser.readCSVFile(file);
 	}
+
 }

@@ -2,11 +2,14 @@ package draw;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.font.FontRenderContext;
 import java.awt.geom.Line2D;
 import java.util.Calendar;
 import java.util.Date;
@@ -55,5 +58,16 @@ public class StockGUIUtil {
     	Calendar cal = Calendar.getInstance(); 
 		cal.setTime(date);
 		return cal.get(Calendar.MONTH);
+    }
+    
+    
+    public static double getStringWidth(Graphics2D g2, Font font, String str) {
+    	FontRenderContext frc = g2.getFontRenderContext();
+    	return font.getStringBounds(str, frc).getWidth();
+    }
+    
+    public static double getStringHeight(Graphics2D g2, Font font, String str) {
+    	FontRenderContext frc = g2.getFontRenderContext();
+    	return font.getStringBounds(str, frc).getHeight();
     }
 }

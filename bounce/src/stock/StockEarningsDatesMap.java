@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import stock.StockEnum.EarningsTimeType;
 import util.StockUtil;
 
 /**
@@ -24,9 +25,9 @@ public class StockEarningsDatesMap {
 		
 	}
 	
-	private static HashMap<String, ArrayList<StockEarningDate>> map;
+	private static HashMap<String, ArrayList<StockEarningsDate>> map;
 	
-	public static HashMap<String, ArrayList<StockEarningDate>> getMap() { 
+	public static HashMap<String, ArrayList<StockEarningsDate>> getMap() { 
 		if (map == null) setMap();
 		return map;
 	}
@@ -43,6 +44,7 @@ public class StockEarningsDatesMap {
 
 	
 	/**
+	 * DEPRECATED. Use data from The Street instead.
 	 * Parse earnings data from street insider.
 	 * Notice that street insider has older data but its data might not be exactly correct.
 	 * Use Zach's data if available. If not then use street insider's.
@@ -101,6 +103,7 @@ public class StockEarningsDatesMap {
 	}
 	
 	/**
+	 * DEPRECATED. Use data from The Street instead.
 	 * Parse earnings data from Zach.
 	 * It turns out that Zach does not have accurate earnings date either.
 	 * @throws Exception
@@ -150,34 +153,35 @@ public class StockEarningsDatesMap {
 	 * @return
 	 * @throws Exception
 	 */
-	public static HashMap<String, ArrayList<StockEarningDate>> readEarningsDatesCSV(String filename) throws Exception {
-		HashMap<String, ArrayList<StockEarningDate>> earningsDatesMap = new HashMap<String, ArrayList<StockEarningDate>>();
+	public static HashMap<String, ArrayList<StockEarningsDate>> readEarningsDatesCSV(String filename) throws Exception {
+		HashMap<String, ArrayList<StockEarningsDate>> earningsDatesMap = new HashMap<String, ArrayList<StockEarningsDate>>();
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line;
 		while ((line = br.readLine()) != null) {
 			String data[] = line.split(",");
 			String symbol = data[0];
-			ArrayList<StockEarningDate> dates = new ArrayList<StockEarningDate>();	
+			System.out.println(symbol);
+			ArrayList<StockEarningsDate> dates = new ArrayList<StockEarningsDate>();	
 			for (int i = 1; i < data.length; i++) {
 				Date date = null;
 				double estimate = -1;
-				String type = null;
+				EarningsTimeType type = null;
 				double reported = -1;
 				String properties[] = data[i].split(";");
 				for (int j = 0; j < properties.length; j++){
 					switch(j){
 						case 0: date = StockUtil.parseDate(properties[0]);
 						case 1: estimate = Double.parseDouble(properties[1]);
-						case 2: type = properties[2];
+						case 2: type = StockUtil.getEnumFromString(EarningsTimeType.class, properties[2]);
 						case 3: reported = Double.parseDouble(properties[3]);
 					}
 				}
 				if (date != null) {
-					if (type!=null){
-						dates.add(new StockEarningDate(symbol, date, estimate, type, reported));
+					if (type != null){
+						dates.add(new StockEarningsDate(symbol, date, estimate, type, reported));
 					}
 					else{
-						dates.add(new StockEarningDate(symbol, date));
+						dates.add(new StockEarningsDate(symbol, date));
 					}
 				}
 			}
@@ -188,6 +192,7 @@ public class StockEarningsDatesMap {
 	}
 	
 	/**
+	 * DEPRECATED. Use data from The Street instead.
 	 * Compare the earnings date for Zach VS street insider.
 	 * It looks like street insider has much more accurate data, but it could possibly miss some earnings date.
 	 * So we are not going to use any of them.
@@ -195,18 +200,18 @@ public class StockEarningsDatesMap {
 	 */
 	public static void compareZachStreetInsider() throws Exception {
 		StockFileWriter sfw = new StockFileWriter("D:\\zzx\\Stock\\CompareZachStreetInsider.txt");
-		HashMap<String, ArrayList<StockEarningDate>> earningsDatesMapZach = readEarningsDatesCSV(StockConst.EARNINGS_DATES_ZACH_FILENAME);
-		HashMap<String, ArrayList<StockEarningDate>> earningsDatesMapStreetInsider = readEarningsDatesCSV(StockConst.EARNINGS_DATES_STREET_INSIDER_FILENAME);
+		HashMap<String, ArrayList<StockEarningsDate>> earningsDatesMapZach = readEarningsDatesCSV(StockConst.EARNINGS_DATES_ZACH_FILENAME);
+		HashMap<String, ArrayList<StockEarningsDate>> earningsDatesMapStreetInsider = readEarningsDatesCSV(StockConst.EARNINGS_DATES_STREET_INSIDER_FILENAME);
 		ArrayList<String> symbolsStreetInsider = new ArrayList<String>(earningsDatesMapStreetInsider.keySet());
 		Collections.sort(symbolsStreetInsider);
 		for (String symbolStreetInsider : symbolsStreetInsider) {
-			ArrayList<StockEarningDate> datesZach = earningsDatesMapZach.get(symbolStreetInsider);
-			ArrayList<StockEarningDate> datesStreetInsider = earningsDatesMapStreetInsider.get(symbolStreetInsider);
+			ArrayList<StockEarningsDate> datesZach = earningsDatesMapZach.get(symbolStreetInsider);
+			ArrayList<StockEarningsDate> datesStreetInsider = earningsDatesMapStreetInsider.get(symbolStreetInsider);
 			if (datesZach == null) {
 				sfw.writeLine(symbolStreetInsider + " has no data for Zach.");
 				continue;
 			}
-			for (StockEarningDate dateStreetInsider : datesStreetInsider) {
+			for (StockEarningsDate dateStreetInsider : datesStreetInsider) {
 				if (!datesZach.contains(dateStreetInsider) && (datesZach.get(0).getDate().before(dateStreetInsider.getDate()))) {
 					Date closeDateZach = getCloseDate(dateStreetInsider, datesZach, 2);
 					if (closeDateZach != null) {
@@ -230,8 +235,8 @@ public class StockEarningsDatesMap {
 	 * @param difference
 	 * @return
 	 */
-	private static Date getCloseDate(StockEarningDate inputDate, ArrayList<StockEarningDate> dates, int difference) {
-		for (StockEarningDate date : dates) {
+	private static Date getCloseDate(StockEarningsDate inputDate, ArrayList<StockEarningsDate> dates, int difference) {
+		for (StockEarningsDate date : dates) {
 			if (StockUtil.isCloseDates(inputDate.getDate(), date.getDate(), difference)) return date.getDate();
 		}
 		return null;
@@ -248,7 +253,7 @@ public class StockEarningsDatesMap {
 		if (!map.containsKey(symbol)){
 			return false;
 		}
-		ArrayList<StockEarningDate> dates = map.get(symbol);
+		ArrayList<StockEarningsDate> dates = map.get(symbol);
 		for (int index = 0; index < dates.size(); index ++){
 			long diff = dates.get(index).getDate().getTime() - date.getTime();
 			if ((diff > 0) && (diff / (24 * 60 * 60 * 1000) < StockConst.CLOSE_TO_EARNING_DAYS)){
@@ -263,7 +268,6 @@ public class StockEarningsDatesMap {
 	 * 
 	 */
 	public static void parseTheStreet() throws Exception {
-		//TODO:
 		//1. Read each HTMl file.
 		//2. The earnings date is hidden in the comments of the HTML file. Use regular expression to retrieve those data.
 		//Find a string with the following format (e.g. 1/2/14)
@@ -284,7 +288,7 @@ public class StockEarningsDatesMap {
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET + symbol + ".html";
 			BufferedReader br = new BufferedReader(new FileReader(new File(filename)));
 			//ArrayList<Date> dates = new ArrayList<Date>();
-			ArrayList<StockEarningDate> dates = new ArrayList<StockEarningDate>();
+			ArrayList<StockEarningsDate> dates = new ArrayList<StockEarningsDate>();
 			String line;
 			while ((line = br.readLine()) != null) {
 				Matcher matcher = pattern.matcher(line);
@@ -295,49 +299,70 @@ public class StockEarningsDatesMap {
 				Date date = format.parse(dateString);
 				//[1] => <Stock name>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date));
+					dates.add(new StockEarningsDate(symbol, date));
 					break;
 				}
 				//[2] => <Stock symbol>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date));
+					dates.add(new StockEarningsDate(symbol, date));
 					break;
 				}
 				//[3] => <Stock earning month>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date));
+					dates.add(new StockEarningsDate(symbol, date));
 					break;
 				}
 				//[4] => <estimate>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date));
+					dates.add(new StockEarningsDate(symbol, date));
 					break;
 				}
-				String estimate = line.replace(" ", "").substring(5);
+				double estimate = Double.parseDouble(line.replace(" ", "").substring(5));
 				//[5] => <AMC, NONE, BTO>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),"NONE",999));
+					dates.add(new StockEarningsDate(symbol, date, estimate, EarningsTimeType.NONE, 999));
 					break;
 				}
-				String type = line.replace(" ", "").substring(5);
+				EarningsTimeType type = StockUtil.getEnumFromString(EarningsTimeType.class, line.replace(" ", "").substring(5));
 				//[6] => <reported>
 				if ((line = br.readLine()) == null) {
-					dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),type,999));
+					dates.add(new StockEarningsDate(symbol, date, estimate, type,999));
 					break;
 				}
-				String reported = line.replace(" ", "").substring(5);
-				dates.add(new StockEarningDate(symbol, date,Double.parseDouble(estimate),type,Double.parseDouble(reported)));
+				double reported = Double.parseDouble(line.replace(" ", "").substring(5));
+				dates.add(new StockEarningsDate(symbol, date, estimate, type, reported));
 			}
 			Collections.sort(dates);
 			for (int index = 0; index < dates.size(); index ++){
-				StockEarningDate stockEarningDate = dates.get(index);
-				sfw.write(StockUtil.formatDate(stockEarningDate.getDate()) + ";" + stockEarningDate.getEstimate() + ";" + stockEarningDate.getType() + ";" + stockEarningDate.getReported() + ",");
+				StockEarningsDate stockEarningsDate = dates.get(index);
+				sfw.write(StockUtil.formatDate(stockEarningsDate.getDate()) + ";" + stockEarningsDate.getEstimate() + ";" + stockEarningsDate.getType() + ";" + stockEarningsDate.getReported() + ",");
 			}
 			sfw.newLine();
 			br.close();
 		}
 		sfw.close();
 	}
+
+	public static boolean isEarningsDate(String symbol, Date date) {
+		return (getEarningsDateObject(symbol, date) != null);
+	}
+	
+	
+	public static StockEarningsDate getEarningsDateObject(String symbol, Date date) {
+		StockEarningsDate stockEarningsDate = null;
+		if (map == null) setMap();
+		if (!map.containsKey(symbol)) return stockEarningsDate;
+		ArrayList<StockEarningsDate> earningsDates = map.get(symbol);
+		for (int i = 0; i < earningsDates.size(); i++) {
+			if (date.equals(earningsDates.get(i).getDate())) {
+				stockEarningsDate = earningsDates.get(i);
+				return stockEarningsDate;			
+			}
+		}
+		return stockEarningsDate;	
+	}
+
+
 	
 }
 

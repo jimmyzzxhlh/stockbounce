@@ -51,6 +51,9 @@ public class SettingsPanel extends JPanel {
 		addEndDateLabel();
 		addEndDateField();
 		addDrawButton();
+		
+		updateDates(StockUtil.parseDate("20140101"), StockUtil.parseDate("20150101"));
+		updateSymbol("CAMT");
 	}
 	
 	public LocalDate getStartLocalDate() {
@@ -69,6 +72,15 @@ public class SettingsPanel extends JPanel {
 		startDateField.setText(StockUtil.formatDate(newStartDate));
 		endDateField.setText(StockUtil.formatDate(newEndDate));
 		parseInput();
+	}
+	
+	/**
+	 * Only for testing purpose.
+	 * @param symbol
+	 */
+	private void updateSymbol(String symbol) {
+		this.symbol = symbol;
+		symbolTextField.setText(symbol);
 	}
 	
 	protected void paintComponent(Graphics g) {

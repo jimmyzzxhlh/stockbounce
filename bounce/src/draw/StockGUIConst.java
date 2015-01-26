@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import javax.swing.text.DateFormatter;
 
 public class StockGUIConst {
+	
+	public static final Color GOLD = Color.decode("#ffdf32");
 	//Define panel height percentage. The sum of the percentage should be 1. 
 	public static final double STOCK_CANDLE_INFO_PANEL_HEIGHT_PERCENTAGE = 0.1;
 	public static final double STOCK_CHART_PANEL_HEIGHT_PERCENTAGE = 0.6;
@@ -44,15 +46,29 @@ public class StockGUIConst {
 	public static final double STOCK_CANDLE_SHADOW_WIDTH_MAX = 1;
 	public static final double STOCK_CANDLE_DISTANCE_WIDTH_MAX = 3;
 	
-	public static final Color STOCK_CANDLE_LONG_COLOR = Color.green;
-	public static final Color STOCK_CANDLE_SHORT_COLOR = Color.red;
+	
+	public static final Color MOUSE_HORIZONTAL_LINE_COLOR = Color.white;
+	public static final Color MOUSE_VERTICAL_LINE_COLOR = MOUSE_HORIZONTAL_LINE_COLOR;
 	
 	public static final double STOCK_PRICE_UNIT[] = {0.10, 0.20, 0.25, 0.50, 1.0, 2.0, 2.5, 5.0, 10.0, 20.0, 25.0, 50.0, 100.0};
 	public static final Font PRICE_SCALE_FONT = new Font("Arial", Font.PLAIN, 16);
 	public static final Color PRICE_SCALE_COLOR = Color.gray; 
 	
+	public static final Font PRICE_LABEL_FONT = new Font("Arial", Font.BOLD, 14);
+	public static final Color PRICE_LABEL_COLOR = Color.white;
+	
 	//Stock Candle consts
 	public static final Color WHITE_CANDLE_COLOR = Color.green;
 	public static final Color BLACK_CANDLE_COLOR = Color.red;
 	public static final Color NOCOLOR_CANDLE_COLOR = Color.white;
+	public static final Color EARNINGS_DATE_CANDLE_COLOR = GOLD;
+	
+	
+	//Stock Candle Info Panel consts
+	public static final Font STOCK_CANDLE_INFO_FONT = new Font("Arial", Font.BOLD, 16);
+	public static final Color STOCK_CANDLE_INFO_COLOR = Color.white;
+	
+	
+	
+		
 }

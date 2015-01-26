@@ -58,6 +58,7 @@ public class StockMainPanel extends JPanel {
 		settingsPanel.setStockChartPanel(stockChartPanel);
 		stockChartPanel.setMainPanel(this);
 		stockChartPanel.setSettingsPanel(settingsPanel);
+		stockChartPanel.setStockCandleInfoPanel(stockCandleInfoPanel);
 		this.add(settingsPanel);				
 		this.add(stockCandleInfoPanel);
 		this.add(stockChartPanel);

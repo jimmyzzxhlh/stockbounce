@@ -23,6 +23,7 @@ public class StockUtil {
 	
 	private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyyMMdd");
+	private static final double maxEqualDifference = 1e-10; 
 	
 	public static double getRoundTwoDecimals(double input) {
 		return Math.round(input * 100.0) / 100.0;
@@ -315,6 +316,11 @@ public class StockUtil {
         int pos = filename.lastIndexOf(".");
         if (pos == -1) return filename;
         return filename.substring(0, pos);
+    }
+    
+    public static boolean isEqualDouble(double doubleOne, double doubleTwo) {
+    	if (Math.abs(doubleOne - doubleTwo) < maxEqualDifference) return true;
+    	return false;
     }
 
 }

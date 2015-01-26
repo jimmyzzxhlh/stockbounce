@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import stock.StockConst;
-import stock.StockEarningDate;
+import stock.StockEarningsDate;
 import stock.StockEarningsDatesMap;
 
-public class StockEarningsDatesTest {
+public class EarningsDatesTest {
 
 	public static void main(String[] args) throws Exception {
 //		testOne();
@@ -21,7 +21,7 @@ public class StockEarningsDatesTest {
 //		testParseStreetInsiderHTML();
 //		testParseZach();
 //		testCompareZachStreetInsider();
-		testParseTheStreet();
+//		testParseTheStreet();
 		testGetMap();
 	}
 
@@ -66,8 +66,8 @@ public class StockEarningsDatesTest {
 	}
 	
 	public static void testGetMap() throws Exception{
-		HashMap<String, ArrayList<StockEarningDate>> map = StockEarningsDatesMap.getMap();
-		ArrayList<StockEarningDate> dates = map.get("AAPL");
+		HashMap<String, ArrayList<StockEarningsDate>> map = StockEarningsDatesMap.getMap();
+		ArrayList<StockEarningsDate> dates = map.get("AAPL");
 		for (int index = 0; index < dates.size(); index ++){
 			System.out.println(dates.get(index).getDate());
 			System.out.println(dates.get(index).getEstimate());

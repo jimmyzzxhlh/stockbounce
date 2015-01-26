@@ -24,6 +24,13 @@ public class StockEnum {
 		LOWER_LONGER		
 	}
 	
+	public enum EarningsTimeType {
+		AMC,   //After market close
+		BTO,   //Before the open
+		DMT,   //During market time
+		NONE		
+	}
+	
 	public enum StockPatternType {
 		ADVANCE_BLOCK,
 		BEARISH_BELT_HOLD,
