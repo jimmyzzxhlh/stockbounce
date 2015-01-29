@@ -9,10 +9,10 @@ import java.text.SimpleDateFormat;
 
 import javax.imageio.ImageIO;
 
+import paint.StockFrame;
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockConst;
-import draw.StockFrame;
 
 public class YahooDrawPattern {
 	private StockFrame stockFrame;

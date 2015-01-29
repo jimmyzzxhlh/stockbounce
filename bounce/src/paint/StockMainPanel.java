@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -50,12 +50,11 @@ public class StockMainPanel extends JPanel {
 		//Set layout of the whole frame.
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setOpaque(false);
-		settingsPanel = new SettingsPanel();
-		stockCandleInfoPanel = new StockCandleInfoPanel();
 		stockChartPanel = new StockChartPanel();
+		settingsPanel = new SettingsPanel(stockChartPanel);
+		stockCandleInfoPanel = new StockCandleInfoPanel();
 		stockIndicatorPanel = new StockIndicatorPanel();
 		
-		settingsPanel.setStockChartPanel(stockChartPanel);
 		stockChartPanel.setMainPanel(this);
 		stockChartPanel.setSettingsPanel(settingsPanel);
 		stockChartPanel.setStockCandleInfoPanel(stockCandleInfoPanel);

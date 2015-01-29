@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,6 +52,7 @@ public class StockGUIUtil {
     	Shape line = new Line2D.Double(x1, y1, x2, y2);
     	g2.draw(line);
     	g2.setColor(backupColor);
+    	line = null;
     }
 
     public static int getMonth(Date date) {

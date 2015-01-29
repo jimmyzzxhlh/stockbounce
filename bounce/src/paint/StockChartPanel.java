@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -13,6 +13,7 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import paint.indicator.IndicatorPaintAbstract;
 import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
@@ -30,7 +31,6 @@ public class StockChartPanel extends JPanel {
 	private int startDateIndex;
 	private int endDateIndex;
 	private int daysTotal;
-	private int candleNum;
 	private String symbol;
 	
 	
@@ -45,7 +45,6 @@ public class StockChartPanel extends JPanel {
 	private double priceUnit;
 	private double maxPriceOnGrid;
 	private double minPriceOnGrid;
-	private int xLineNumber;
 	private int yLineNumber;
 	private double xUnit;
 	private double yUnit;
@@ -58,6 +57,8 @@ public class StockChartPanel extends JPanel {
 	private double priceLabelY;
 	private int priceLabelWidth;
 	private int priceLabelHeight; 
+	
+	private IndicatorPaintAbstract indicatorPaint;
 	
 	private StockCandleArray stockCandleArray;
 	private StockCandleArray normalizedStockCandleArray;
@@ -78,6 +79,45 @@ public class StockChartPanel extends JPanel {
 		this.setPreferredSize(new Dimension(getPanelWidth(), getPanelHeight()));
 //		this.setBorder(BorderFactory.createLineBorder(Color.yellow));
 		this.setOpaque(false);
+	}
+	
+	public void reset() {
+		startDate = null;
+		endDate = null;
+		startDateIndex = 0;
+		endDateIndex = 0;
+		daysTotal = 0;
+		symbol = null;
+		stockCandleTotalWidth = 0;
+		stockCandleBodyWidth = 0;
+		stockCandleDistanceWidth = 0;
+		
+		maxHigh = 0;
+		minLow = 0;;
+		priceUnit = 0;
+		maxPriceOnGrid = 0;
+		minPriceOnGrid = 0;
+		yLineNumber = 0;
+		xUnit = 0;
+		yUnit = 0;
+		
+		mouseHorizontalLine = null;
+		mouseVerticalLine = null;
+		
+		priceLabel = null;
+		priceLabelX = 0;
+		priceLabelY = 0;
+		priceLabelWidth = 0;
+		priceLabelHeight = 0; 
+		indicatorPaint = null;		
+		if (stockCandleArray != null) { 
+			stockCandleArray.destroy();
+		}
+		stockCandleArray = null;
+		if (normalizedStockCandleArray != null) {
+			normalizedStockCandleArray.destroy();
+		}
+		normalizedStockCandleArray = null;
 	}
 	
 	private void handleMouseMoved(MouseEvent e) {
@@ -137,7 +177,7 @@ public class StockChartPanel extends JPanel {
 		double x = e.getX();
 		if (!isXWithinChart(x)) return;
 		x = x - StockGUIConst.CHART_LEFT_BORDER_DISTANCE;
-		int index = getIndexFromX(x);
+		int index = getIndexFromTranslatedX(x);
 		StockCandle stockCandle = stockCandleArray.get(index);
 //		System.out.println(x + " " + index);
 		stockCandleInfoPanel.setStockCandle(stockCandle);
@@ -195,6 +235,18 @@ public class StockChartPanel extends JPanel {
 		this.endDateIndex = endDateIndex;
 	}
 	
+	public int getStartDateIndex() {
+		return startDateIndex;
+	}
+	
+	public int getEndDateIndex() {
+		return endDateIndex;
+	}
+	
+	public StockCandleArray getStockCandleArray() {
+		return stockCandleArray;
+	}
+	
 	public boolean initializeStockCandleArray() {
 		this.stockCandleArray = StockAPI.getStockCandleArrayYahoo(symbol);
 		if (stockCandleArray == null) {
@@ -209,6 +261,10 @@ public class StockChartPanel extends JPanel {
 		settingsPanel.updateDates(startDate, endDate);
 		daysTotal = endDateIndex - startDateIndex + 1;
 		return true;
+	}
+	
+	public boolean hasChart() {
+		return (stockCandleArray != null);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -229,6 +285,7 @@ public class StockChartPanel extends JPanel {
 		paintMouseHorizontalLine(g2);
 		paintMouseVerticalLine(g2);
 		paintPriceLabel(g2);
+		paintIndicators(g2);
 	}
 
 	private void initializeChartParameters(Graphics2D g2) {
@@ -278,28 +335,17 @@ public class StockChartPanel extends JPanel {
 		return unit;
 	}
 	
-	private double getTransformedYFromPrice(double price) {
-		return (price - minPriceOnGrid) / priceUnit * yUnit;
-	}
-	
-	private double getPriceFromTransformedY(double transformedY) {
-		return transformedY / yUnit * priceUnit + minPriceOnGrid;
-	}
-	
-	private double getPriceFromY(double y) { 
-		return getPriceFromTransformedY(getTransformedY(y));
-	}
-	
-	private double getTransformedY(double y) {
-		return (getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE) - y; 
+	private Graphics2D getTranslatedG2(Graphics2D g2Input) {
+		Graphics2D g2 = (Graphics2D) g2Input.create();
+		g2.translate(StockGUIConst.CHART_LEFT_BORDER_DISTANCE, getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE);
+		g2.scale(1.0, -1.0);
+		return g2;
 	}
 	
 	private void paintBackgroundLines(Graphics2D g2Input) {
 		//Translate coordinates so that the (0,0) is at the bottom left.
 		//Notice that translation is accumlative. So we need to create another instance of graph.
-		Graphics2D g2 = (Graphics2D) g2Input.create();
-		g2.translate(StockGUIConst.CHART_LEFT_BORDER_DISTANCE, getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE);
-		g2.scale(1.0, -1.0);
+		Graphics2D g2 = getTranslatedG2(g2Input); 
 		//Paint horizontal lines.
 		for (int i = 0; i < yLineNumber; i++) {
 			double x1 = 0;
@@ -352,7 +398,7 @@ public class StockChartPanel extends JPanel {
 			StockCandlePaint stockCandlePaint = new StockCandlePaint(normalizedStockCandleArray.get(i));
 			stockCandlePaint.setGraphics2D(g2);
 			stockCandlePaint.setBodyWidth(stockCandleBodyWidth);
-			stockCandlePaint.setX(getXFromIndex(i));
+			stockCandlePaint.setX(getTranslatedXFromIndex(i));
 			stockCandlePaint.paintCandle();
 		}
 		
@@ -377,11 +423,44 @@ public class StockChartPanel extends JPanel {
 		g2.drawString(priceLabel, (float) priceLabelX + 3, (float) priceLabelY - 3);
 	}
 	
-	private double getXFromIndex(int index) {
+	public void setIndicatorPaint(IndicatorPaintAbstract indicatorPaint) {
+		this.indicatorPaint = indicatorPaint;
+	}
+	
+	public void destroyIndicatorPaint() {
+		if (indicatorPaint == null) return;
+		indicatorPaint.destroy();
+		indicatorPaint = null;
+	}
+	
+	
+	private void paintIndicators(Graphics2D g2Input) {
+		if (indicatorPaint == null) return;
+		Graphics2D g2 = getTranslatedG2(g2Input);
+		indicatorPaint.paintIndicator(g2);
+	}
+	
+	public double getTranslatedYFromPrice(double price) {
+		return (price - minPriceOnGrid) / priceUnit * yUnit;
+	}
+	
+	private double getPriceFromTranslatedY(double translatedY) {
+		return translatedY / yUnit * priceUnit + minPriceOnGrid;
+	}
+	
+	private double getPriceFromY(double y) { 
+		return getPriceFromTranslatedY(getTranslatedY(y));
+	}
+	
+	private double getTranslatedY(double y) {
+		return (getPanelHeight() - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE) - y; 
+	}
+	
+	public double getTranslatedXFromIndex(int index) {
 		return (index - startDateIndex) * xUnit;
 	}
 	
-	private int getIndexFromX(double x) {
+	private int getIndexFromTranslatedX(double x) {
 		return (int) Math.floor(x / xUnit) + startDateIndex;
 	}
 	

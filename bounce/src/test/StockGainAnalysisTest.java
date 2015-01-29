@@ -9,9 +9,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import paint.DrawCoordinatesFrame;
 import svm.SVMTrain;
 import util.StockUtil;
-import draw.DrawCoordinatesFrame;
 
 public class StockGainAnalysisTest {
 	

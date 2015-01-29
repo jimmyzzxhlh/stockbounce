@@ -1,7 +1,5 @@
 package stock;
 
-import indicator.StockIndicatorArray;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +26,12 @@ public class StockCandleArray {
 			this.stockCandleArray.add(stockCandle);
 		}		
 		
+	}
+	
+	public void destroy() {
+		if (stockCandleArray == null) return;
+		stockCandleArray.clear();
+		stockCandleArray = null;
 	}
 	
 	public ArrayList<StockCandle> getStockCandleArray() {

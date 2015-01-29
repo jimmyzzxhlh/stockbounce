@@ -2,9 +2,9 @@ package test;
 
 import javax.swing.WindowConstants;
 
+import paint.StockFrame;
 import stock.StockCandleArray;
 import yahoo.YahooParser;
-import draw.StockFrame;
 
 public class YahooDrawChartTest {
 

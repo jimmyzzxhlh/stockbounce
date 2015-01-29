@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import draw.DrawCoordinatesFrame;
+import paint.DrawCoordinatesFrame;
 
 public class PaintingTest {
 	public static void main(String args[]) {

@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,6 +10,7 @@ import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -30,6 +31,8 @@ public class SettingsPanel extends JPanel {
 	private JTextField symbolTextField;
 	private JTextField startDateField;
 	private JTextField endDateField;
+	private JCheckBox averageCostIndicatorCheckBox;
+	private AverageCostIndicatorItemListener aciItemListener;
 	
 	private String symbol;
 	private LocalDate startLocalDate;
@@ -37,7 +40,8 @@ public class SettingsPanel extends JPanel {
 	
 	private StockChartPanel stockChartPanel;
 	
-	public SettingsPanel() {
+	public SettingsPanel(StockChartPanel stockChartPanel) {
+		this.stockChartPanel = stockChartPanel;
 		this.setPreferredSize(new Dimension(getPanelWidth(), getPanelHeight()));
 		this.setBorder(BorderFactory.createLineBorder(Color.blue));
 		this.setOpaque(false);
@@ -51,6 +55,7 @@ public class SettingsPanel extends JPanel {
 		addEndDateLabel();
 		addEndDateField();
 		addDrawButton();
+		addIndicatorCheckBoxes();
 		
 		updateDates(StockUtil.parseDate("20140101"), StockUtil.parseDate("20150101"));
 		updateSymbol("CAMT");
@@ -63,10 +68,7 @@ public class SettingsPanel extends JPanel {
 	public LocalDate getEndLocalDate() {
 		return endLocalDate;
 	}
-	
-	public void setStockChartPanel(StockChartPanel stockChartPanel) {
-		this.stockChartPanel = stockChartPanel;
-	}
+
 	
 	public void updateDates(Date newStartDate, Date newEndDate) {
 		startDateField.setText(StockUtil.formatDate(newStartDate));
@@ -159,14 +161,40 @@ public class SettingsPanel extends JPanel {
 	
 	private void actionPerformedDraw() {
 		if (!parseInput()) return;
+		stockChartPanel.reset();
+		System.gc();
 		stockChartPanel.setSymbol(symbol);
 		stockChartPanel.setStartDate(startLocalDate.toDate());
 		stockChartPanel.setEndDate(endLocalDate.toDate());
 		if (!stockChartPanel.initializeStockCandleArray()) return;
+		if (averageCostIndicatorCheckBox.isSelected()) {
+			aciItemListener.initializeIndicatorPaint();
+		}
 		stockChartPanel.repaint();
 		
 	}
 	
+	private void addIndicatorCheckBoxes() {
+		addAverageCostIndicatorCheckBox();
+	}
+	
+	private void addAverageCostIndicatorCheckBox() {
+		averageCostIndicatorCheckBox = new JCheckBox("Average Cost Indicator");
+		setCheckBoxProperties(averageCostIndicatorCheckBox);
+		this.add(averageCostIndicatorCheckBox);
+		aciItemListener = new AverageCostIndicatorItemListener();
+		aciItemListener.setStockChartPanel(stockChartPanel);
+		averageCostIndicatorCheckBox.addItemListener(aciItemListener);
+		
+	}
+	
+	private void setCheckBoxProperties(JCheckBox checkBox) {
+		checkBox.setBackground(StockGUIConst.CHECKBOX_BACKGROUND_COLOR);
+		checkBox.setForeground(StockGUIConst.CHECKBOX_FOREGROUND_COLOR);
+		checkBox.setFont(StockGUIConst.CHECKBOX_FONT);
+		
+	}
+		
 	private boolean parseInput() {
 		symbol = symbolTextField.getText();
 		startLocalDate = StockUtil.parseLocalDate(startDateField.getText());

@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

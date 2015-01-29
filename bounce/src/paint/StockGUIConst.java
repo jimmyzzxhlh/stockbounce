@@ -1,4 +1,4 @@
-package draw;
+package paint;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -9,6 +9,7 @@ import javax.swing.text.DateFormatter;
 public class StockGUIConst {
 	
 	public static final Color GOLD = Color.decode("#ffdf32");
+	public static final Font STANDARD_FONT = new Font("Arial", Font.BOLD, 16);
 	//Define panel height percentage. The sum of the percentage should be 1. 
 	public static final double STOCK_CANDLE_INFO_PANEL_HEIGHT_PERCENTAGE = 0.1;
 	public static final double STOCK_CHART_PANEL_HEIGHT_PERCENTAGE = 0.6;
@@ -19,11 +20,11 @@ public class StockGUIConst {
 	public static final Color STOCK_GUI_BACKGROUND_COLOR = Color.black;
 	
 	//Label constants
-	public static final Font LABEL_FONT = new Font("Arial", Font.BOLD, 16);
+	public static final Font LABEL_FONT = STANDARD_FONT;
 	public static final Color LABEL_COLOR = Color.white;
 	
 	//Text field constants
-	public static final Font TEXTFIELD_FONT = new Font("Arial", Font.PLAIN, 16);
+	public static final Font TEXTFIELD_FONT = STANDARD_FONT;
 	public static final Color TEXTFIELD_FOREGROUND_COLOR = Color.white;
 	public static final Color TEXTFIELD_BACKGROUND_COLOR = STOCK_GUI_BACKGROUND_COLOR;
 	public static final Color TEXTFIELD_BORDER_COLOR = Color.yellow;
@@ -31,9 +32,14 @@ public class StockGUIConst {
 	public static final DateFormatter DATE_FORMATTER = new DateFormatter(new SimpleDateFormat("yyyy-MM-dd"));
 	
 	//Button constants
-	public static final Font BUTTON_FONT = new Font("Arial", Font.PLAIN, 16);
+	public static final Font BUTTON_FONT = STANDARD_FONT;
 	public static final Color BUTTON_FOREGROUND_COLOR = Color.white;
 	public static final Color BUTTON_BACKGROUND_COLOR = STOCK_GUI_BACKGROUND_COLOR;
+	
+	//CheckBox constants
+	public static final Font CHECKBOX_FONT = STANDARD_FONT;
+	public static final Color CHECKBOX_FOREGROUND_COLOR = Color.white;
+	public static final Color CHECKBOX_BACKGROUND_COLOR = STOCK_GUI_BACKGROUND_COLOR;
 	
 	//Stock Chart Panel consts
 	public static final int CHART_LEFT_BORDER_DISTANCE = 50;

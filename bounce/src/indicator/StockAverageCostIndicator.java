@@ -50,6 +50,24 @@ public class StockAverageCostIndicator {
 		setMapping();
 	}
 	
+	public StockAverageCostIndicator(StockCandleArray stockCandleArray) {
+		this.symbol = stockCandleArray.getSymbol();
+		this.stockCandleArray = stockCandleArray;
+		setMapping();
+	}
+	
+	public void destroy() {
+		stockCandleArray = null;
+		if (priceVolumeMapArray != null) {
+			priceVolumeMapArray.clear();
+		}
+		priceVolumeMapArray = null;
+		dayTradingDistribution = null;
+		sellRates = null;
+		symbol = null;		
+		
+	}
+	
 	/**
 	 * Return number of stock candles.
 	 * @return
@@ -147,6 +165,15 @@ public class StockAverageCostIndicator {
 		//Price in the price/volume mapping was multiplied by 100.
 		return totalCapital / totalVolume / 100.0;
 	}
+	
+	public double[] getAverageCostArray() {
+		double averageCostArray[] = new double[stockCandleArray.size()];
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			averageCostArray[i] = getAverageCost(i);
+		}
+		return averageCostArray;
+	}
+	
 	
 	public ArrayList<Integer> getReverseUpDatesIndex() {
 		ArrayList<Integer> dateIndexList = new ArrayList<Integer>();
