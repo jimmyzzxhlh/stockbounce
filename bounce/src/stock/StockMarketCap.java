@@ -99,20 +99,38 @@ public class StockMarketCap {
 				//Split the data
 				String data[] = StockUtil.splitCSVLine(line);
 				String symbol = data[0];
-				double marketCap = Double.parseDouble(data[3]);
+				String marketCapStr = data[3];
+				double marketCap = -1;
 				//Check market capitalization. If not greater than 0 then ignore the symbol.
 				//Do the check only when returnAllSymbols = false.
 				if (!returnAllSymbols) {					
-					if (marketCap <= 0) continue;				
+					if (marketCapStr.equals("n/a")) continue;
 					//If there is no shares outstanding at all then ignore.
 					HashMap<String, Long> sharesOutStandingMap = StockSharesOutstandingMap.getMap();
 					if (!sharesOutStandingMap.containsKey(symbol) || (sharesOutStandingMap.get(symbol) <= 0)) {
 	//					System.out.println(symbol + " does not have shares outstanding data.");
 						continue;					
 					}
+					if (marketCapStr.startsWith("$")) marketCapStr = marketCapStr.substring(1);
+					int coefficient = 1;
+					if (marketCapStr.endsWith("K")) {
+						coefficient = 1000;	
+						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
+					}
+					else if (marketCapStr.endsWith("M")) {
+						coefficient = 1000000;
+						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);					
+					}
+					else if (marketCapStr.endsWith("B")) {
+						coefficient = 1000000000;
+						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
+					}
+					marketCap = Double.parseDouble(marketCapStr) * coefficient;
+					
 				}
-				//Remove quotes.
-				map.put(symbol, marketCap);
+				if (marketCap > 0) {
+					map.put(symbol, marketCap);
+				}
 			}
 			br.close();
 			
@@ -122,20 +140,7 @@ public class StockMarketCap {
 		}	
 	}
 
-	/**
-	 * Get symbol list from the mapping.
-	 * In this way we will filter off symbols that do not have a market capitalization so the 
-	 * data is cleaner.
-	 */
-	public static ArrayList<String> getSymbolList() {
-		if (map == null) {
-			setMap();
-		}
-		ArrayList<String> symbolList = new ArrayList<String>(map.keySet()); 
-		Collections.sort(symbolList);
-		return symbolList;
-	}
-	
+
 	
 	/**
 	 * Return true if the symbol is a large market capitalization stock.

@@ -25,8 +25,7 @@ public class StockAPI {
 	 * @return Array list of string that contains symbols.
 	 */
 	public static ArrayList<String> getSymbolList() {
-		StockMarketCap.returnAllSymbols = false;
-		return StockMarketCap.getSymbolList();
+		return StockSymbolList.getSymbolList();
 	}
 	
 	/**
@@ -34,8 +33,7 @@ public class StockAPI {
 	 * @return
 	 */
 	public static ArrayList<String> getAllSymbolList() {
-		StockMarketCap.returnAllSymbols = true;
-		return StockMarketCap.getSymbolList();
+		return StockSymbolList.getAllSymbolList();
 	}
 	
 	/**

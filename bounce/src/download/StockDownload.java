@@ -35,7 +35,7 @@ import util.StockUtil;
 public class StockDownload {
 
 	private static final Date DEFAULT_START_DATE = StockUtil.parseDate("20060101");
-	private static final String TEMPORARY_MARKET_CAP_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
+	private static final String TEMPORARY_SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
 	private static final String TEMPORARY_PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose_Temp.csv"; 
 	private final static int MAX_RETRY = 5;
 	private Date startDate; 
@@ -204,9 +204,9 @@ public class StockDownload {
 				String urlString = "http://finance.yahoo.com/d/quotes.csv?s=" + sb.toString() + "&f=sj2";
 				sb = new StringBuilder();
 				count = 0;
-				StockUtil.downloadURL(urlString, TEMPORARY_MARKET_CAP_FILENAME);
+				StockUtil.downloadURL(urlString, TEMPORARY_SHARES_OUTSTANDING_FILENAME);
 				//Merge the temporary file to the ultimate output file.
-				mergeFile(TEMPORARY_MARKET_CAP_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
+				mergeFile(TEMPORARY_SHARES_OUTSTANDING_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
 				StockUtil.sleepThread(300);
 			}
 		}
@@ -426,7 +426,7 @@ public class StockDownload {
 			if (downloaded) {
 //				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
 				int sleepTime = 1;
-				StockUtil.sleepThread(sleepTime * 500);
+				StockUtil.sleepThread(sleepTime * 300);
 			}
 			index++;
 		}	

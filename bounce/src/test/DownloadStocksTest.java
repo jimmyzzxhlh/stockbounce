@@ -16,7 +16,7 @@ public class DownloadStocksTest {
 	private static final String END_DATE = "20150108";
 	
 	public static void main(String args[]) throws Exception {
-		downloadSingleStock();
+//		downloadSingleStock();
 //		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
@@ -24,7 +24,7 @@ public class DownloadStocksTest {
 //		downloadIntraDayStocksFromYahoo();
 //		downloadCompanyLists();
 //		downloadEarningsDatesFromZach();
-//		downloadDailyTask();
+		downloadDailyTask();
 //		downloadHTMLURL();
 //		downloadEarningsDatesFromStreetInsider();
 //		downloadHTMLURLWithPostTest();
@@ -79,10 +79,12 @@ public class DownloadStocksTest {
 	}
 	
 	private static void downloadDailyTask() { 
-		System.out.println("1. Download Intra Day Data from Yahoo...");
+		System.out.println("1. Download company lists from Nasdaq...");
+		downloadCompanyLists();
+		System.out.println("2. Download outstanding shares data from Yahoo...");
+		downloadOutstandingSharesCSV();
+		System.out.println("3. Download Intra day data from Yahoo...");
 		downloadIntraDayStocksFromYahoo();
-		System.out.println("2. Download Earnings Date from Zach.");
-		downloadEarningsDateForToday();
 		StockUtil.pressAnyKeyToContinue();
 	}
 	
@@ -115,5 +117,9 @@ public class DownloadStocksTest {
 	
 	private static void downloadEarningsDatesFromTheStreet() {
 		StockDownload.downloadEarningsDatesFromTheStreet();
+	}
+	
+	private static void downloadCompanyLists() {
+		StockDownload.downloadCompanyLists();
 	}
 }

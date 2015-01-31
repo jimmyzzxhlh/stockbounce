@@ -15,12 +15,12 @@ public class MarketCapitalizationTest {
 	private static final double[] turnoverRateDistribution = null;
 
 	public static void main(String args[]) throws Exception {
-		testSharesOutstanding();
+//		testSharesOutstanding();
 //		StockTurnoverRateDistribution.writeTurnoverRateDistribution();
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
 //		testMarketCap();
-//		testGetSymbolList();
+		testGetAllSymbolList();
 	}
 	
 	private static void testSharesOutstanding() {
@@ -54,7 +54,7 @@ public class MarketCapitalizationTest {
 		
 	}
 	
-	private static void testGetSymbolList() {
+	private static void testGetAllSymbolList() {
 		ArrayList<String> symbolList = StockAPI.getAllSymbolList();
 		for (int i = 0; i < symbolList.size(); i++) {
 			System.out.println(symbolList.get(i));
