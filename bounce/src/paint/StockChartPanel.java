@@ -295,9 +295,6 @@ public class StockChartPanel extends JPanel {
 		stockCandleTotalWidth = (chartWidth + stockCandleDistanceWidth) * 1.0 / daysTotal;
 		stockCandleBodyWidth = stockCandleTotalWidth - stockCandleDistanceWidth;
 		chartHeight = getPanelHeight() - StockGUIConst.CHART_TOP_BORDER_DISTANCE - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE;
-		//Normalize stock candle array.
-		normalizedStockCandleArray = new StockCandleArray(stockCandleArray);
-		normalizedStockCandleArray.normalizeStockCandle(chartHeight, startDateIndex, endDateIndex);
 		
 		maxHigh = stockCandleArray.getMaxStockPrice(startDateIndex, daysTotal, StockCandleDataType.HIGH);
 		minLow = stockCandleArray.getMinStockPrice(startDateIndex, daysTotal, StockCandleDataType.LOW);
@@ -308,9 +305,13 @@ public class StockChartPanel extends JPanel {
 		}
 		minPriceOnGrid = Math.floor(minLow / priceUnit) * priceUnit;
 		maxPriceOnGrid = (Math.floor(maxHigh / priceUnit) + 1) * priceUnit;
-		yLineNumber = (int) (Math.floor(maxPriceOnGrid - minPriceOnGrid) / priceUnit) + 1;
+		yLineNumber = (int) (Math.round((maxPriceOnGrid - minPriceOnGrid) / priceUnit)) + 1;
 		yUnit = chartHeight / (yLineNumber - 1);
 		xUnit = stockCandleTotalWidth;
+		
+		//Normalize stock candle array.
+		normalizedStockCandleArray = new StockCandleArray(stockCandleArray);
+		normalizedStockCandleArray.normalizeStockCandle(chartHeight, minPriceOnGrid, maxPriceOnGrid, startDateIndex, endDateIndex);
 		
 		String maxPriceOnGridStr = Double.toString(StockUtil.getRoundTwoDecimals(maxPriceOnGrid));
 		priceLabelWidth = (int) Math.round(StockGUIUtil.getStringWidth(g2, StockGUIConst.PRICE_LABEL_FONT, maxPriceOnGridStr)) + 1;
@@ -399,6 +400,10 @@ public class StockChartPanel extends JPanel {
 			stockCandlePaint.setGraphics2D(g2);
 			stockCandlePaint.setBodyWidth(stockCandleBodyWidth);
 			stockCandlePaint.setX(getTranslatedXFromIndex(i));
+//			System.out.println(StockUtil.formatDate(stockCandlePaint.date) + ", x = " + getTranslatedXFromIndex(i) +
+//					", lowY = " + stockCandlePaint.getLowY() + ", priceLowY = " + getPriceFromTranslatedY(stockCandlePaint.getLowY()) +
+//					", highY = " + stockCandlePaint.getHighY() + ", priceHighY = " + getPriceFromTranslatedY(stockCandlePaint.getHighY()));
+			
 			stockCandlePaint.paintCandle();
 		}
 		

@@ -137,6 +137,18 @@ public class StockCandleArray {
 		}		
 	}
 	
+	public void normalizeStockCandle(double maxForNormalization, double min, double max, int start, int end) {
+		double scale = maxForNormalization / (max - min);
+		for (int i = 0; i < stockCandleArray.size(); i++) {
+			StockCandle stockCandle = stockCandleArray.get(i);
+			stockCandle.open = (stockCandle.open - min) * scale;
+			stockCandle.close = (stockCandle.close - min) * scale;
+			stockCandle.high = (stockCandle.high - min) * scale;
+			stockCandle.low = (stockCandle.low - min) * scale;
+			
+		}	
+	}
+	
 	public void sortByDate() {
 		Collections.sort(stockCandleArray, new Comparator<StockCandle>() {
 			public int compare(StockCandle a, StockCandle b) {

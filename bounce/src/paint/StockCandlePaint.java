@@ -7,6 +7,7 @@ import java.awt.geom.Rectangle2D;
 
 import stock.StockCandle;
 import stock.StockEarningsDatesMap;
+import util.StockUtil;
 
 /**
  * This class extends the stock candle and is for painting a single stock candle on the StockCandlesPanel.
@@ -29,6 +30,14 @@ public class StockCandlePaint extends StockCandle {
 	private double maxOpenCloseY;
 	private double highY;
 	
+	public double getLowY() {
+		return lowY;
+	}
+
+	public double getHighY() {
+		return highY;
+	}
+
 	public Graphics2D getGraphics2D() {
 		return g2;
 	}
@@ -125,4 +134,5 @@ public class StockCandlePaint extends StockCandle {
 		return x + bodyWidth * 0.5;
 	}
 
+	
 }

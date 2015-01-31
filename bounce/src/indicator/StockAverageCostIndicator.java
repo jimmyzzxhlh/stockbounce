@@ -15,6 +15,7 @@ import stock.StockCandleArray;
 import stock.StockDayTradingDistribution;
 import stock.StockSellRate;
 import stock.StockEnum.StockCandleDataType;
+import util.StockUtil;
 import yahoo.YahooParser;
 
 /**
@@ -179,13 +180,21 @@ public class StockAverageCostIndicator {
 		ArrayList<Integer> dateIndexList = new ArrayList<Integer>();
 		//Start with the second day as we need the previous close price to calculate the difference.
 		for (int i = 1; i < stockCandleArray.size(); i++) {
+			Date date = stockCandleArray.getDate(i);
+//			if (!date.equals(StockUtil.parseDate("20121023"))) continue;
 			double previousClose = stockCandleArray.getClose(i - 1);
 			double previousAverageCost = getAverageCost(i - 1);
 			double previousAverageCostDiff = (previousClose - previousAverageCost) / previousClose;
 			double close = stockCandleArray.getClose(i);
 			double averageCost = getAverageCost(i);
 			double averageCostDiff = (close - averageCost) / close;
-			if (previousAverageCostDiff > 0) continue;
+//			System.out.println("Previous close: " + previousClose);
+//			System.out.println("Previous average cost: " + previousAverageCost);
+//			System.out.println("Previous average cost diff: " + previousAverageCostDiff);
+//			System.out.println("Close: " + close);
+//			System.out.println("Average cost: " + averageCost);
+//			System.out.println("Average cost diff: " + averageCostDiff);
+//			if (previousAverageCostDiff > 0) continue;
 			if (averageCostDiff < 0) continue;
 			if (averageCostDiff - previousAverageCostDiff < StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE) continue;
 			dateIndexList.add(i);
