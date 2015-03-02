@@ -11,46 +11,95 @@ import util.StockUtil;
 
 public class StockSymbolList {
 	
-	private static ArrayList<String> symbolList = null;
-	private static ArrayList<String> allSymbolList = null;
+	private static ArrayList<String> usSymbolList = null;
+	private static ArrayList<String> allUSSymbolList = null;
+	private static ArrayList<String> sseSymbolList = null;
+	private static ArrayList<String> szseSymbolList = null;
 	private static boolean getAll = false;
 	
 	private StockSymbolList() {
 		
 	}
 	
-	public static ArrayList<String> getSymbolList() {
-		if (symbolList == null) {
-			setSymbolList();
+	public static ArrayList<String> getUSSymbolList() {
+		if (usSymbolList == null) {
+			setUSSymbolList();
 		}
-		return symbolList;
+		return usSymbolList;
 	}
 	
-	public static ArrayList<String> getAllSymbolList() {
-		if (allSymbolList == null) {
-			setAllSymbolList();			
+	public static ArrayList<String> getAllUSSymbolList() {
+		if (allUSSymbolList == null) {
+			setAllUSSymbolList();			
 		}
-		return allSymbolList;
+		return allUSSymbolList;
 	}
 	
-	private static void setSymbolList() {
+	public static ArrayList<String> getSSESymbolList() {
+		if (sseSymbolList == null) {
+			setSSESymbolList();
+		}
+		return sseSymbolList;
+	}
+	
+	public static ArrayList<String> getSZSESymbolList() {
+		if (szseSymbolList == null) {
+			setSZSESymbolList();
+		}
+		return szseSymbolList;
+	}
+	
+	private static void setUSSymbolList() {
 		getAll = false;
-		symbolList = new ArrayList<String>();
-		readCompanyListFile(Exchange.NASDAQ);
-		readCompanyListFile(Exchange.NYSE);
-		Collections.sort(symbolList);		
+		usSymbolList = new ArrayList<String>();
+		readUSCompanyList(Exchange.NASDAQ);
+		readUSCompanyList(Exchange.NYSE);
+		Collections.sort(usSymbolList);		
+		addUSIndexToSymbolList(usSymbolList);
 	}
 	
-	private static void setAllSymbolList() {
+	private static void setAllUSSymbolList() {
 		getAll = true;
-		symbolList = new ArrayList<String>();
-		allSymbolList = new ArrayList<String>();
-		readCompanyListFile(Exchange.NASDAQ);
-		readCompanyListFile(Exchange.NYSE);
-		Collections.sort(allSymbolList);
+		allUSSymbolList = new ArrayList<String>();
+		readUSCompanyList(Exchange.NASDAQ);
+		readUSCompanyList(Exchange.NYSE);
+		Collections.sort(allUSSymbolList);
+		//We are not adding index symbol here because they do not have outstanding shares data.
 	}
 	
-	public static void readCompanyListFile(Exchange exchange) {
+	private static void addUSIndexToSymbolList(ArrayList<String> symbolList) {
+		symbolList.add("^DJI");   //Dow jones
+		symbolList.add("^IXIC");  //Nasdaq
+		symbolList.add("^GSPC");  //S&P 500
+	}
+	
+	private static void setSSESymbolList() {
+		sseSymbolList = new ArrayList<String>();
+		readChinaCompanyListFile(Exchange.SSE);
+		
+		sseSymbolList.add("000001");   //SSE index
+		sseSymbolList.add("000002");   //A stock index
+		sseSymbolList.add("000003");   //B stock index
+		sseSymbolList.add("000009");   //SSE 380 index
+		sseSymbolList.add("000010");   //SSE 180 index
+		sseSymbolList.add("000016");   //SSE 50 index
+		sseSymbolList.add("000300");   //SSE + SZSE 300 index
+		Collections.sort(sseSymbolList);
+	}
+	
+	private static void setSZSESymbolList() {
+		szseSymbolList = new ArrayList<String>();
+		readChinaCompanyListFile(Exchange.SZSE);
+		
+		szseSymbolList.add("399001");  //SZSE component index
+		szseSymbolList.add("399004");  //SZSE 100R index
+		szseSymbolList.add("399005");  //Mid/Small cap index
+		szseSymbolList.add("399006");  //Growth enterprise index
+		szseSymbolList.add("399106");  //SZSE all index		
+		Collections.sort(szseSymbolList);
+	}
+	
+	public static void readUSCompanyList(Exchange exchange) {
 		String filename = StockExchange.getCompanyListFilename(exchange);
 		
 		try {
@@ -67,7 +116,7 @@ public class StockSymbolList {
 				String marketCap = data[3];
 				//If getting all symbols then just add the symbol. Do not check market cap or shares outstanding.
 				if (getAll) {
-					allSymbolList.add(symbol);
+					allUSSymbolList.add(symbol);
 					continue;
 				}
 				if (marketCap.equals("n/a")) continue;				
@@ -77,7 +126,34 @@ public class StockSymbolList {
 	//				System.out.println(symbol + " does not have shares outstanding data.");
 					continue;					
 				}
-				symbolList.add(symbol);
+				usSymbolList.add(symbol);
+			}
+			br.close();
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}	
+	
+	}
+	
+	public static void readChinaCompanyListFile(Exchange exchange) {
+		String filename = StockExchange.getCompanyListFilename(exchange);
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(filename));
+			String line;
+			while ((line = br.readLine()) != null) {
+				switch (exchange) {
+				case SSE:
+					sseSymbolList.add(line);
+					break;
+				case SZSE:
+					szseSymbolList.add(line);
+					break;
+				default:
+					break;
+				}
 			}
 			br.close();
 			

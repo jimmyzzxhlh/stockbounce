@@ -18,13 +18,13 @@ import util.StockUtil;
  */
 public class TimestampTest {
 	public static void main(String args[]) {
-//		testTimestampOne();
+		testTimestampOne();
 //		testTimestampThree();
-		testTimestampFour();
+//		testTimestampFour();
 	}
 	
 	private static void testTimestampOne() {
-		Timestamp ts = new Timestamp(1418796000 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
+		Timestamp ts = new Timestamp(1423233025 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
 		System.out.println(ts);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(ts);
@@ -55,5 +55,5 @@ public class TimestampTest {
 		System.out.println("http://www.zacks.com/research/earnings/earning_export.php?timestamp=" + (date.getTime() / 1000) + "&tab_id=1");
 	}
 	
-//	http://www.zacks.com/research/earnings/earning_export.php?timestamp=1321596000&tab_id=1
+
 }

@@ -20,6 +20,8 @@ public class StockConst {
 	
 	public static final String COMPANY_LIST_NASDAQ_FILENAME = "D:\\zzx\\Stock\\companylist_nasdaq.csv";
 	public static final String COMPANY_LIST_NYSE_FILENAME = "D:\\zzx\\Stock\\companylist_nyse.csv";
+	public static final String COMPANY_LIST_SSE_FILENAME = "D:\\zzx\\Stock\\companylist_sse.csv";
+	public static final String COMPANY_LIST_SZSE_FILENAME = "D:\\zzx\\Stock\\companylist_szse.csv";
 	
 //	public static final String COMMA_DELIMITER = ",";  Do not use this comma or quote delimiter. Use StockUtil.splitCSVLine to split a line from CSV.
 //	public static final String QUOTE_DELIMITER = "\"";
@@ -34,7 +36,10 @@ public class StockConst {
 	
 	public static final String INTRADAY_DIRECTORY_PATH_YAHOO = "D:\\zzx\\Stock\\IntraDay\\";
 	public static final String INTRADAY_DIRECTORY_PATH_GOOGLE = "D:\\zzx\\Stock\\IntraDayGoogle\\";
+	public static final String INTRADAY_DIRECTORY_SSE_PATH = "D:\\zzx\\Stock\\IntraDaySSE\\";
+	public static final String INTRADAY_DIRECTORY_SZSE_PATH = "D:\\zzx\\Stock\\IntraDaySZSE\\";
 	
+	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 500;
 	
 	public static final double LONG_DAY_PERCENTAGE = 0.01;
 	

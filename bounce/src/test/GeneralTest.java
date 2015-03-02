@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.joda.time.DateTime;
+
 import util.StockUtil;
 
 public class GeneralTest {
@@ -11,7 +13,8 @@ public class GeneralTest {
 	public static void main(String args[]) {
 //		splitCSVLineTest();
 //		regularExpressionTest();
-		testCloseDates();
+//		testCloseDates();
+		testJodaDateTime();
 	}
 	
 	
@@ -42,5 +45,9 @@ public class GeneralTest {
 		int difference = 3;
 		System.out.println(StockUtil.isCloseDates(dateOne, dateTwo, difference));
 		
+	}
+	
+	private static void testJodaDateTime() {
+		System.out.println(new Date().toInstant());
 	}
 }

@@ -7,16 +7,20 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -25,6 +29,8 @@ import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Exchange;
 import stock.StockExchange;
+import stock.StockFileWriter;
+import stock.StockSymbolList;
 import util.StockUtil;
 
 /**
@@ -89,7 +95,7 @@ public class StockDownload {
 		if (this.startDate == null)
 			this.startDate = DEFAULT_START_DATE;
 		
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int retry = 0;
 		int index = 0;
 		while (index < symbolList.size()) {
@@ -168,7 +174,9 @@ public class StockDownload {
 	}
 	
 	public static void downloadCompanyLists() {
+		System.out.println("Downloading company lists from Nasdaq...");
 		downloadCompanyList(Exchange.NASDAQ);
+		System.out.println("Downloading company lists from NYSE...");
 		downloadCompanyList(Exchange.NYSE);
 	}
 	
@@ -187,10 +195,20 @@ public class StockDownload {
 	public static void downloadOutstandingSharesCSV() {
 		//Delete the file first so that the existing content is wiped out.
 		File f = new File(StockConst.SHARES_OUTSTANDING_FILENAME);
-		if (f.exists()) f.delete();
+		if (f.exists()) {
+			File backupFile = new File(StockConst.SHARES_OUTSTANDING_FILENAME + "_" + new DateTime().getMillis());
+			try {
+				StockUtil.copyFile(f, backupFile);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				return;
+			}
+			f.delete();
+		}
 		StringBuilder sb = new StringBuilder();
 		//Get all the symbols from company file.
-		ArrayList<String> symbolList = StockAPI.getAllSymbolList();
+		ArrayList<String> symbolList = StockAPI.getAllUSSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -204,10 +222,14 @@ public class StockDownload {
 				String urlString = "http://finance.yahoo.com/d/quotes.csv?s=" + sb.toString() + "&f=sj2";
 				sb = new StringBuilder();
 				count = 0;
-				StockUtil.downloadURL(urlString, TEMPORARY_SHARES_OUTSTANDING_FILENAME);
+				boolean downloaded = StockUtil.downloadURL(urlString, TEMPORARY_SHARES_OUTSTANDING_FILENAME);
+				//If downloading fails then return directly.
+				if (!downloaded) {
+					return;
+				}
 				//Merge the temporary file to the ultimate output file.
 				mergeFile(TEMPORARY_SHARES_OUTSTANDING_FILENAME, StockConst.SHARES_OUTSTANDING_FILENAME);
-				StockUtil.sleepThread(300);
+				StockUtil.sleepThread(500);
 			}
 		}
 				
@@ -224,7 +246,7 @@ public class StockDownload {
 		File f = new File(StockConst.PREVIOUS_CLOSE_FILENAME);
 		f.delete();
 		StringBuilder sb = new StringBuilder();
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -309,7 +331,7 @@ public class StockDownload {
 	 */
 	public static void downloadIntraDayStocksFromGoogle() throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int retry = 0;
 		int index = 0;
 		Random random = new Random();
@@ -330,16 +352,6 @@ public class StockDownload {
 		}		
 	}
 	
-	/**
-	 * Download Intraday data for one single stock from Yahoo. The filename is defauted as today's date, i.e. yyyyMMdd.txt
-	 * @param symbol
-	 * @return
-	 * @throws Exception
-	 */
-	public static boolean downloadIntraDayStockFromYahoo(String symbol) throws Exception {
-		Date today = new Date();
-		return downloadIntraDayStockFromYahoo(symbol, today);
-	}
 	
 	/**
 	 * Download Intraday data for one single stock from Yahoo.
@@ -348,15 +360,13 @@ public class StockDownload {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean downloadIntraDayStockFromYahoo(String symbol, Date today) {
-		//Get today's date
-		String directory = StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\";
+	public static boolean downloadIntraDayStockFromYahoo(Exchange exchange, String symbol, Date today) {
+		String directory = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
 			directoryFile.mkdirs();
 		}
 		String fileStock = directory + StockUtil.formatDate(today) + ".txt";
-//		String fileStock = directory + "20141222.txt";
 		File file = new File(fileStock);
 		if (!file.exists()) {
 			try {
@@ -366,12 +376,18 @@ public class StockDownload {
 				e.printStackTrace();
 			}
 		}
-		else {
+		else if (file.length() > 0) {
 			System.out.println(symbol + " already downloaded, ignored.");
 			return false;
 		}
+		else {
+			System.out.println(symbol + " has 0 bytes of data, redownloading...");
+		}
 //		System.out.println(fileStock);
-		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + symbol + "/chartdata;type=quote;range=1d/csv";
+		//Format symbol
+		String urlSymbol = StockExchange.getURLSymbol(exchange, symbol);
+	
+		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + urlSymbol + "/chartdata;type=quote;range=1d/csv";
 		boolean success = false;
 		int retry = 0;
 		while (!success && (retry < MAX_RETRY)) {
@@ -394,23 +410,28 @@ public class StockDownload {
 
 	}
 	
-	/**
-	 * Download Intraday data for all stocks from Yahoo. The filename is defauted as today's date, i.e. yyyyMMdd.txt
-	 * @throws Exception
-	 */
-	public static void downloadIntraDayStocksFromYahoo() throws Exception {
-		Date today = new Date();
-		downloadIntraDayStocksFromYahoo(today);
-	}
-	
+
 	/**
 	 * Download Intraday data for all stocks from Yahoo.
-	 * @param date
+	 * @param exchange Exchange. Can be null.
 	 * @throws Exception
 	 */
-	public static void downloadIntraDayStocksFromYahoo(Date date) throws Exception {
-		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+	public static void downloadIntraDayStocksFromYahoo(Exchange exchange, Date date, int sleepTime) throws Exception {
+		StockUtil.createNewDirectory(StockExchange.getIntraDayDirectory(exchange));
+		
+		ArrayList<String> symbolList = null;
+		switch (exchange) {
+		case SSE:
+			symbolList = StockSymbolList.getSSESymbolList();
+			break;
+		case SZSE:
+			symbolList = StockSymbolList.getSZSESymbolList();
+			break;
+		default:
+			symbolList = StockSymbolList.getUSSymbolList();
+			break;
+		}
+		if (symbolList == null) return;
 		int retry = 0;
 		int index = 0;
 		Random random = new Random();
@@ -422,11 +443,12 @@ public class StockDownload {
 			else {
 				System.out.println(symbol);
 			}
-			boolean downloaded = downloadIntraDayStockFromYahoo(symbol, date);
+			boolean downloaded = downloadIntraDayStockFromYahoo(exchange, symbol, date);
 			if (downloaded) {
 //				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
-				int sleepTime = 1;
-				StockUtil.sleepThread(sleepTime * 300);
+				if (sleepTime > 0) {
+					StockUtil.sleepThread(sleepTime);
+				}
 			}
 			index++;
 		}	
@@ -461,7 +483,7 @@ public class StockDownload {
 	}
 	
 	public static void downloadEarningsDatesFromStreetInsider() {
-		ArrayList<String> symbols = StockAPI.getAllSymbolList();
+		ArrayList<String> symbols = StockAPI.getAllUSSymbolList();
 		for (String symbol : symbols) {
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER + symbol + ".html";
 			if (StockUtil.fileExists(filename)) {
@@ -478,7 +500,7 @@ public class StockDownload {
 	}
 	
 	public static void downloadEarningsDatesFromTheStreet() {
-		ArrayList<String> symbols = StockAPI.getSymbolList();
+		ArrayList<String> symbols = StockAPI.getUSSymbolList();
 		StockUtil.createNewDirectory(StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET);
 		for (String symbol : symbols) {
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET + symbol + ".html";
@@ -498,4 +520,45 @@ public class StockDownload {
 		StockUtil.downloadHTMLURLWithPost(urlString, filename, urlParameters);
 		StockUtil.sleepThread(300);
 	}
+	
+	public static void downloadSSECompanyList() throws Exception {
+		String url = "http://query.sse.com.cn/commonQuery.do?jsonCallBack=jsonpCallback24396&isPagination=true&sqlId=COMMON_SSE_ZQPZ_GPLB_MCJS_SSAG_L&pageHelp.pageSize=2000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.endPage=5&_=1424835791822";
+		 
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+ 
+		// optional default is GET
+		con.setRequestMethod("GET");
+ 
+		//add request header
+		con.setRequestProperty("User-Agent", "Mozilla/5.0");
+		con.setRequestProperty("Host", "query.sse.com.cn");
+		con.setRequestProperty("Referer", "http://www.sse.com.cn/assortment/stock/list/name/");
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String line;
+	
+		StockFileWriter sfw = new StockFileWriter(StockConst.COMPANY_LIST_SSE_FILENAME);
+		Pattern pattern = Pattern.compile("\"PRODUCTID\":\"");
+		HashMap<String, Integer> symbolMap = new HashMap<String, Integer>();
+		while ((line = in.readLine()) != null) {
+			Matcher matcher = pattern.matcher(line);
+			while (matcher.find()) {
+				int start = matcher.end();
+				int end = start + 6;
+				String symbol = line.substring(start, end);
+				//Prevent duplicate symbols.
+				if (symbolMap.containsKey(symbol)) continue;
+				symbolMap.put(symbol, 1);
+				sfw.writeLine(symbol);
+//				System.out.println(line.substring(start, end));
+			}
+		}
+		in.close();
+		sfw.close();
+
+	}
+	
+
+
 }

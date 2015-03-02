@@ -1,19 +1,26 @@
 package test;
 
-import java.text.SimpleDateFormat;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 
-import org.joda.time.LocalDate;
-
+import stock.StockAPI;
+import stock.StockConst;
+import stock.StockEnum.Country;
+import stock.StockEnum.Exchange;
+import stock.StockFileWriter;
 import util.StockUtil;
 import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "CAMT";
+	private static final String SYMBOL = "MSFT";
 	private static final String START_DATE = "20050101";
-	private static final String END_DATE = "20150108";
+	private static final String END_DATE = "20150219";
 	
 	public static void main(String args[]) throws Exception {
 //		downloadSingleStock();
@@ -29,7 +36,10 @@ public class DownloadStocksTest {
 //		downloadEarningsDatesFromStreetInsider();
 //		downloadHTMLURLWithPostTest();
 //		downloadEarningsDatesFromTheStreet();
-	}
+//		cleanUpBadDataTwo();
+//		extractIntraDayFromMultipleDays();
+//		downloadCompanyListsFromSSE();
+	}	
 	
 	private static void downloadSingleStock() throws Exception {
 		StockDownload stockDownload = new StockDownload(START_DATE, END_DATE);
@@ -53,39 +63,80 @@ public class DownloadStocksTest {
 		StockDownload.downloadIntraDayStocksFromGoogle();
 	}
 
-	private static void downloadIntraDayStockFromYahoo() throws Exception {
-		StockDownload.downloadIntraDayStockFromYahoo("GOOG");
+	
+	private static void downloadIntraDayStocksFromYahoo(Country country) throws Exception {
+		Scanner reader = new Scanner(System.in);
+		System.out.println(country.name() + ": Enter date for the file name (e.g. 20141226). Enter 1 to use today. Enter nothing to skip downloading.");
+		String dateString = reader.nextLine().trim();
+		if (dateString.length() <= 0) return;
+		Date date = new Date();
+		if (!dateString.equals("1")) {
+			date = StockUtil.parseDate(dateString);
+		}
+		System.out.println(country.name() + ": Enter sleep time, nothing then use the default sleep time 500.");
+		String sleepTimeString = reader.nextLine().trim();
+		int sleepTime = 0;
+		if (sleepTimeString.length() <= 0) {
+			sleepTime = StockConst.INTRADAY_DEFAULT_SLEEP_TIME;
+		}
+		else {
+			sleepTime = Integer.parseInt(sleepTimeString);
+		}
+		switch (country) {
+		case US:
+			//Setting a default US exchange (any US exchange is OK here).
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.NASDAQ, date, sleepTime);
+			break;
+		case CHINA:
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SSE, date, sleepTime);
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SZSE, date, sleepTime);
+			break;
+		}
+				
 	}
 	
-	private static void downloadIntraDayStocksFromYahoo() {
-		try {
-			System.out.println("Enter date for the file name (e.g. 20141226), nothing then use today.");
-			Scanner reader = new Scanner(System.in);
-			String dateString = reader.nextLine().trim();
-			if (dateString.length() <= 0) {
-				StockDownload.downloadIntraDayStocksFromYahoo();
-			}
-			else {
-				Date date = StockUtil.parseDate(dateString);
-				StockDownload.downloadIntraDayStocksFromYahoo(date);
-			}
-			
-			
+	private static void downloadDailyTask() throws Exception { 
+		Scanner reader = new Scanner(System.in);
+		String inputString;
+		int taskNumber = 0;
+		taskNumber++;
+		System.out.println(taskNumber + ". Download US company lists...");
+		System.out.println("Enter 1 to update the company lists, otherwise you can enter nothing.");
+		inputString = reader.nextLine().trim();
+		if (inputString.equals("1")) {
+			downloadCompanyLists();
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else {
+			System.out.println("Use existing company lists...");
 		}
-		
-	}
-	
-	private static void downloadDailyTask() { 
-		System.out.println("1. Download company lists from Nasdaq...");
-		downloadCompanyLists();
-		System.out.println("2. Download outstanding shares data from Yahoo...");
-		downloadOutstandingSharesCSV();
-		System.out.println("3. Download Intra day data from Yahoo...");
-		downloadIntraDayStocksFromYahoo();
+		taskNumber++;
+		System.out.println(taskNumber + ". Download SSE company lists...");
+		System.out.println("Enter 1 to update the company lists, otherwise you can enter nothing.");
+		inputString = reader.nextLine().trim();
+		if (inputString.equals("1")) {
+			downloadCompanyListsFromSSE();
+		}
+		else {
+			System.out.println("Use existing SSE company lists...");
+		}
+		taskNumber++;
+		System.out.println(taskNumber + ". Download outstanding shares data from Yahoo...");
+		System.out.println("Enter 1 to update outstanding shares, otherwise you can enter nothing.");
+		inputString = reader.nextLine().trim();
+		if (inputString.equals("1")) {
+			downloadOutstandingSharesCSV();
+		}
+		else {
+			System.out.println("Use existing outstanding shares data...");
+		}
+		taskNumber++;
+		System.out.println(taskNumber + ". Download US Intra day data from Yahoo...");
+		downloadIntraDayStocksFromYahoo(Country.US);
+		taskNumber++;
+		System.out.println(taskNumber + ". Download Shanghai Stock Exchange Intra day data from Yahoo...");
+		downloadIntraDayStocksFromYahoo(Country.CHINA);
 		StockUtil.pressAnyKeyToContinue();
+		reader.close();
 	}
 	
 	private static void downloadHTMLURL() {
@@ -121,5 +172,210 @@ public class DownloadStocksTest {
 	
 	private static void downloadCompanyLists() {
 		StockDownload.downloadCompanyLists();
+	}
+	
+	/**
+	 * Clean up invalid data downloaded.
+	 * Delete symbol folders that do not have outstanding shares data.
+	 * 
+	 */
+	private static void cleanUpBadDataOne() {
+		String filename = "20150217.txt";
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
+		ArrayList<String> allSymbolList = StockAPI.getAllUSSymbolList();
+		for (File subDirectory : directory.listFiles()) {
+			String symbol = subDirectory.getName();
+			boolean delete = false;
+			//Delete only if the symbol does not have outstanding shares data.
+			if (!symbolList.contains(symbol) && allSymbolList.contains(symbol)) {
+				File[] files = subDirectory.listFiles();
+				if (files.length > 1) continue;
+				for (File file : subDirectory.listFiles()) {
+					if (file.getName().equals(filename)) {
+						delete = true;
+						file.delete();
+						System.out.println(symbol + "\\" + file.getName() + " deleted.");
+					}
+				}
+			}
+			if (delete) {
+				subDirectory.delete();
+				System.out.println(symbol + " folder deleted.");
+			}
+		}
+	}
+	
+	/**
+	 * Clean up bad data. 
+	 * This function needs to be modified every time. Reuse it.
+	 * @throws Exception
+	 */
+	private static void cleanUpBadDataTwo() throws Exception {
+		String filename = "20150217.txt";
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
+		for (File subDirectory : directory.listFiles()) {
+			String symbol = subDirectory.getName();
+			File file = new File(subDirectory.getAbsolutePath() + "\\" + filename);
+			if (!file.exists()) continue;
+			if (file.length() > 1) continue;
+			System.out.println(symbol);
+			file.delete();
+			
+		}
+	}
+	
+	/**
+	 * Extract intraday data from multiple days data (e.g. 2d/csv).
+	 * The data will have less accuracy though...
+	 * @throws Exception
+	 */
+	private static void extractIntraDayFromMultipleDays() throws Exception {
+		String filename = "20150217.txt";
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
+		String outputRootDirectoryString = "D:\\zzx\\Stock\\IntraDayRepair\\";
+		for (File subDirectory : directory.listFiles()) {
+			String symbol = subDirectory.getName();
+			
+//			if (!symbol.equals("PHM")) continue;
+			String outputDirectoryString = outputRootDirectoryString + symbol + "\\";
+			File outputDirectory = new File(outputDirectoryString);
+			if (!outputDirectory.exists()) {
+				outputDirectory.mkdir();
+			}
+			String outputFilename = outputDirectoryString + filename;
+
+			for (File file : subDirectory.listFiles()) {
+				if (!file.getName().equals(filename)) continue;
+				
+				StockFileWriter sfw = new StockFileWriter(outputFilename);
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				String line;
+				String[] data;
+				int rangeStartOne = 0;
+				int rangeEndOne = 0;
+				boolean firstLine = true;
+				while ((line = br.readLine()) != null) {
+					
+					if (line.startsWith("range:20150217")) {
+						data = StockUtil.splitCSVLine(line);
+						rangeStartOne = Integer.parseInt(data[1]);
+						rangeEndOne = Integer.parseInt(data[2]);
+						break;
+					}
+					else if (line.startsWith("range:")) {
+						continue;
+					}
+					else {
+//						System.out.println(line);
+						if (firstLine) {
+							line = line.replace("2d/csv", "1d/csv");
+							firstLine = false;
+						}
+						sfw.writeLine(line);
+					}
+				}
+				if ((rangeStartOne == 0) || (rangeEndOne == 0)) {
+					sfw.close();
+					sfw.getFile().delete();
+//					outputFolderDirectory.delete();
+					
+					System.out.println(symbol + " does not need repair.");
+					break;
+				}
+				System.out.println(symbol + "\\" + file.getName() + " processing...");
+				//Skipping all range lines.
+				while (line.startsWith("range:")) {
+					line = br.readLine();
+				}
+				//Skipping timestamp line. This can be output from the range.
+//				System.out.println("Timestamp:" + rangeStartOne + "," + rangeEndOne);
+				sfw.writeLine("Timestamp:" + rangeStartOne + "," + rangeEndOne);
+				//Processing label line.
+				line = br.readLine();
+//				System.out.print(line.substring(0, 7));
+				sfw.write(line.substring(0, 7));
+				line = line.substring(7);
+				data = StockUtil.splitCSVLine(line);
+				for (int i = 0; i < data.length; i++) {
+					String tsStr = data[i];
+					int ts = Integer.parseInt(tsStr);
+					if ((ts >= rangeStartOne) && (ts <= rangeEndOne)) {
+						if (i > 0) {
+//							System.out.print(",");
+							sfw.write(",");
+						}
+//						System.out.print(tsStr);
+						sfw.write(tsStr);
+					}
+				}
+//				System.out.println();
+				sfw.newLine();
+				line = br.readLine();
+//				System.out.println(line);
+				sfw.writeLine(line);
+				while ((line = br.readLine()) != null) {
+					if (line.startsWith("volume")) break;
+				}
+				ArrayList<Integer> tsArray = new ArrayList<Integer>();
+				ArrayList<Double> closeArray = new ArrayList<Double>();
+				ArrayList<Double> highArray = new ArrayList<Double>();
+				ArrayList<Double> lowArray = new ArrayList<Double>();
+				ArrayList<Double> openArray = new ArrayList<Double>();
+				ArrayList<Long> volumeArray = new ArrayList<Long>();
+				while ((line = br.readLine()) != null) {
+					data = StockUtil.splitCSVLine(line);
+					int ts = Integer.parseInt(data[0]);
+					if ((ts >= rangeStartOne) && (ts <= rangeEndOne)) {
+						double close = Double.parseDouble(data[1]);
+						double high = Double.parseDouble(data[2]);
+						double low = Double.parseDouble(data[3]);
+						double open = Double.parseDouble(data[4]);
+						long volume = Long.parseLong(data[5]);
+						tsArray.add(ts);
+						closeArray.add(close);
+						highArray.add(high);
+						lowArray.add(low);
+						openArray.add(open);
+						volumeArray.add(volume);
+					}
+				}
+//				System.out.println("close:" + Collections.min(closeArray) + "," + Collections.max(closeArray));
+//				System.out.println("high:" + Collections.min(highArray) + "," + Collections.max(highArray));
+//				System.out.println("low:" + Collections.min(lowArray) + "," + Collections.max(lowArray));
+//				System.out.println("open:" + Collections.min(openArray) + "," + Collections.max(openArray));
+//				System.out.println("volume:" + Collections.min(volumeArray) + "," + Collections.max(volumeArray));
+				sfw.writeLine("close:" + Collections.min(closeArray) + "," + Collections.max(closeArray));
+				sfw.writeLine("high:" + Collections.min(highArray) + "," + Collections.max(highArray));
+				sfw.writeLine("low:" + Collections.min(lowArray) + "," + Collections.max(lowArray));
+				sfw.writeLine("open:" + Collections.min(openArray) + "," + Collections.max(openArray));
+				sfw.writeLine("volume:" + Collections.min(volumeArray) + "," + Collections.max(volumeArray));
+				
+				for (int i = 0; i < tsArray.size(); i++) {
+//					System.out.println(tsArray.get(i) + "," + closeArray.get(i) + "," + highArray.get(i) + "," + lowArray.get(i) + "," + openArray.get(i) + "," + volumeArray.get(i));
+					sfw.writeLine(tsArray.get(i) + "," + closeArray.get(i) + "," + highArray.get(i) + "," + lowArray.get(i) + "," + openArray.get(i) + "," + volumeArray.get(i));
+				}
+				br.close();
+				sfw.close();
+			}
+		}
+		
+		File outputRootDirectory = new File(outputRootDirectoryString);
+		for (File subDirectory : outputRootDirectory.listFiles()) {
+			if (subDirectory.listFiles().length == 0) {
+				String symbol = subDirectory.getName();
+				System.out.println(symbol + " folder deleting...");
+				subDirectory.delete();
+			}
+		}
+	}
+	
+	private static void downloadCompanyListsFromSSE() {
+		try {
+			StockDownload.downloadSSECompanyList();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

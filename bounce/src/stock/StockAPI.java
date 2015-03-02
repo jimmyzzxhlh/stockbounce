@@ -24,16 +24,26 @@ public class StockAPI {
 	 * outstanding shares data.
 	 * @return Array list of string that contains symbols.
 	 */
-	public static ArrayList<String> getSymbolList() {
-		return StockSymbolList.getSymbolList();
+	public static ArrayList<String> getUSSymbolList() {
+		return StockSymbolList.getUSSymbolList();
 	}
 	
 	/**
 	 * Get all the symbols from the company list file. Use this function ONLY when downloading outstanding shares CSV.
 	 * @return
 	 */
-	public static ArrayList<String> getAllSymbolList() {
-		return StockSymbolList.getAllSymbolList();
+	public static ArrayList<String> getAllUSSymbolList() {
+		return StockSymbolList.getAllUSSymbolList();
+	}
+	
+	
+	public static ArrayList<String> getSSESymbolList() {
+		return StockSymbolList.getSSESymbolList();
+	}
+	
+	public static ArrayList<String> getSZSESymbolList() {
+		return StockSymbolList.getSZSESymbolList();
+		
 	}
 	
 	/**

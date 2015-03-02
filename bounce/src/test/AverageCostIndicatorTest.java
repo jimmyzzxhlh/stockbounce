@@ -12,7 +12,7 @@ import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String symbol = "YHOO";
+	private static final String symbol = "AAL";
 	
 	public static void main(String args[]) {
 //		testAverageCostIndicator();
@@ -34,7 +34,7 @@ public class AverageCostIndicatorTest {
 	}
 	
 	public static void testAverageCostIndicatorReverseUp() {
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int dateCount = 0;
 		for (String symbol : symbolList) {
 			if (!symbol.equals("YHOO")) continue;

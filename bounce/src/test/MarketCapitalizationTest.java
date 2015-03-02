@@ -20,7 +20,8 @@ public class MarketCapitalizationTest {
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
 //		testMarketCap();
-		testGetAllSymbolList();
+//		testGetAllSymbolList();
+		testGetChinaSymbolList();
 	}
 	
 	private static void testSharesOutstanding() {
@@ -55,10 +56,23 @@ public class MarketCapitalizationTest {
 	}
 	
 	private static void testGetAllSymbolList() {
-		ArrayList<String> symbolList = StockAPI.getAllSymbolList();
+		ArrayList<String> symbolList = StockAPI.getAllUSSymbolList();
 		for (int i = 0; i < symbolList.size(); i++) {
 			System.out.println(symbolList.get(i));
 		}
 	}
 	
+	private static void testGetChinaSymbolList() {
+//		System.out.println("Shanghai:");
+//		ArrayList<String> symbolList = StockAPI.getSSESymbolList();
+//		for (int i = 0; i < symbolList.size(); i++) {
+//			System.out.println(symbolList.get(i));
+//		}
+		System.out.println("Shen Zhen:");
+		ArrayList<String> symbolList = StockAPI.getSZSESymbolList();
+		for (int i = 0; i < symbolList.size(); i++) {
+			System.out.println(symbolList.get(i));
+		}
+		
+	}
 }

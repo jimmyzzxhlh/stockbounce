@@ -62,7 +62,7 @@ public class StockEarningsDatesMap {
 		Pattern pattern = Pattern.compile(regEx);
 		SimpleDateFormat format = new SimpleDateFormat("MM/dd/yy");
 		
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_STREET_INSIDER_FILENAME);
 		for (String symbol : symbolList) {
 			sfw.write(symbol + ",");
@@ -281,7 +281,7 @@ public class StockEarningsDatesMap {
 		Pattern pattern = Pattern.compile(regEx);
 		SimpleDateFormat format = new SimpleDateFormat("yy/MM/dd");
 		
-		ArrayList<String> symbolList = StockAPI.getSymbolList();
+		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		StockFileWriter sfw = new StockFileWriter(StockConst.EARNINGS_DATES_THE_STREET_FILENAME);
 		for (String symbol : symbolList) {
 			sfw.write(symbol + ",");

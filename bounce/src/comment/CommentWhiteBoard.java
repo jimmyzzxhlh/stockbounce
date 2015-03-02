@@ -118,7 +118,12 @@ package comment;
  * 2. After updating the daily data, we also need to update the intraday data accordingly. The intraday data seems to have less volume
  * than it should, so we can just distribute those volume into every interval. We still cannot handle the after hour market volume, though.
  * 
- * 
+ * TODO
+ * 1. 10周线开始向上翘头（角度>=30%），前面是很平稳的走势或者是向下的趋势。
+ * 平稳的走势的定义可以是5周/10周/20周均线之差幅度很小
+ * 向下的趋势TBD
+ * 2. 周线出现2连阳，影线越短越好，每根线实体涨幅+5%。
+ * 3. 出场信号是10周线变的很平（5周没有涨幅）或者斜率向下。
  * 
  */
 

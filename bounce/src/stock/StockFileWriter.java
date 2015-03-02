@@ -23,6 +23,10 @@ public class StockFileWriter {
 		fw = new FileWriter(file.getAbsoluteFile());
 		bw = new BufferedWriter(fw);
 	}
+
+	public File getFile() {
+		return file;
+	}
 	
 	public void newLine() throws Exception {
 		bw.newLine();

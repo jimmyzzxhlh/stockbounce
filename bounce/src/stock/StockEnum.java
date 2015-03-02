@@ -14,8 +14,16 @@ public class StockEnum {
 	public enum Exchange {
 		NASDAQ,
 		NYSE,
-		AMEX
+		AMEX,
+		SSE,
+		SZSE
 	}
+	
+	public enum Country {
+		US,
+		CHINA
+	}
+	
 	
 	public enum StockCandleClass {
 		WHITE_LONG,

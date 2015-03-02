@@ -2,18 +2,18 @@ package util;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -114,7 +114,7 @@ public class StockUtil {
 	}
 
 	
-	public static void downloadURL(String urlString, String filename) {
+	public static boolean downloadURL(String urlString, String filename) {
 		try {
 			URL site = new URL(urlString);
 		    ReadableByteChannel rbc = Channels.newChannel(site.openStream());
@@ -122,9 +122,11 @@ public class StockUtil {
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 			fos.flush();
 			fos.close();
+			return true;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
@@ -322,5 +324,34 @@ public class StockUtil {
     	if (Math.abs(doubleOne - doubleTwo) < maxEqualDifference) return true;
     	return false;
     }
+    
+    /**
+     * Copy a file.
+     * @param sourceFile
+     * @param destFile
+     * @throws IOException
+     */
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if(!destFile.exists()) {
+            destFile.createNewFile();
+        }
 
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        }
+        finally {
+            if(source != null) {
+                source.close();
+            }
+            if(destination != null) {
+                destination.close();
+            }
+        }
+    }
+    
 }
