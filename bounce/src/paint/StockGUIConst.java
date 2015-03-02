@@ -74,6 +74,11 @@ public class StockGUIConst {
 	public static final Font STOCK_CANDLE_INFO_FONT = new Font("Arial", Font.BOLD, 16);
 	public static final Color STOCK_CANDLE_INFO_COLOR = Color.white;
 	
+	//Lower Indicator Panel consts
+	public static final int LOWER_INDICATOR_BOTTOM_BORDER_DISTANCE = 5;
+	public static final int LOWER_INDICATOR_LEFT_BORDER_DISTANCE = CHART_LEFT_BORDER_DISTANCE;
+	public static final int LOWER_INDICATOR_RIGHT_BORDER_DISTANCE = CHART_RIGHT_BORDER_DISTANCE;
+	public static final int LOWER_INDICATOR_TOP_BORDER_DISTANCE = 5;
 	
 	
 		

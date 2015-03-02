@@ -14,7 +14,7 @@ public class GeneralTest {
 //		splitCSVLineTest();
 //		regularExpressionTest();
 //		testCloseDates();
-		testJodaDateTime();
+
 	}
 	
 	
@@ -45,9 +45,5 @@ public class GeneralTest {
 		int difference = 3;
 		System.out.println(StockUtil.isCloseDates(dateOne, dateTwo, difference));
 		
-	}
-	
-	private static void testJodaDateTime() {
-		System.out.println(new Date().toInstant());
 	}
 }

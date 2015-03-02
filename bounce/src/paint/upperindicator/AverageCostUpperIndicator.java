@@ -1,4 +1,4 @@
-package paint.indicator;
+package paint.upperindicator;
 
 import indicator.StockAverageCostIndicator;
 
@@ -9,9 +9,9 @@ import paint.StockChartPanel;
 import paint.StockGUIUtil;
 import stock.StockCandleArray;
 
-public class AverageCostIndicatorPaint extends IndicatorPaintAbstract {
+public class AverageCostUpperIndicator extends UpperIndicatorAbstract {
 
-	public AverageCostIndicatorPaint(StockChartPanel stockChartPanel) {
+	public AverageCostUpperIndicator(StockChartPanel stockChartPanel) {
 		super(stockChartPanel);
 	}
 	

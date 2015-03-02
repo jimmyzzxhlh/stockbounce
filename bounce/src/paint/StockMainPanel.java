@@ -19,7 +19,7 @@ public class StockMainPanel extends JPanel {
 	private StockCandleInfoPanel stockCandleInfoPanel;
 	private StockChartPanel stockChartPanel;
 	private SettingsPanel settingsPanel;
-	private StockIndicatorPanel stockIndicatorPanel;
+	private StockLowerIndicatorPanel stockLowerIndicatorPanel;
 	
 	public StockCandleInfoPanel getStockCandleInfoPanel() {
 		return stockCandleInfoPanel;
@@ -33,8 +33,8 @@ public class StockMainPanel extends JPanel {
 		return settingsPanel;
 	}
 
-	public StockIndicatorPanel getStockIndicatorPanel() {
-		return stockIndicatorPanel;
+	public StockLowerIndicatorPanel getStockIndicatorPanel() {
+		return stockLowerIndicatorPanel;
 	}
 	
 	public void setFrame(JFrame frame) {
@@ -53,7 +53,7 @@ public class StockMainPanel extends JPanel {
 		stockChartPanel = new StockChartPanel();
 		settingsPanel = new SettingsPanel(stockChartPanel);
 		stockCandleInfoPanel = new StockCandleInfoPanel();
-		stockIndicatorPanel = new StockIndicatorPanel();
+		stockLowerIndicatorPanel = new StockLowerIndicatorPanel();
 		
 		stockChartPanel.setMainPanel(this);
 		stockChartPanel.setSettingsPanel(settingsPanel);
@@ -61,12 +61,12 @@ public class StockMainPanel extends JPanel {
 		this.add(settingsPanel);				
 		this.add(stockCandleInfoPanel);
 		this.add(stockChartPanel);
-		this.add(stockIndicatorPanel);
+		this.add(stockLowerIndicatorPanel);
 		System.out.println(stockCandleInfoPanel.getPanelHeight());
 	}
 	
 	public int getPanelHeight() {
-		return stockCandleInfoPanel.getPanelHeight() + stockChartPanel.getPanelHeight() + settingsPanel.getPanelHeight() + stockIndicatorPanel.getPanelHeight();
+		return stockCandleInfoPanel.getPanelHeight() + stockChartPanel.getPanelHeight() + settingsPanel.getPanelHeight() + stockLowerIndicatorPanel.getPanelHeight();
 	}
 	
 	public int getPanelWidth() {

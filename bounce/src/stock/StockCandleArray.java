@@ -309,6 +309,28 @@ public class StockCandleArray {
 	public boolean isLocalMin(int index, int period, StockCandleDataType dataType) {
 		return false;
 	}
+	
+	public long getMaxVolume(int startIndex, int endIndex) {
+		long maxVolume = -1;
+		for (int i = startIndex; i <= endIndex; i++) {
+			long currentVolume = this.getVolume(i);
+			if (currentVolume > maxVolume) {
+				maxVolume = currentVolume;
+			}
+		}
+		return maxVolume;
+	}
+	
+	public long getMinVolume(int startIndex, int endIndex) {
+		long minVolume = Long.MAX_VALUE;
+		for (int i = startIndex; i <= endIndex; i++) {
+			long currentVolume = this.getVolume(i);
+			if (currentVolume < minVolume) {
+				minVolume = currentVolume;
+			}
+		}
+		return minVolume;
+	}
 }
 			
 		

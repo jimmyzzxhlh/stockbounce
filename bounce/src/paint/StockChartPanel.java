@@ -13,7 +13,7 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import paint.indicator.IndicatorPaintAbstract;
+import paint.upperindicator.UpperIndicatorAbstract;
 import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
@@ -58,7 +58,7 @@ public class StockChartPanel extends JPanel {
 	private int priceLabelWidth;
 	private int priceLabelHeight; 
 	
-	private IndicatorPaintAbstract indicatorPaint;
+	private UpperIndicatorAbstract upperIndicator;
 	
 	private StockCandleArray stockCandleArray;
 	private StockCandleArray normalizedStockCandleArray;
@@ -109,7 +109,7 @@ public class StockChartPanel extends JPanel {
 		priceLabelY = 0;
 		priceLabelWidth = 0;
 		priceLabelHeight = 0; 
-		indicatorPaint = null;		
+		upperIndicator = null;		
 		if (stockCandleArray != null) { 
 			stockCandleArray.destroy();
 		}
@@ -428,21 +428,21 @@ public class StockChartPanel extends JPanel {
 		g2.drawString(priceLabel, (float) priceLabelX + 3, (float) priceLabelY - 3);
 	}
 	
-	public void setIndicatorPaint(IndicatorPaintAbstract indicatorPaint) {
-		this.indicatorPaint = indicatorPaint;
+	public void setUpperIndicator(UpperIndicatorAbstract upperIndicator) {
+		this.upperIndicator = upperIndicator;
 	}
 	
-	public void destroyIndicatorPaint() {
-		if (indicatorPaint == null) return;
-		indicatorPaint.destroy();
-		indicatorPaint = null;
+	public void destroyUpperIndicator() {
+		if (upperIndicator == null) return;
+		upperIndicator.destroy();
+		upperIndicator = null;
 	}
 	
 	
 	private void paintIndicators(Graphics2D g2Input) {
-		if (indicatorPaint == null) return;
+		if (upperIndicator == null) return;
 		Graphics2D g2 = getTranslatedG2(g2Input);
-		indicatorPaint.paintIndicator(g2);
+		upperIndicator.paintIndicator(g2);
 	}
 	
 	public double getTranslatedYFromPrice(double price) {

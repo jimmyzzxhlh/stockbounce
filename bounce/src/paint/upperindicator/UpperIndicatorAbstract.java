@@ -1,17 +1,17 @@
-package paint.indicator;
+package paint.upperindicator;
 
 import java.awt.Graphics2D;
 
 import paint.StockChartPanel;
 import stock.StockCandleArray;
 
-public abstract class IndicatorPaintAbstract {
+public abstract class UpperIndicatorAbstract {
 	
 	protected double[] indicatorArray;
 	
 	protected StockChartPanel stockChartPanel;
 	
-	public IndicatorPaintAbstract(StockChartPanel stockChartPanel) {
+	public UpperIndicatorAbstract(StockChartPanel stockChartPanel) {
 		this.stockChartPanel = stockChartPanel;
 	}
 	

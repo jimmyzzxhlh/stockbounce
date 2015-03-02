@@ -21,7 +21,7 @@ import org.joda.time.LocalDate;
 import util.StockUtil;
 
 /**
- * Panel for adjusting settings at the bottom of the main panel.
+ * Panel for adjusting settings at the top of the main panel.
  * @author jimmyzzxhlh-Dell
  *
  */
@@ -69,7 +69,11 @@ public class SettingsPanel extends JPanel {
 		return endLocalDate;
 	}
 
-	
+	/**
+	 * Update the dates in the text fields.
+	 * @param newStartDate
+	 * @param newEndDate
+	 */
 	public void updateDates(Date newStartDate, Date newEndDate) {
 		startDateField.setText(StockUtil.formatDate(newStartDate));
 		endDateField.setText(StockUtil.formatDate(newEndDate));
@@ -87,24 +91,35 @@ public class SettingsPanel extends JPanel {
 	
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.drawString("Settings panel", 500, 100);
+//		g.drawString("Settings panel", 500, 100);
 		
 	}
 	
+	/**
+	 * Add symbol label.
+	 */
 	private void addSymbolLabel() {
 		JLabel symbolLabel = new JLabel("Symbol:");
 		setLabelProperties(symbolLabel);
 		this.add(symbolLabel);		
 	}
 	
+	/**
+	 * Set label properties (font and foreground)
+	 * @param label
+	 */
 	private void setLabelProperties(JLabel label) {
 		label.setFont(StockGUIConst.LABEL_FONT);
 		label.setForeground(StockGUIConst.LABEL_COLOR);
 	}
 	
+	/**
+	 * Add symbol text field.
+	 */
 	private void addSymbolTextField() {
 		symbolTextField = new JTextField(5);
 		setTextFieldProperties(symbolTextField);
+		//Make sure that we only 
 		((AbstractDocument)symbolTextField.getDocument()).setDocumentFilter(new UpperCaseDocumentFilter());
 		this.add(symbolTextField);		
 	}
@@ -168,7 +183,7 @@ public class SettingsPanel extends JPanel {
 		stockChartPanel.setEndDate(endLocalDate.toDate());
 		if (!stockChartPanel.initializeStockCandleArray()) return;
 		if (averageCostIndicatorCheckBox.isSelected()) {
-			aciItemListener.initializeIndicatorPaint();
+			aciItemListener.initializeIndicator();
 		}
 		stockChartPanel.repaint();
 		
