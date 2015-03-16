@@ -20,18 +20,18 @@ public class DownloadStocksTest {
 	
 	private static final String SYMBOL = "MSFT";
 	private static final String START_DATE = "20050101";
-	private static final String END_DATE = "20150219";
+	private static final String END_DATE = "20150305";
 	
 	public static void main(String args[]) throws Exception {
 //		downloadSingleStock();
-//		downloadStocks();
+		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
 //		downloadIntraDayStocksFromYahoo();
 //		downloadCompanyLists();
 //		downloadEarningsDatesFromZach();
-		downloadDailyTask();
+//		downloadDailyTask();
 //		downloadHTMLURL();
 //		downloadEarningsDatesFromStreetInsider();
 //		downloadHTMLURLWithPostTest();
@@ -133,7 +133,7 @@ public class DownloadStocksTest {
 		System.out.println(taskNumber + ". Download US Intra day data from Yahoo...");
 		downloadIntraDayStocksFromYahoo(Country.US);
 		taskNumber++;
-		System.out.println(taskNumber + ". Download Shanghai Stock Exchange Intra day data from Yahoo...");
+		System.out.println(taskNumber + ". Download China Intra day data from Yahoo...");
 		downloadIntraDayStocksFromYahoo(Country.CHINA);
 		StockUtil.pressAnyKeyToContinue();
 		reader.close();

@@ -6,13 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import stock.StockAPI;
 import stock.StockCandleArray;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String symbol = "AAL";
+	private static final String TEST_SYMBOL = "ABT";
 	
 	public static void main(String args[]) {
 //		testAverageCostIndicator();
@@ -20,7 +22,7 @@ public class AverageCostIndicatorTest {
 	}
 	
 	public static void testAverageCostIndicator() {
-		StockAverageCostIndicator indicator = new StockAverageCostIndicator(symbol);
+		StockAverageCostIndicator indicator = new StockAverageCostIndicator(TEST_SYMBOL);
 		StockCandleArray stockCandleArray = indicator.getStockCandleArray();
 
 		for (int i = 0; i < indicator.size(); i++) {
@@ -37,7 +39,7 @@ public class AverageCostIndicatorTest {
 		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int dateCount = 0;
 		for (String symbol : symbolList) {
-			if (!symbol.equals("YHOO")) continue;
+			if (!symbol.equals(TEST_SYMBOL)) continue;
 			System.out.println(symbol);
 			StockAverageCostIndicator indicator = new StockAverageCostIndicator(symbol);
 			ArrayList<Integer> reverseUpDatesIndex = indicator.getReverseUpDatesIndex();
@@ -45,7 +47,7 @@ public class AverageCostIndicatorTest {
 			for (int index : reverseUpDatesIndex) {
 				Date reverseUpDate = stockCandleArray.getDate(index);
 				dateCount++;
-				System.out.print(StockUtil.formatDate(reverseUpDate));
+//				System.out.println(StockUtil.formatDate(reverseUpDate));
 				int start = Math.max(0, index - 15);
 //				int end = Math.min(stockCandleArray.size() - 1, index + 10);
 				int end = index;
@@ -58,13 +60,50 @@ public class AverageCostIndicatorTest {
 						break;
 					}					
 				}
-				if (localMaxFound) {
-					System.out.print(" (Local max found on " + StockUtil.formatDate(stockCandleArray.getDate(localMaxIndex)) + ")");
-					if (stockCandleArray.getClose(index) > stockCandleArray.getClose(localMaxIndex)) {
-						System.out.print(" (Close > local max close)");
+				//If local max is found and the current close is not higher than the local max,
+				//then it means we have not broken through yet. So this is a false signal.
+				if (localMaxFound && (stockCandleArray.getClose(index) <= stockCandleArray.getClose(localMaxIndex))) continue;
+				int holdPeriod = 20;
+				//Boundary check
+				if (index + holdPeriod + 1 >= stockCandleArray.size()) continue;
+				double openPrice = stockCandleArray.getOpen(index + 1);
+				double minClose = Double.MAX_VALUE;
+				double maxClose = Double.MIN_VALUE;
+				int minCloseIndex = -1;
+				int maxCloseIndex = -1;
+				for (int j = index + 1; j <= index + 1 + holdPeriod; j++) {
+					double close = stockCandleArray.getClose(j);
+					if (close < minClose) {
+						minCloseIndex = j;
+						minClose = close;
+					}
+					if (close > maxClose) {
+						maxCloseIndex = j;
+						maxClose = close;
 					}
 				}
-				System.out.println();
+				//Use the following criteria if you only want to analyze losses and ignore profits
+//				if (Math.abs(maxClose - openPrice) > Math.abs(openPrice - minClose)) continue; 
+				System.out.print("Open position on " + StockUtil.formatDate(stockCandleArray.getDate(index + 1)) + " at " + StockUtil.getRoundTwoDecimals(openPrice) + ". ");
+				if (minClose >= openPrice) {
+					System.out.print("No loss in " + holdPeriod + " days. ");
+					System.out.print("Max profit on " + StockUtil.formatDate(stockCandleArray.getDate(maxCloseIndex)) + " at " + StockUtil.getRoundTwoDecimals(maxClose) + ". ");
+					System.out.println("Amount: " + StockUtil.getRoundTwoDecimals(maxClose - openPrice) + ". Per: " + StockUtil.getRoundTwoDecimals((maxClose - openPrice) * 100.0 / openPrice) + "%");
+				}
+				else {
+					System.out.print("Max loss on " + StockUtil.formatDate(stockCandleArray.getDate(minCloseIndex)) + " at " + StockUtil.getRoundTwoDecimals(minClose) + ". ");
+					System.out.print("Amount: " + StockUtil.getRoundTwoDecimals(minClose - openPrice) + ". Per: " + StockUtil.getRoundTwoDecimals((minClose - openPrice) * 100.0 / openPrice) + "%. ");
+					System.out.print("Max profit on " + StockUtil.formatDate(stockCandleArray.getDate(maxCloseIndex)) + " at " + StockUtil.getRoundTwoDecimals(maxClose) + ". ");
+					System.out.println("Amount: " + StockUtil.getRoundTwoDecimals(maxClose - openPrice) + ". Per: " + StockUtil.getRoundTwoDecimals((maxClose - openPrice) * 100.0 / openPrice) + "%");
+				}
+				
+//				if (localMaxFound) {
+//					System.out.print(" (Local max found on " + StockUtil.formatDate(stockCandleArray.getDate(localMaxIndex)) + ")");
+//					if (stockCandleArray.getClose(index) > stockCandleArray.getClose(localMaxIndex)) {
+//						System.out.print(" (Close > local max close)");
+//					}
+//				}
+//				System.out.println();
 				
 //				System.out.println(dateFormat.format(stockCandleArray.getDate(index)));
 //				double close = stockCandleArray.getClose(index);
