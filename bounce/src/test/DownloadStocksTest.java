@@ -24,11 +24,12 @@ public class DownloadStocksTest {
 	
 	public static void main(String args[]) throws Exception {
 //		downloadSingleStock();
-		downloadStocks();
+//		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
-//		downloadIntraDayStocksFromYahoo();
+//		downloadIntraDayStocksFromYahoo(Country.US);
+//		downloadIntraDayStocksFromYahoo(Country.CHINA);
 //		downloadCompanyLists();
 //		downloadEarningsDatesFromZach();
 //		downloadDailyTask();
@@ -37,7 +38,7 @@ public class DownloadStocksTest {
 //		downloadHTMLURLWithPostTest();
 //		downloadEarningsDatesFromTheStreet();
 //		cleanUpBadDataTwo();
-//		extractIntraDayFromMultipleDays();
+		extractIntraDayFromMultipleDays();
 //		downloadCompanyListsFromSSE();
 	}	
 	
@@ -231,18 +232,19 @@ public class DownloadStocksTest {
 	 * @throws Exception
 	 */
 	private static void extractIntraDayFromMultipleDays() throws Exception {
-		String filename = "20150217.txt";
-		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
+		String filename = "20150317.txt";
+//		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
+//		File directory = new File(StockConst.INTRADAY_DIRECTORY_SSE_PATH);
+		File directory = new File(StockConst.INTRADAY_DIRECTORY_SZSE_PATH);
 		String outputRootDirectoryString = "D:\\zzx\\Stock\\IntraDayRepair\\";
+		StockUtil.createNewDirectory(outputRootDirectoryString);
 		for (File subDirectory : directory.listFiles()) {
 			String symbol = subDirectory.getName();
 			
-//			if (!symbol.equals("PHM")) continue;
+//			if (!symbol.equals("600005")) continue;
 			String outputDirectoryString = outputRootDirectoryString + symbol + "\\";
-			File outputDirectory = new File(outputDirectoryString);
-			if (!outputDirectory.exists()) {
-				outputDirectory.mkdir();
-			}
+			StockUtil.createNewDirectory(outputDirectoryString);
+
 			String outputFilename = outputDirectoryString + filename;
 
 			for (File file : subDirectory.listFiles()) {
@@ -257,7 +259,7 @@ public class DownloadStocksTest {
 				boolean firstLine = true;
 				while ((line = br.readLine()) != null) {
 					
-					if (line.startsWith("range:20150217")) {
+					if (line.startsWith("range:20150317")) {
 						data = StockUtil.splitCSVLine(line);
 						rangeStartOne = Integer.parseInt(data[1]);
 						rangeEndOne = Integer.parseInt(data[2]);

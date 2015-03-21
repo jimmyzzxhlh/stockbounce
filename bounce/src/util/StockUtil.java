@@ -187,8 +187,12 @@ public class StockUtil {
 	
 	public static void createNewDirectory(String directory) {
 		File f = new File(directory);
-		if (f.exists()) return;
-		f.mkdir();
+		createNewDirectory(f);
+	}
+	
+	public static void createNewDirectory(File directory) {
+		if (directory.exists()) return;
+		directory.mkdir();		
 	}
 	
 	/** 

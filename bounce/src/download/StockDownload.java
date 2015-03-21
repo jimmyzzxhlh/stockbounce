@@ -387,7 +387,7 @@ public class StockDownload {
 		//Format symbol
 		String urlSymbol = StockExchange.getURLSymbol(exchange, symbol);
 	
-		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + urlSymbol + "/chartdata;type=quote;range=1d/csv";
+		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + urlSymbol + "/chartdata;type=quote;range=3d/csv";
 		boolean success = false;
 		int retry = 0;
 		while (!success && (retry < MAX_RETRY)) {
