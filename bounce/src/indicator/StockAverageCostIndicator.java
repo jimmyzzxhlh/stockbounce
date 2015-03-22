@@ -1,6 +1,8 @@
 package indicator;
 
+import intraday.IntraDayAnalysisYahoo;
 import intraday.IntraDayPriceVolumeMap;
+import intraday.IntraDayStockCandleArray;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -90,11 +92,26 @@ public class StockAverageCostIndicator {
 	private void setMapping() {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
+		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
+		try {
+			mdStockCandleArray = IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
-			HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);
-			priceVolumeMapArray.add(priceVolumeMap);
-			
+			Date date = stockCandle.date;
+			IntraDayStockCandleArray intraDayCandleArray = getIntraDayData(date, mdStockCandleArray);
+			if (intraDayCandleArray != null){
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(intraDayCandleArray);
+				priceVolumeMapArray.add(priceVolumeMap);
+				System.out.println("Reading " + symbol + "-" + date.toString());
+			}
+			else {
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);	
+				priceVolumeMapArray.add(priceVolumeMap);
+			}		
 		}
 		
 		//Set day trading distribution
@@ -103,6 +120,17 @@ public class StockAverageCostIndicator {
 		//Set daily sell rate mapping
 		sellRates = StockSellRate.getSellRates();
 		
+	}
+	
+	//Given a date, find the corresponding intraday candle array if we have the intraday data for that date
+	private IntraDayStockCandleArray getIntraDayData(Date date, ArrayList<IntraDayStockCandleArray> mdStockCandleArray) {
+		for (int i = 0; i < mdStockCandleArray.size(); i++){
+			IntraDayStockCandleArray array = mdStockCandleArray.get(i);
+			if (array.getDate().equals(date)){
+				return array;
+			}
+		}
+		return null;
 	}
 	
 	/**

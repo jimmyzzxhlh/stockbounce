@@ -1,5 +1,6 @@
 package intraday;
 
+import java.util.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public class IntraDayStockCandleArray {
 	private double high = NAN;
 	private double low = NAN;
 	private long volume = NANINT;
+	private Date date;
 	private ArrayList<Integer> highIntervals = null;
 	private ArrayList<Integer> lowIntervals = null;
 	private Timestamp ts;
@@ -57,6 +59,14 @@ public class IntraDayStockCandleArray {
 	
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
+	}
+	
+	public Date getDate(){
+		return date;
+	}
+	
+	public void setDate(Date date){
+		this.date = date;
 	}
 	
 	public Timestamp getTimestamp() {

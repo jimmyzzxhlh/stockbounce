@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import stock.StockConst;
 import util.StockUtil;
@@ -130,6 +131,8 @@ public class IntraDayAnalysisYahoo {
 			line = br.readLine();
 			if (line == null) continue;
 			IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
+			Date date = StockUtil.parseDate(StockUtil.getFilenameWithoutExtension(file.getName()));
+			idStockCandleArray.setDate(date);
 			//Store the first timestamp in idStockCandleArray. Usually it should be 8:30 AM in the morning.
 			idStockCandleArray.setTimeStamp(getTimestamp(line));
 			idStockCandleArray.setSymbol(symbol);

@@ -99,10 +99,33 @@ public class IntraDayPriceVolumeMap {
 			if (!map.containsKey(priceArray[interval])) {
 				map.put(priceArray[interval], (long) (volumeDistribution[interval] * volume));
 			}
-			map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
+			else{
+				map.put(priceArray[interval], (long) (map.get(priceArray[interval]) + volumeDistribution[interval] * volume));
+			}
 		}
 
 		return map;
 	}
+	
+	// Given intraday candles, get price-volume map
+	// For each intraday candle: calculate the average of high,low,open, and close; add the volume to the map
+	public static HashMap<Integer, Long> getMap(IntraDayStockCandleArray intraDayCandleArray) {
+		HashMap<Integer, Long> map = new HashMap<Integer, Long>(); 
+		for (int i = 0; i < intraDayCandleArray.size(); i++){
+			IntraDayStockCandle intraDayCandle = intraDayCandleArray.get(i);
+			//Actual price * 100
+			int price = (int)Math.round((intraDayCandle.high +intraDayCandle.low +intraDayCandle.open + intraDayCandle.close) / 4 * 100);
+			if (!map.containsKey(price)){
+				map.put(price, intraDayCandle.volume);
+			}
+			else{
+				map.put(price, map.get(price) + intraDayCandle.volume);
+			}
+			
+		}
+		
+		return map;
+	}
+	
 
 }
