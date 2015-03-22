@@ -102,9 +102,10 @@ public class StockAverageCostIndicator {
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
 			Date date = stockCandle.date;
+			long intraDayVolume = stockCandle.getVolume();
 			IntraDayStockCandleArray intraDayCandleArray = getIntraDayData(date, mdStockCandleArray);
 			if (intraDayCandleArray != null){
-				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(intraDayCandleArray);
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(intraDayCandleArray, intraDayVolume);
 				priceVolumeMapArray.add(priceVolumeMap);
 				System.out.println("Reading " + symbol + "-" + date.toString());
 			}
