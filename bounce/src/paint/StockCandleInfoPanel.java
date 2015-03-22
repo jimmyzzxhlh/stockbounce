@@ -36,9 +36,12 @@ public class StockCandleInfoPanel extends JPanel {
 //		g.drawString("Stock candle info panel", 500, 50);
 		if (stockCandle != null) {
 			paintStockCandleInfo(g);
-			StockEarningsDate stockEarningsDate = stockCandle.getEarningsDateObject();
-			if (stockEarningsDate != null) {
-				paintEarningsInfo(g, stockEarningsDate);			
+			StockEarningsDate stockEarningsDate = stockCandle.getNextEarningsDate();
+			if ((stockEarningsDate != null) && (stockEarningsDate.getDate().equals(stockCandle.getDate()))) {
+				paintEarningsDateInfo(g, stockEarningsDate);			
+			}
+			else {
+				paintNextEarningsDateInfo(g, stockEarningsDate);
 			}
 		}
 	}
@@ -61,8 +64,17 @@ public class StockCandleInfoPanel extends JPanel {
 		g.drawString(sb.toString(), 10, 30);
 	}
 	
-	private void paintEarningsInfo(Graphics g, StockEarningsDate stockEarningsDate) {
+	private void paintEarningsDateInfo(Graphics g, StockEarningsDate stockEarningsDate) {
 		g.drawString(stockEarningsDate.toStringForGUI(), 10, 60);
+	}
+	
+	private void paintNextEarningsDateInfo(Graphics g, StockEarningsDate stockEarningsDate) {
+		if (stockEarningsDate == null) {
+			g.drawString("Next Earnings Date: N/A" , 10, 60);
+		}
+		else {
+			g.drawString(stockEarningsDate.toStringForGUIFutureDate(), 10, 60);
+		}
 	}
 	
 	public int getPanelHeight() {

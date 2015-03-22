@@ -260,12 +260,12 @@ public class StockCandle {
 		return StockCandleClass.LOWER_LONGER;
 	}
 	
-	public boolean isEarningsDate() {
-		return StockEarningsDatesMap.isEarningsDate(symbol, date);
+	public StockEarningsDate getNextEarningsDate() {
+		return StockEarningsDatesMap.getNextEarningsDate(symbol, date);
 	}
 	
-	public StockEarningsDate getEarningsDateObject() {
-		return StockEarningsDatesMap.getEarningsDateObject(symbol, date);
+	public boolean isEarningsDate() {
+		return StockEarningsDatesMap.isEarningsDate(symbol, date);
 	}
 	
 }

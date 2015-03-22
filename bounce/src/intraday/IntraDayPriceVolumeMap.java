@@ -120,7 +120,7 @@ public class IntraDayPriceVolumeMap {
 		for (int i = 0; i < intraDayCandleArray.size(); i++){
 			IntraDayStockCandle intraDayCandle = intraDayCandleArray.get(i);
 			//Actual price * 100
-			int price = (int)Math.round((intraDayCandle.high +intraDayCandle.low +intraDayCandle.open + intraDayCandle.close) / 4 * 100);
+			int price = (int)Math.round((intraDayCandle.high +intraDayCandle.low +intraDayCandle.open + intraDayCandle.close) * 100.0 / 4.0);
 			if (!map.containsKey(price)){
 				map.put(price, (long)(intraDayCandle.volume * nom));
 			}

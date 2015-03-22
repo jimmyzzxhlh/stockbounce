@@ -97,4 +97,17 @@ public class StockEarningsDate implements Comparable<StockEarningsDate>{
 		}		
 		return sb.toString();
 	}
+	
+	public String toStringForGUIFutureDate() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Next Earnings Date: " + StockUtil.formatDate(date));
+		sb.append("   Estimate: ");
+		if (hasEstimate()) {
+			sb.append(StockUtil.getRoundTwoDecimals(estimate));
+		}
+		else {
+			sb.append("None");
+		}		
+		return sb.toString();
+	}
 }

@@ -18,12 +18,12 @@ import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "MSFT";
+	private static final String SYMBOL = "YHOO";
 	private static final String START_DATE = "20050101";
-	private static final String END_DATE = "20150305";
+	private static final String END_DATE = "20150321";
 	
 	public static void main(String args[]) throws Exception {
-//		downloadSingleStock();
+		downloadSingleStock();
 //		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
@@ -38,7 +38,7 @@ public class DownloadStocksTest {
 //		downloadHTMLURLWithPostTest();
 //		downloadEarningsDatesFromTheStreet();
 //		cleanUpBadDataTwo();
-		extractIntraDayFromMultipleDays();
+//		extractIntraDayFromMultipleDays();
 //		downloadCompanyListsFromSSE();
 	}	
 	

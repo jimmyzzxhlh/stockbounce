@@ -55,6 +55,7 @@ public class SettingsPanel extends JPanel {
 		addEndDateLabel();
 		addEndDateField();
 		addDrawButton();
+		addNextDateButton();
 		addIndicatorCheckBoxes();
 		
 		updateDates(StockUtil.parseDate("20140101"), StockUtil.parseDate("20150101"));
@@ -159,22 +160,27 @@ public class SettingsPanel extends JPanel {
 		this.add(endDateField);
 	}
 	
+	private void setButtonProperties(JButton button) {
+		button.setFont(StockGUIConst.BUTTON_FONT);
+		button.setForeground(StockGUIConst.BUTTON_FOREGROUND_COLOR);
+		button.setBackground(StockGUIConst.BUTTON_BACKGROUND_COLOR);
+		button.setOpaque(false);		
+	}
+	
 	private void addDrawButton() {
 		JButton drawButton = new JButton("Draw");
-		drawButton.setFont(StockGUIConst.BUTTON_FONT);
-		drawButton.setForeground(StockGUIConst.BUTTON_FOREGROUND_COLOR);
-		drawButton.setBackground(StockGUIConst.BUTTON_BACKGROUND_COLOR);
+		setButtonProperties(drawButton);
 		drawButton.setPreferredSize(new Dimension(80, 24));
-		drawButton.setOpaque(false);
 		drawButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				actionPerformedDraw();
+				drawButtonActionPerformed();
 			}
 		});
 		this.add(drawButton);
+		
 	}
 	
-	private void actionPerformedDraw() {
+	private void drawButtonActionPerformed() {
 		if (!parseInput()) return;
 		stockChartPanel.reset();
 		System.gc();
@@ -186,6 +192,24 @@ public class SettingsPanel extends JPanel {
 			aciItemListener.initializeIndicator();
 		}
 		stockChartPanel.repaint();
+		
+	}
+	
+	private void addNextDateButton() {
+		JButton nextDateButton = new JButton("Next");
+		setButtonProperties(nextDateButton);
+		nextDateButton.setPreferredSize(new Dimension(80, 24));
+		nextDateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				nextDateButtonActionPerformed();
+			}
+		});
+		this.add(nextDateButton);
+	}
+	
+	//TODO
+	private void nextDateButtonActionPerformed() {
+		
 		
 	}
 	

@@ -149,6 +149,7 @@ public class StockEarningsDatesMap {
 	
 	/**
 	 * Read earnings date CSV from a file.
+	 * Each earnings date date array list within a symbol is sorted.
 	 * @param filename
 	 * @return
 	 * @throws Exception
@@ -185,6 +186,7 @@ public class StockEarningsDatesMap {
 					}
 				}
 			}
+			Collections.sort(dates);
 			earningsDatesMap.put(symbol, dates);
 		}
 		br.close();
@@ -343,23 +345,35 @@ public class StockEarningsDatesMap {
 		sfw.close();
 	}
 
+	/**
+	 * Return true if the input date is an earnings date for the symbol, false if not.
+	 * @param symbol
+	 * @param date
+	 * @return
+	 */
 	public static boolean isEarningsDate(String symbol, Date date) {
-		return (getEarningsDateObject(symbol, date) != null);
+		StockEarningsDate nextStockEarningsDate = getNextEarningsDate(symbol, date);
+		if (nextStockEarningsDate == null) return false;
+		return (nextStockEarningsDate.getDate().equals(date));
 	}
 	
-	
-	public static StockEarningsDate getEarningsDateObject(String symbol, Date date) {
-		StockEarningsDate stockEarningsDate = null;
+	/**
+	 * Get next earnings date object. The earnings date should be on or after the current date.
+	 * @param symbol
+	 * @param date
+	 * @return
+	 */
+	public static StockEarningsDate getNextEarningsDate(String symbol, Date date) {
 		if (map == null) setMap();
-		if (!map.containsKey(symbol)) return stockEarningsDate;
+		if (!map.containsKey(symbol)) return null;
 		ArrayList<StockEarningsDate> earningsDates = map.get(symbol);
-		for (int i = 0; i < earningsDates.size(); i++) {
-			if (date.equals(earningsDates.get(i).getDate())) {
-				stockEarningsDate = earningsDates.get(i);
+		for (StockEarningsDate stockEarningsDate : earningsDates) {
+			//Find the next earnings date on or after the current date.
+			if (!stockEarningsDate.getDate().before(date)) {
 				return stockEarningsDate;			
 			}
 		}
-		return stockEarningsDate;	
+		return null;
 	}
 
 

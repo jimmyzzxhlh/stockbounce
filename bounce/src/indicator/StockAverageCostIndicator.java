@@ -14,7 +14,9 @@ import java.util.Map.Entry;
 import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
+import stock.StockConst;
 import stock.StockDayTradingDistribution;
+import stock.StockFileWriter;
 import stock.StockSellRate;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
@@ -101,13 +103,15 @@ public class StockAverageCostIndicator {
 		}
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
-			Date date = stockCandle.date;
 			long intraDayVolume = stockCandle.getVolume();
-			IntraDayStockCandleArray intraDayCandleArray = getIntraDayData(date, mdStockCandleArray);
-			if (intraDayCandleArray != null){
-				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(intraDayCandleArray, intraDayVolume);
+			IntraDayStockCandleArray idStockCandleArray = null;
+			if (StockConst.USE_INTRADAY_DATA) {
+				idStockCandleArray = getIntraDayData(stockCandle.getDate(), mdStockCandleArray);
+			}
+			if (idStockCandleArray != null){
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(idStockCandleArray, intraDayVolume);
 				priceVolumeMapArray.add(priceVolumeMap);
-				System.out.println("Reading " + symbol + "-" + date.toString());
+				System.out.println("Reading " + symbol + "-" + stockCandle.getDate().toString());
 			}
 			else {
 				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);	
@@ -232,6 +236,36 @@ public class StockAverageCostIndicator {
 		return dateIndexList;
 	}
 	
+	/**
+	 * Daily task API function for analyzing average cost indicators.
+	 * This should be called after finishing downloading intraday data every night.
+	 */
+	public static void analyzeIndicator() throws Exception {
+		analyzeIndicatorReverseUp();
+	}
+	
+	/**
+	 * Check if there is any reverse up signal for symbol lists from all markets.
+	 */
+	public static void analyzeIndicatorReverseUp() throws Exception {
+		//Create an output log file.
+		Date today = new Date();
+		StockUtil.createNewDirectory(StockConst.AVERAGE_COST_ANALYSIS_PATH);
+		String filename = StockConst.AVERAGE_COST_ANALYSIS_PATH + StockUtil.formatDate(today) + ".txt";
+		//Analyze each market
+		StockFileWriter sfw = new StockFileWriter(filename);
+		sfw.writeLine("United States:");
+		analyzeIndicatorReverseUp(StockAPI.getUSSymbolList());
+		sfw.writeLine("Shanghai Stock Exchange:");
+		analyzeIndicatorReverseUp(StockAPI.getSSESymbolList());
+		sfw.writeLine("ShenZhen Stock Exchange:");
+		analyzeIndicatorReverseUp(StockAPI.getSZSESymbolList());
+		sfw.close();		
+	}
+	
+	public static void analyzeIndicatorReverseUp(ArrayList<String> symbolList) {
+		
+	}
 	
 	
 }
