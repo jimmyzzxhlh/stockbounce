@@ -13,6 +13,8 @@ import util.StockUtil;
 
 public class IntraDayAnalysisYahoo {
 	
+	private static String symbol;
+	private static ArrayList<IntraDayStockCandleArray> mdStockCandleArray;
 	/**
 	 * Return timestamp from a line in the intraday data.
 	 * e.g.
@@ -114,10 +116,15 @@ public class IntraDayAnalysisYahoo {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArray(String symbol) throws Exception {
+	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArray(String inputSymbol) throws Exception {
+		//If the symbol has not changed then do not reread all the intraday files, which is very inefficient.
+		if ((symbol != null) && symbol.equals(inputSymbol)) {
+			return mdStockCandleArray;
+		}
+		symbol = inputSymbol;
 		//Create an object of multi-days stock candle array.
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
-		//Read from a folder.
+		mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
+		//Read from a folder
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
 		for (File file : directory.listFiles()) {
 			System.out.println(file.getAbsolutePath());
