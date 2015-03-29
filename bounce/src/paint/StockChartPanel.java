@@ -83,6 +83,10 @@ public class StockChartPanel extends JPanel {
 		this.setOpaque(false);
 	}
 	
+	public double getStockCandleBodyWidth() {
+		return stockCandleBodyWidth;
+	}
+	
 	public void reset() {
 		startDate = null;
 		endDate = null;

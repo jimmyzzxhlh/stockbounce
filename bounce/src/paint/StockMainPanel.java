@@ -88,10 +88,8 @@ public class StockMainPanel extends JPanel {
 	 * @param y
 	 */
 	
+	//TODO
 	public void handleMouseMovement(int x, int y) {
-		//TODO: Get the stock candle from the mouse movement.
-		
-		
 		//Update the text for the stock candle
 		updateStockCandleInfo();
 		

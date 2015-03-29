@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import paint.StockChartPanel;
+import paint.StockGUIConst;
 import paint.StockGUIUtil;
 import stock.StockCandleArray;
 
@@ -33,8 +34,11 @@ public class AverageCostUpperIndicator extends UpperIndicatorAbstract {
 //		System.out.println("indicator repainting");
 		double[] xArray = new double[stockChartPanel.getStockCandleArray().size()];
 		double[] yArray = new double[stockChartPanel.getStockCandleArray().size()];
+		//Get half of the stock candle body width and apply it to the X coordinate, so that the indicator is drawn at the
+		//middle instead of drawn at the left side of the stock candle.
+		double stockCandleBodyWidthHalf = stockChartPanel.getStockCandleBodyWidth() * 0.5;
 		for (int i = stockChartPanel.getStartDateIndex(); i <= stockChartPanel.getEndDateIndex(); i++) {
-			xArray[i] = stockChartPanel.getTranslatedXFromIndex(i);
+			xArray[i] = stockChartPanel.getTranslatedXFromIndex(i) + stockCandleBodyWidthHalf;
 			yArray[i] = stockChartPanel.getTranslatedYFromPrice(indicatorArray[i]);			
 		}		
 		for (int i = stockChartPanel.getStartDateIndex() + 1; i <= stockChartPanel.getEndDateIndex(); i++) {
