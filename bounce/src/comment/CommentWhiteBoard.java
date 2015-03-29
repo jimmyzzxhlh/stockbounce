@@ -125,6 +125,15 @@ package comment;
  * 2. 周线出现2连阳，影线越短越好，每根线实体涨幅+5%。
  * 3. 出场信号是10周线变的很平（5周没有涨幅）或者斜率向下。
  * 
+ * TODO (2015/3/28)
+ * Use trailing stop to calculate performance of the model
+ * Ideally: Trigger price = Highest bid price achieved - Trail amount (or Trail amount percentage)
+ * With intraday data: update the "highest bid price" minute by minute; sell when the trigger price is obtained
+ * Without intraday data:
+ * (1) Rising market: open -> low -> high -> close
+ * Order is triggered when (open - low) or (high - close) is larger than or equal to the trigger amount
+ * (2) Losing market: open -> high -> low -> close
+ * Order is triggered when (high - low) is larger than or equal to the trigger amount
  */
 
 public class CommentWhiteBoard {
