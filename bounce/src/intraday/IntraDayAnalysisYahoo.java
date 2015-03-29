@@ -120,6 +120,7 @@ public class IntraDayAnalysisYahoo {
 		//Read from a folder.
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
 		for (File file : directory.listFiles()) {
+			System.out.println(file.getAbsolutePath());
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line;
 			//Skip the first few lines until we hit the first timestamp that needs to be processed.

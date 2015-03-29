@@ -55,6 +55,7 @@ public class SettingsPanel extends JPanel {
 		addEndDateLabel();
 		addEndDateField();
 		addDrawButton();
+		addPreviousDateButton();
 		addNextDateButton();
 		addIndicatorCheckBoxes();
 		
@@ -207,11 +208,115 @@ public class SettingsPanel extends JPanel {
 		this.add(nextDateButton);
 	}
 	
-	//TODO
-	private void nextDateButtonActionPerformed() {
-		
-		
+	private void addPreviousDateButton() {
+		JButton previousDateButton = new JButton("Previous");
+		setButtonProperties(previousDateButton);
+		previousDateButton.setPreferredSize(new Dimension(120, 24));
+		previousDateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				previousDateButtonActionPerformed();
+			}
+		});
+		this.add(previousDateButton);
 	}
+	
+	private void nextDateButtonActionPerformed() {
+		LocalDate lastLocalDate = stockChartPanel.getStockCandleArray().getEndLocalDate();
+		boolean startOutOfBound = false;
+		boolean endOutOfBound = false;
+		//Get the next available start date and end date.
+		do {
+			endLocalDate = endLocalDate.plusDays(1);
+			if (endLocalDate.isAfter(lastLocalDate)) {
+				endOutOfBound = true;
+				break;
+			}			
+			if (stockChartPanel.getStockCandleArray().hasDate(endLocalDate)) {
+				break;
+			}
+		}
+		while (true);
+		
+		if (endOutOfBound) {
+			StockGUIUtil.showWarningMessageDialog("No more data is available after " + StockUtil.formatDate(lastLocalDate), "Invalid date");
+			return;
+		}
+		//If end date is not out of bound then start date is very probably not
+		//out of bound as well. So we do not necessarily need to check the start date bound
+		//but just in case...
+		
+		do {
+			startLocalDate = startLocalDate.plusDays(1);
+			if (startLocalDate.isAfter(lastLocalDate)) {
+				startOutOfBound = true;
+			}
+			if (stockChartPanel.getStockCandleArray().hasDate(startLocalDate)) {
+				break;
+			}			
+		}
+		while (true);
+		
+		if (startOutOfBound) {
+			StockGUIUtil.showWarningMessageDialog("No more data is available after " + StockUtil.formatDate(lastLocalDate), "Invalid date");
+			return;
+		}
+		
+		startDateField.setText(StockUtil.formatDate(startLocalDate));
+		endDateField.setText(StockUtil.formatDate(endLocalDate));
+		//Draw the new dates.
+		drawButtonActionPerformed();		
+	}
+	
+	private void previousDateButtonActionPerformed() {
+		LocalDate firstLocalDate = stockChartPanel.getStockCandleArray().getStartLocalDate();
+		boolean startOutOfBound = false;
+		boolean endOutOfBound = false;
+		
+		//Get the previous available start date and end date.
+		
+		do {
+			startLocalDate = startLocalDate.minusDays(1);
+			if (startLocalDate.isBefore(firstLocalDate)) {
+				startOutOfBound = true;
+			}
+			if (stockChartPanel.getStockCandleArray().hasDate(startLocalDate)) {
+				break;
+			}			
+		}
+		while (true);
+		
+		if (startOutOfBound) {
+			StockGUIUtil.showWarningMessageDialog("No more data is available before " + StockUtil.formatDate(firstLocalDate), "Invalid date");
+			return;
+		}
+		
+		//If start date is not out of bound then end date is very probably not
+		//out of bound as well. So we do not necessarily need to check the end date bound
+		//but just in case...
+				
+		do {
+			endLocalDate = endLocalDate.minusDays(1);
+			if (endLocalDate.isBefore(firstLocalDate)) {
+				endOutOfBound = true;
+				break;
+			}			
+			if (stockChartPanel.getStockCandleArray().hasDate(endLocalDate)) {
+				break;
+			}
+		}
+		while (true);
+		
+		if (endOutOfBound) {
+			StockGUIUtil.showWarningMessageDialog("No more data is available before " + StockUtil.formatDate(firstLocalDate), "Invalid date");
+			return;
+		}
+		
+		startDateField.setText(StockUtil.formatDate(startLocalDate));
+		endDateField.setText(StockUtil.formatDate(endLocalDate));
+		//Draw the new dates.
+		drawButtonActionPerformed();		
+	}
+	
 	
 	private void addIndicatorCheckBoxes() {
 		addAverageCostIndicatorCheckBox();

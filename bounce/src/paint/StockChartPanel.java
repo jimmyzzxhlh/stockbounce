@@ -13,6 +13,8 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.joda.time.LocalDate;
+
 import paint.upperindicator.UpperIndicatorAbstract;
 import stock.StockAPI;
 import stock.StockCandle;
@@ -495,4 +497,6 @@ public class StockChartPanel extends JPanel {
 	public JFrame getFrame() {
 		return mainPanel.getFrame();
 	}
+	
+	
 }

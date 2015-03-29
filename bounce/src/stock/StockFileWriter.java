@@ -50,6 +50,9 @@ public class StockFileWriter {
 		newLine();
 	}
 	
+	public void flush() throws Exception {
+		bw.flush();
+	}
 	
 	public void close() {
 		try {

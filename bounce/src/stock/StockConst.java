@@ -43,7 +43,7 @@ public class StockConst {
 	public static final String AVERAGE_COST_ANALYSIS_PATH = "D:\\zzx\\Stock\\AverageCostAnalysis\\";
 	
 	//Use intraday data flag
-	public static final boolean USE_INTRADAY_DATA = false;
+	public static final boolean USE_INTRADAY_DATA = true;
 	
 	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 500;
 	

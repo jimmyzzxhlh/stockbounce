@@ -1,5 +1,7 @@
 package test;
 
+import indicator.StockAverageCostIndicator;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,13 +20,13 @@ import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "YHOO";
+	private static final String SYMBOL = "ES";
 	private static final String START_DATE = "20050101";
 	private static final String END_DATE = "20150321";
 	
 	public static void main(String args[]) throws Exception {
-		downloadSingleStock();
-//		downloadStocks();
+//		downloadSingleStock();
+		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();
@@ -40,6 +42,7 @@ public class DownloadStocksTest {
 //		cleanUpBadDataTwo();
 //		extractIntraDayFromMultipleDays();
 //		downloadCompanyListsFromSSE();
+//		analyzeIndicator();
 	}	
 	
 	private static void downloadSingleStock() throws Exception {
@@ -379,5 +382,9 @@ public class DownloadStocksTest {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static void analyzeIndicator() throws Exception {
+		StockAverageCostIndicator.analyzeIndicator();
 	}
 }

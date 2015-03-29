@@ -14,14 +14,14 @@ import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
 
 public class AverageCostIndicatorTest {
-	private static final String TEST_SYMBOL = "ABT";
+	private static final String TEST_SYMBOL = "CAMT";
 	
-	public static void main(String args[]) {
-//		testAverageCostIndicator();
-		testAverageCostIndicatorReverseUp();
+	public static void main(String args[]) throws Exception {
+		testAverageCostIndicator();
+//		testAverageCostIndicatorReverseUp();
 	}
 	
-	public static void testAverageCostIndicator() {
+	public static void testAverageCostIndicator() throws Exception {
 		StockAverageCostIndicator indicator = new StockAverageCostIndicator(TEST_SYMBOL);
 		StockCandleArray stockCandleArray = indicator.getStockCandleArray();
 
@@ -35,7 +35,7 @@ public class AverageCostIndicatorTest {
 		}
 	}
 	
-	public static void testAverageCostIndicatorReverseUp() {
+	public static void testAverageCostIndicatorReverseUp() throws Exception {
 		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
 		int dateCount = 0;
 		for (String symbol : symbolList) {

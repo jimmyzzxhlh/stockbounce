@@ -40,7 +40,7 @@ import util.StockUtil;
  */
 public class StockDownload {
 
-	private static final Date DEFAULT_START_DATE = StockUtil.parseDate("20060101");
+	private static final Date DEFAULT_START_DATE = StockUtil.parseDate("20050101");
 	private static final String TEMPORARY_SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\MarketCap_Temp.csv";
 	private static final String TEMPORARY_PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose_Temp.csv"; 
 	private final static int MAX_RETRY = 5;
@@ -83,7 +83,8 @@ public class StockDownload {
 	}
 	
 	public StockDownload() {
-		
+		this.startDate = DEFAULT_START_DATE;
+		this.endDate = new Date();
 	}
 	
 	/**
@@ -164,7 +165,7 @@ public class StockDownload {
         String endDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
         String endYear = Integer.toString(cal.get(Calendar.YEAR));
         String siteAddr = "http://ichart.finance.yahoo.com/table.csv?s="+symbol+"&d="+endMonth+"&e="+endDay+"&f="+endYear+"&g=d&a="+startMonth+"&b="+startDay+"&c="+startYear+"&ignore=.csv";
-		System.out.println(siteAddr);
+//		System.out.println(siteAddr);
         URL site = new URL(siteAddr);
         ReadableByteChannel rbc = Channels.newChannel(site.openStream());
 		FileOutputStream fos = new FileOutputStream(file);

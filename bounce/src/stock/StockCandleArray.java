@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
+import org.joda.time.LocalDate;
+
 import stock.StockEnum.StockCandleDataType;
 
 /**
@@ -16,6 +18,8 @@ public class StockCandleArray {
 	private ArrayList<StockCandle> stockCandleArray;
 	private String symbol;
 	private long sharesOutstanding;
+	private LocalDate startLocalDate;
+	private LocalDate endLocalDate;
 	
 	public StockCandleArray(StockCandleArray inputStockCandleArray) {
 		this.stockCandleArray = new ArrayList<StockCandle>();
@@ -90,6 +94,24 @@ public class StockCandleArray {
 	public void setSharesOutstanding(long sharesOutstanding) {
 		this.sharesOutstanding = sharesOutstanding;
 	}
+	
+	/**
+	 * This function is called after we have already set the stock candle array appropriately.
+	 * Set the first date and the last date in Joda LocalDate format.
+	 */
+	public void setLocalDates() {
+		startLocalDate =  new LocalDate(getDate(0));
+		endLocalDate = new LocalDate(getDate(size() - 1));		
+	}
+	
+	public LocalDate getStartLocalDate() {
+		return startLocalDate;
+	}
+	
+	public LocalDate getEndLocalDate() {
+		return endLocalDate;
+	}
+	
 	
 	public StockCandleArray() {
 		stockCandleArray = new ArrayList<StockCandle>(); 
@@ -254,7 +276,9 @@ public class StockCandleArray {
 
 	/**
 	 * Use binary search to get the index in the stock candle array given a date.
-	 * @param date
+	 * @param date Input date
+	 * @param getNearestIndex True if we either return the exact date index or return the nearest date index (so we will always
+	 *        return a value > 0). False if we can return -1. 
 	 * @return
 	 */
 	public int getDateIndex(Date date, boolean getNearestIndex) {
@@ -292,6 +316,15 @@ public class StockCandleArray {
 	
 	public int getDateIndex(Date date) {
 		return getDateIndex(date, false);
+	}
+	
+	public boolean hasDate(Date date) {
+		return (getDateIndex(date, false) >= 0);
+	}
+	
+	public boolean hasDate(LocalDate localDate) {
+		Date date = localDate.toDate();
+		return hasDate(date);
 	}
 	
 	public boolean isLocalMax(int index, int period, StockCandleDataType dataType) {

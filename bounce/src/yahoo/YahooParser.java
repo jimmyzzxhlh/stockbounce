@@ -123,6 +123,7 @@ public class YahooParser extends StockParser {
 			e.printStackTrace();
 		}
 		stockCandleArray.sortByDate();
+		stockCandleArray.setLocalDates();
 		return stockCandleArray;
 	}
 	

@@ -16,7 +16,7 @@ public class AverageCostUpperIndicator extends UpperIndicatorAbstract {
 	}
 	
 	@Override
-	public void setIndicator(StockCandleArray stockCandleArray) {
+	public void setIndicator(StockCandleArray stockCandleArray) throws Exception {
 		StockAverageCostIndicator indicator = new StockAverageCostIndicator(stockCandleArray);
 		indicatorArray = null;
 		indicatorArray = indicator.getAverageCostArray();

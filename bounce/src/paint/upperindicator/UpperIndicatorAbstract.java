@@ -15,7 +15,7 @@ public abstract class UpperIndicatorAbstract {
 		this.stockChartPanel = stockChartPanel;
 	}
 	
-	public abstract void setIndicator(StockCandleArray stockCandleArray);
+	public abstract void setIndicator(StockCandleArray stockCandleArray) throws Exception;
 	
 	public abstract void paintIndicator(Graphics2D g2);
 	

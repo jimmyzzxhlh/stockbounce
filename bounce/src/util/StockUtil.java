@@ -255,6 +255,10 @@ public class StockUtil {
 		return simpleDateFormat.format(date);
 	}
 	
+	public static String formatDate(LocalDate localDate) {
+		return simpleDateFormat.format(localDate.toDate());
+	}
+	
 	/**
 	 * Parse a date string with date format yyyyMMdd.
 	 * @param dateString

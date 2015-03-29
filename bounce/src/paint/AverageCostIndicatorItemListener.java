@@ -43,9 +43,14 @@ public class AverageCostIndicatorItemListener implements ItemListener {
 	 * Initialize the indicator and pass the indicator to the chart panel.
 	 */
 	public void initializeIndicator() {
-		UpperIndicatorAbstract indicator = new AverageCostUpperIndicator(stockChartPanel);
-		indicator.setIndicator(stockChartPanel.getStockCandleArray());
-		stockChartPanel.setUpperIndicator(indicator);
+		try {
+			UpperIndicatorAbstract indicator = new AverageCostUpperIndicator(stockChartPanel);
+			indicator.setIndicator(stockChartPanel.getStockCandleArray());
+			stockChartPanel.setUpperIndicator(indicator);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

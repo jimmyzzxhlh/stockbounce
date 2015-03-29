@@ -17,6 +17,7 @@ import stock.StockCandleArray;
 import stock.StockConst;
 import stock.StockDayTradingDistribution;
 import stock.StockFileWriter;
+import stock.StockMarketCap;
 import stock.StockSellRate;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
@@ -39,7 +40,7 @@ public class StockAverageCostIndicator {
 	 * Read daily stock candles from a file.
 	 * @param file
 	 */
-	public StockAverageCostIndicator(File file) {
+	public StockAverageCostIndicator(File file) throws Exception {
 		stockCandleArray = StockAPI.getStockCandleArrayYahoo(file);
 		symbol = stockCandleArray.getSymbol();
 		setMapping();
@@ -49,13 +50,13 @@ public class StockAverageCostIndicator {
 	 * Read daily stock candles given a symbol.
 	 * @param symbol
 	 */
-	public StockAverageCostIndicator(String symbol) {
+	public StockAverageCostIndicator(String symbol) throws Exception {
 		this.symbol = symbol;
 		stockCandleArray = YahooParser.readCSVFile(symbol);
 		setMapping();
 	}
 	
-	public StockAverageCostIndicator(StockCandleArray stockCandleArray) {
+	public StockAverageCostIndicator(StockCandleArray stockCandleArray) throws Exception {
 		this.symbol = stockCandleArray.getSymbol();
 		this.stockCandleArray = stockCandleArray;
 		setMapping();
@@ -91,27 +92,25 @@ public class StockAverageCostIndicator {
 	 * 2. Day trading distribution.
 	 * 3. Sell rate distribution.
 	 */
-	private void setMapping() {
+	private void setMapping() throws Exception {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
 		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
-		try {
-			mdStockCandleArray = IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		mdStockCandleArray = IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
 			long intraDayVolume = stockCandle.getVolume();
 			IntraDayStockCandleArray idStockCandleArray = null;
+			//Try to use intraday data for the price / volume mapping if needed.
 			if (StockConst.USE_INTRADAY_DATA) {
 				idStockCandleArray = getIntraDayData(stockCandle.getDate(), mdStockCandleArray);
 			}
+			//If idStockCandleArray is null then we either do not have the intraday data or
+			//we are not using the intraday data.
 			if (idStockCandleArray != null){
 				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(idStockCandleArray, intraDayVolume);
 				priceVolumeMapArray.add(priceVolumeMap);
-				System.out.println("Reading " + symbol + "-" + stockCandle.getDate().toString());
+//				System.out.println("Reading " + symbol + "-" + stockCandle.getDate().toString());
 			}
 			else {
 				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);	
@@ -208,33 +207,50 @@ public class StockAverageCostIndicator {
 		return averageCostArray;
 	}
 	
+	/**
+	 * Return true if the date specified by the index has a reverse up signal.
+	 * The idea is that if the previous close is near or below the average cost line, but the current close
+	 * is much higher and above the average cost line, then the stock is reversed.
+	 * Known limitations:
+	 * 1. If there is an obvoius 
+	 * @param index
+	 * @return
+	 */
+	public boolean isReverseUp(int index) {
+		if (index <= 0) return false;
+		Date date = stockCandleArray.getDate(index);
+		double previousClose = stockCandleArray.getClose(index - 1);
+		double previousAverageCost = getAverageCost(index - 1);
+		double previousAverageCostDiff = (previousClose - previousAverageCost) / previousClose;
+		double close = stockCandleArray.getClose(index);
+		double averageCost = getAverageCost(index);
+		double averageCostDiff = (close - averageCost) / close;
+//		if (date.equals(StockUtil.parseDate("20130909"))) { 
+//			System.out.println("Previous close: " + previousClose);
+//			System.out.println("Previous average cost: " + previousAverageCost);
+//			System.out.println("Previous average cost diff: " + previousAverageCostDiff);
+//			System.out.println("Close: " + close);
+//			System.out.println("Average cost: " + averageCost);
+//			System.out.println("Average cost diff: " + averageCostDiff);
+//		}
+		if (previousAverageCostDiff > 0.01) return false;
+		if (averageCostDiff < 0) return false;
+		if (averageCostDiff - previousAverageCostDiff < StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE) return false;
+		return true;
+	}
 	
 	public ArrayList<Integer> getReverseUpDatesIndex() {
 		ArrayList<Integer> dateIndexList = new ArrayList<Integer>();
 		//Start with the second day as we need the previous close price to calculate the difference.
 		for (int i = 1; i < stockCandleArray.size(); i++) {
-			Date date = stockCandleArray.getDate(i);
-			double previousClose = stockCandleArray.getClose(i - 1);
-			double previousAverageCost = getAverageCost(i - 1);
-			double previousAverageCostDiff = (previousClose - previousAverageCost) / previousClose;
-			double close = stockCandleArray.getClose(i);
-			double averageCost = getAverageCost(i);
-			double averageCostDiff = (close - averageCost) / close;
-//			if (date.equals(StockUtil.parseDate("20130909"))) { 
-//				System.out.println("Previous close: " + previousClose);
-//				System.out.println("Previous average cost: " + previousAverageCost);
-//				System.out.println("Previous average cost diff: " + previousAverageCostDiff);
-//				System.out.println("Close: " + close);
-//				System.out.println("Average cost: " + averageCost);
-//				System.out.println("Average cost diff: " + averageCostDiff);
-//			}
-			if (previousAverageCostDiff > 0.01) continue;
-			if (averageCostDiff < 0) continue;
-			if (averageCostDiff - previousAverageCostDiff < StockIndicatorConst.AVERAGE_COST_REVERSE_UP_MIN_DIFFERENCE) continue;
-			dateIndexList.add(i);
+			if (isReverseUp(i)) {
+				dateIndexList.add(i);
+			}
 		}
 		return dateIndexList;
 	}
+	
+
 	
 	/**
 	 * Daily task API function for analyzing average cost indicators.
@@ -254,17 +270,36 @@ public class StockAverageCostIndicator {
 		String filename = StockConst.AVERAGE_COST_ANALYSIS_PATH + StockUtil.formatDate(today) + ".txt";
 		//Analyze each market
 		StockFileWriter sfw = new StockFileWriter(filename);
+		sfw.writeLine("=======================================================");
+		sfw.writeLine("Reverse Up:");
 		sfw.writeLine("United States:");
-		analyzeIndicatorReverseUp(StockAPI.getUSSymbolList());
+		analyzeIndicatorReverseUp(sfw, StockAPI.getUSSymbolList());
 		sfw.writeLine("Shanghai Stock Exchange:");
-		analyzeIndicatorReverseUp(StockAPI.getSSESymbolList());
+		analyzeIndicatorReverseUp(sfw, StockAPI.getSSESymbolList());
 		sfw.writeLine("ShenZhen Stock Exchange:");
-		analyzeIndicatorReverseUp(StockAPI.getSZSESymbolList());
+		analyzeIndicatorReverseUp(sfw, StockAPI.getSZSESymbolList());
+		sfw.writeLine("=======================================================");
 		sfw.close();		
 	}
 	
-	public static void analyzeIndicatorReverseUp(ArrayList<String> symbolList) {
-		
+	public static void analyzeIndicatorReverseUp(StockFileWriter sfw, ArrayList<String> symbolList) throws Exception {
+		int symbolCount = 0;
+		for (String symbol : symbolList) {
+			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
+			if (symbol.compareTo("SPLS") < 0) continue;
+			symbolCount++;
+			System.out.println(symbol);
+			StockAverageCostIndicator indicator = new StockAverageCostIndicator(symbol);
+			StockCandleArray stockCandleArray = indicator.getStockCandleArray();
+			if (indicator.isReverseUp(stockCandleArray.size() - 1)) {
+				sfw.writeLine(symbol);
+			}
+			if (symbolCount % 50 == 0) {
+				sfw.flush();
+			}
+			indicator.destroy();
+			System.gc();
+		}
 	}
 	
 	
