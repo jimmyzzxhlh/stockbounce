@@ -48,7 +48,7 @@ public class IntraDayAnalysisGoogle {
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
 		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt");
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = getIntraDayStockCandleArray(file);
+		MultipleDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(file);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			long volumeDay = 0;
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -101,11 +101,11 @@ public class IntraDayAnalysisGoogle {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArray(File file) throws Exception {
+	public static MultipleDaysStockCandleArray getIntraDayStockCandleArray(File file) throws Exception {
 		//Create an object of multi-days stock candle array.
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
-		BufferedReader br = new BufferedReader(new FileReader(file));
 		String symbol = StockUtil.getSymbolFromFile(file);
+		MultipleDaysStockCandleArray mdStockCandleArray = new MultipleDaysStockCandleArray(symbol);
+		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
 		//Skip the first few lines until we hit the first day that needs to be processed.
 		while ((line = br.readLine()) != null) {
@@ -168,7 +168,7 @@ public class IntraDayAnalysisGoogle {
 		for (File file : directory.listFiles()) {
 			String symbol = StockUtil.getSymbolFromFile(file);
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = getIntraDayStockCandleArray(file);
+			MultipleDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(file);
 			double estimatedTotalCapital = 0;
 			double realTotalCapital = 0;
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {

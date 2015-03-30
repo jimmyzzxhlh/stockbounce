@@ -27,7 +27,7 @@ public class StockEarningsDate implements Comparable<StockEarningsDate>{
 	
 	public int compareTo(StockEarningsDate stockEarningsDate) {
 		return date.compareTo(stockEarningsDate.getDate());
-}
+	}
 	
 	public StockEarningsDate(String symbol, Date date, double estimate, EarningsTimeType type, double reported){
 		this.symbol = symbol;

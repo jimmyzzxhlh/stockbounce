@@ -31,6 +31,10 @@ public class StockCandle {
 			
 	}
 	
+	/**
+	 * Make a copy of the input stock candle
+	 * @param inputStockCandle
+	 */
 	public StockCandle(StockCandle inputStockCandle) {
 		this.open = inputStockCandle.open;
 		this.close = inputStockCandle.close;
@@ -53,6 +57,11 @@ public class StockCandle {
 		this.low = low;
 		this.volume = volume;
 		this.adjClose = adjClose;
+	}
+	
+	public void destroy() {
+		//We are not destroying this object because the mapping is used by other symbols as well.
+		sharesOutstandingMap = null;
 	}
 	
 	/**

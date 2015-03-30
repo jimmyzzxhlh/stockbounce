@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import stock.StockAPI;
 import stock.StockConst;
+import stock.StockEarningsDate;
 import stock.StockEnum.StockCandleClass;
 
 /**
@@ -14,7 +15,7 @@ import stock.StockEnum.StockCandleClass;
  * @author jimmyzzxhlh-Dell
  *
  */
-public class IntraDayStockCandleArray {
+public class IntraDayStockCandleArray implements Comparable<IntraDayStockCandleArray> {
 	private static final double NAN = -1e10;
 	private static final int NANINT = -1;
 	private ArrayList<IntraDayStockCandle> stockCandleArray = null;
@@ -37,6 +38,31 @@ public class IntraDayStockCandleArray {
 	
 	public IntraDayStockCandle get(int index) {
 		return stockCandleArray.get(index);
+	}
+	
+	/**
+	 * Destroy the object for garbage collection.
+	 */
+	public void destroy() {
+		if (stockCandleArray != null) {
+			stockCandleArray.clear();
+			stockCandleArray = null;
+		}
+		if (highIntervals != null) {
+			highIntervals.clear();
+			highIntervals = null;
+		}
+		if (lowIntervals != null) {
+			lowIntervals.clear();
+			lowIntervals = null;
+		}
+		if (sharesOutstandingMap != null) {
+			sharesOutstandingMap.clear();
+			sharesOutstandingMap = null;
+		}
+		symbol = null;
+		date = null;
+		ts = null;		
 	}
 	
 	public void add(IntraDayStockCandle intraDayStockCandle) {
@@ -277,6 +303,16 @@ public class IntraDayStockCandleArray {
 			totalCapital += averagePrice * idStockCandle.getVolume();			
 		}
 		return totalCapital;
+	}
+
+	/**
+	 * Function for comparing to another intraday stock candle array.
+	 * This allows us to sort a multiple days intraday stock candle array object.
+	 * @param idStockCandleArray
+	 * @return
+	 */
+	public int compareTo(IntraDayStockCandleArray idStockCandleArray) {
+		return date.compareTo(idStockCandleArray.getDate());
 	}
 	
 	

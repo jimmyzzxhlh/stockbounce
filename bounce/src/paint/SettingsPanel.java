@@ -18,6 +18,7 @@ import javax.swing.text.AbstractDocument;
 
 import org.joda.time.LocalDate;
 
+import paint.upperindicator.AverageCostIndicatorItemListener;
 import util.StockUtil;
 
 /**
@@ -60,7 +61,7 @@ public class SettingsPanel extends JPanel {
 		addIndicatorCheckBoxes();
 		
 		updateDates(StockUtil.parseDate("20140101"), StockUtil.parseDate("20150101"));
-		updateSymbol("CAMT");
+		symbolTextField.setText("CAMT");  //Do not call updateSymbol function since we do not want to initialize the symbol variable.
 	}
 	
 	public LocalDate getStartLocalDate() {
@@ -182,15 +183,30 @@ public class SettingsPanel extends JPanel {
 	}
 	
 	private void drawButtonActionPerformed() {
+		String oldSymbol = this.symbol;
+		boolean resetAll = false;
 		if (!parseInput()) return;
-		stockChartPanel.reset();
-		System.gc();
+		
+		//If new symbol equals to the old symbol then do not reset objects such as stock candle array.
+		if ((symbol != null) && (symbol.equals(oldSymbol))) {
+			stockChartPanel.resetSymbolNotChanged();
+		}
+		else {
+			stockChartPanel.resetAll();
+			resetAll = true;
+			System.gc();
+		}		
 		stockChartPanel.setSymbol(symbol);
 		stockChartPanel.setStartDate(startLocalDate.toDate());
 		stockChartPanel.setEndDate(endLocalDate.toDate());
-		if (!stockChartPanel.initializeStockCandleArray()) return;
-		if (averageCostIndicatorCheckBox.isSelected()) {
-			aciItemListener.initializeIndicator();
+		//If resetting all the objects then we need to read the data from stock candle array file again.
+		if (!stockChartPanel.initializeStockCandleArray(resetAll)) return;
+		//Since we are resetting all the objects we will reinitialize the indicator object.
+		if (resetAll) {
+			if (averageCostIndicatorCheckBox.isSelected()) {
+				aciItemListener.initializeIndicator();
+				aciItemListener.setIsShown(true);
+			}
 		}
 		stockChartPanel.repaint();
 		

@@ -13,8 +13,6 @@ import util.StockUtil;
 
 public class IntraDayAnalysisYahoo {
 	
-	private static String symbol;
-	private static ArrayList<IntraDayStockCandleArray> mdStockCandleArray;
 	/**
 	 * Return timestamp from a line in the intraday data.
 	 * e.g.
@@ -57,7 +55,7 @@ public class IntraDayAnalysisYahoo {
 	 */
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = getIntraDayStockCandleArray(symbol);
+		MultipleDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(symbol);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			long volumeDay = 0;
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -75,7 +73,7 @@ public class IntraDayAnalysisYahoo {
 	 */
 	public static void printDailyPriceForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = getIntraDayStockCandleArray(symbol);
+		MultipleDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(symbol);
 		System.out.println("Date Time Open High Low Close");
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -116,14 +114,9 @@ public class IntraDayAnalysisYahoo {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ArrayList<IntraDayStockCandleArray> getIntraDayStockCandleArray(String inputSymbol) throws Exception {
-		//If the symbol has not changed then do not reread all the intraday files, which is very inefficient.
-		if ((symbol != null) && symbol.equals(inputSymbol)) {
-			return mdStockCandleArray;
-		}
-		symbol = inputSymbol;
+	public static MultipleDaysStockCandleArray getIntraDayStockCandleArray(String symbol) throws Exception {
 		//Create an object of multi-days stock candle array.
-		mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
+		MultipleDaysStockCandleArray mdStockCandleArray = new MultipleDaysStockCandleArray(symbol);
 		//Read from a folder
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
 		for (File file : directory.listFiles()) {
@@ -164,6 +157,8 @@ public class IntraDayAnalysisYahoo {
 			mdStockCandleArray.add(idStockCandleArray);
 			br.close();
 		}
+		//Sort by dates.
+		mdStockCandleArray.sortByDate();
 		return mdStockCandleArray;
 	}
 }

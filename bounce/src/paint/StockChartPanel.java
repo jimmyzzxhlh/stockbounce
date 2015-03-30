@@ -13,9 +13,7 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.joda.time.LocalDate;
-
-import paint.upperindicator.UpperIndicatorAbstract;
+import paint.upperindicator.AverageCostUpperIndicator;
 import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockCandleArray;
@@ -60,7 +58,7 @@ public class StockChartPanel extends JPanel {
 	private int priceLabelWidth;
 	private int priceLabelHeight; 
 	
-	private UpperIndicatorAbstract upperIndicator;
+	private AverageCostUpperIndicator averageCostUpperIndicator;
 	
 	private StockCandleArray stockCandleArray;
 	private StockCandleArray normalizedStockCandleArray;
@@ -87,13 +85,39 @@ public class StockChartPanel extends JPanel {
 		return stockCandleBodyWidth;
 	}
 	
-	public void reset() {
+	/**
+	 * Reset all the variables, including stock candle array and indicator objects.
+	 */
+	public void resetAll() {
+		//Reset variables that could be changed even if the symbol is not changed.
+		resetSymbolNotChanged();
+		
+		//Reset variables that could be changed only when symbol is changed.
+		symbol = null;
+		if (averageCostUpperIndicator != null) {
+			averageCostUpperIndicator.destroy();
+			averageCostUpperIndicator = null;
+		}
+			
+		if (stockCandleArray != null) { 
+			stockCandleArray.destroy();
+			stockCandleArray = null;
+		}
+		if (normalizedStockCandleArray != null) {
+			normalizedStockCandleArray.destroy();
+			normalizedStockCandleArray = null;
+		}		
+	}
+	
+	/**
+	 * Reset some of the variables, but the symbol is not changed.
+	 */
+	public void resetSymbolNotChanged() {
 		startDate = null;
 		endDate = null;
 		startDateIndex = 0;
 		endDateIndex = 0;
 		daysTotal = 0;
-		symbol = null;
 		stockCandleTotalWidth = 0;
 		stockCandleBodyWidth = 0;
 		stockCandleDistanceWidth = 0;
@@ -115,15 +139,6 @@ public class StockChartPanel extends JPanel {
 		priceLabelY = 0;
 		priceLabelWidth = 0;
 		priceLabelHeight = 0; 
-		upperIndicator = null;		
-		if (stockCandleArray != null) { 
-			stockCandleArray.destroy();
-		}
-		stockCandleArray = null;
-		if (normalizedStockCandleArray != null) {
-			normalizedStockCandleArray.destroy();
-		}
-		normalizedStockCandleArray = null;
 	}
 	
 	private void handleMouseMoved(MouseEvent e) {
@@ -253,8 +268,10 @@ public class StockChartPanel extends JPanel {
 		return stockCandleArray;
 	}
 	
-	public boolean initializeStockCandleArray() {
-		this.stockCandleArray = StockAPI.getStockCandleArrayYahoo(symbol);
+	public boolean initializeStockCandleArray(boolean readFile) {
+		if (readFile) {
+			this.stockCandleArray = StockAPI.getStockCandleArrayYahoo(symbol);
+		}
 		if (stockCandleArray == null) {
 			StockGUIUtil.showWarningMessageDialog("Symbol " + symbol + " is not valid.", "Invalid Symbol");
 			return false;
@@ -291,7 +308,7 @@ public class StockChartPanel extends JPanel {
 		paintMouseHorizontalLine(g2);
 		paintMouseVerticalLine(g2);
 		paintPriceLabel(g2);
-		paintIndicators(g2);
+		paintAverageCostUpperIndicator(g2);
 	}
 
 	private void initializeChartParameters(Graphics2D g2) {
@@ -434,21 +451,15 @@ public class StockChartPanel extends JPanel {
 		g2.drawString(priceLabel, (float) priceLabelX + 3, (float) priceLabelY - 3);
 	}
 	
-	public void setUpperIndicator(UpperIndicatorAbstract upperIndicator) {
-		this.upperIndicator = upperIndicator;
+	public void setAverageCostUpperIndicator(AverageCostUpperIndicator averageCostUpperIndicator) {
+		this.averageCostUpperIndicator = averageCostUpperIndicator;
 	}
 	
-	public void destroyUpperIndicator() {
-		if (upperIndicator == null) return;
-		upperIndicator.destroy();
-		upperIndicator = null;
-	}
-	
-	
-	private void paintIndicators(Graphics2D g2Input) {
-		if (upperIndicator == null) return;
+	private void paintAverageCostUpperIndicator(Graphics2D g2Input) {
+		if (averageCostUpperIndicator == null) return;
+		if (!averageCostUpperIndicator.getIsShown()) return;
 		Graphics2D g2 = getTranslatedG2(g2Input);
-		upperIndicator.paintIndicator(g2);
+		averageCostUpperIndicator.paintIndicator(g2);
 	}
 	
 	public double getTranslatedYFromPrice(double price) {

@@ -134,6 +134,11 @@ package comment;
  * Order is triggered when (open - low) or (high - close) is larger than or equal to the trigger amount
  * (2) Losing market: open -> high -> low -> close
  * Order is triggered when (high - low) is larger than or equal to the trigger amount
+ * 
+ * Need a class to combine the intraday data and the daily data so that we can provide some interfaces for reading
+ * the stock data at any time. The class can compute the profit / loss given the daily data, intraday data, 
+ * trailing stop, and when a position is opened.
+ * 
  */
 
 public class CommentWhiteBoard {

@@ -114,7 +114,7 @@ public class IntraDayLowHighIntervalMap {
 		
 		for (File file : directory.listFiles()) {
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			ArrayList<IntraDayStockCandleArray> mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
+			MultipleDaysStockCandleArray mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
 			for (int i = 0; i < mdStockCandleArray.size(); i++) {
 				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
 				StockCandleClass candleClass = idStockCandleArray.getCandleClass();

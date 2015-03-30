@@ -1,10 +1,9 @@
-package paint;
+package paint.upperindicator;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import paint.upperindicator.AverageCostUpperIndicator;
-import paint.upperindicator.UpperIndicatorAbstract;
+import paint.StockChartPanel;
 
 /**
  * Item listener for average cost indicator checkbox.
@@ -15,8 +14,16 @@ public class AverageCostIndicatorItemListener implements ItemListener {
 	
 	private StockChartPanel stockChartPanel;
 	
+	private String symbol;
+	
+	private AverageCostUpperIndicator indicator;
+	
 	public void setStockChartPanel(StockChartPanel stockChartPanel) {
 		this.stockChartPanel = stockChartPanel;
+	}
+	
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
 	}
 	
 	/**
@@ -25,18 +32,25 @@ public class AverageCostIndicatorItemListener implements ItemListener {
 	public void itemStateChanged(ItemEvent ie) {
 		if (stockChartPanel == null) return;
 		if (!stockChartPanel.hasChart()) return;
-		//If the checkbox is selected then initialize the indicator
+		 
 		if (ie.getStateChange() == ItemEvent.SELECTED) {
-			initializeIndicator();			
+			if (indicator == null) {			
+				initializeIndicator();
+			}
+			setIsShown(true);
 		}
-		//If the checkbox is deselected then destroy the indicator
 		else if (ie.getStateChange() == ItemEvent.DESELECTED) {
-			stockChartPanel.destroyUpperIndicator();
-			System.gc();
+			if (indicator != null) {
+				setIsShown(false);
+			}
 		}
 		//Repaint the indicator.
 		stockChartPanel.repaint();
 		
+	}
+	
+	public void setIsShown(boolean isShown) {
+		indicator.setIsShown(isShown);
 	}
 	
 	/**
@@ -44,9 +58,9 @@ public class AverageCostIndicatorItemListener implements ItemListener {
 	 */
 	public void initializeIndicator() {
 		try {
-			UpperIndicatorAbstract indicator = new AverageCostUpperIndicator(stockChartPanel);
-			indicator.setIndicator(stockChartPanel.getStockCandleArray());
-			stockChartPanel.setUpperIndicator(indicator);
+			indicator = new AverageCostUpperIndicator(stockChartPanel, symbol);
+			indicator.setIndicatorArray(stockChartPanel.getStockCandleArray());
+			stockChartPanel.setAverageCostUpperIndicator(indicator);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

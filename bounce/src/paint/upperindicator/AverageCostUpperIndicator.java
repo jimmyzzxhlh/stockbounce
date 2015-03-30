@@ -10,25 +10,60 @@ import paint.StockGUIConst;
 import paint.StockGUIUtil;
 import stock.StockCandleArray;
 
-public class AverageCostUpperIndicator extends UpperIndicatorAbstract {
+public class AverageCostUpperIndicator {
 
-	public AverageCostUpperIndicator(StockChartPanel stockChartPanel) {
-		super(stockChartPanel);
+	private double[] indicatorArray;
+	
+	private StockChartPanel stockChartPanel;
+	
+	private StockAverageCostIndicator indicator;
+
+	private String symbol;
+	
+	private boolean isShown;
+	
+	public AverageCostUpperIndicator(StockChartPanel stockChartPanel, String symbol) {
+		this.stockChartPanel = stockChartPanel;
+		this.symbol = symbol;
 	}
 	
-	@Override
-	public void setIndicator(StockCandleArray stockCandleArray) throws Exception {
-		StockAverageCostIndicator indicator = new StockAverageCostIndicator(stockCandleArray);
+	public void destroy() {
 		indicatorArray = null;
+		stockChartPanel = null;
+		if (indicator != null) {
+			indicator.destroy();
+			indicator = null;
+		}
+		symbol = null;
+	}
+	
+	public void setIsShown(boolean isShown) {
+		this.isShown = isShown;
+	}
+	
+	public boolean getIsShown() {
+		return isShown;
+	}
+	
+	public void setIndicatorArray(StockCandleArray stockCandleArray) throws Exception {
+		//If we are passing in exactly the same symbol then do not update and recompute the indicator again.
+		//Notice that this has a few assumptions;
+		//1. We are always reading in a full daily stock candle array.
+		//2. We have already computed the indicator value for all the dates in the stock candle array.
+		if (stockCandleArray.getSymbol().equals(symbol)) {
+			return;
+		}
+		if (indicator != null) {
+			indicator.destroy();
+			indicator = null;
+		}
+		indicator = new StockAverageCostIndicator(stockCandleArray);
 		indicatorArray = indicator.getAverageCostArray();
-		indicator.destroy();
-		indicator = null;
 //		for (int i = 0; i < indicatorArray.length; i++) {
 //			System.out.println(StockUtil.formatDate(stockCandleArray.getDate(i)) + " " + indicatorArray[i]);
 //		}
 	}
 
-	@Override
 	public void paintIndicator(Graphics2D g2) {
 		//g2 should already be translated.
 //		System.out.println("indicator repainting");

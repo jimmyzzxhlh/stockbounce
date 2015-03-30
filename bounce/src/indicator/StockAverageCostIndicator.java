@@ -3,9 +3,9 @@ package indicator;
 import intraday.IntraDayAnalysisYahoo;
 import intraday.IntraDayPriceVolumeMap;
 import intraday.IntraDayStockCandleArray;
+import intraday.MultipleDaysStockCandleArray;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +19,6 @@ import stock.StockDayTradingDistribution;
 import stock.StockFileWriter;
 import stock.StockMarketCap;
 import stock.StockSellRate;
-import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
 import yahoo.YahooParser;
 
@@ -31,6 +30,7 @@ import yahoo.YahooParser;
 public class StockAverageCostIndicator {
 
 	private StockCandleArray stockCandleArray;
+	private MultipleDaysStockCandleArray mdStockCandleArray;
 	private ArrayList<HashMap<Integer, Long>> priceVolumeMapArray;
 	private double[] dayTradingDistribution;
 	private double[] sellRates;
@@ -58,20 +58,32 @@ public class StockAverageCostIndicator {
 	
 	public StockAverageCostIndicator(StockCandleArray stockCandleArray) throws Exception {
 		this.symbol = stockCandleArray.getSymbol();
-		this.stockCandleArray = stockCandleArray;
+		//Create a new copy of the stock candle array. This is to prevent null error when
+		//we destory the object. The stock candle array object may be used by other objects (such as GUI).
+		//In most of the cases, the outter functions only need the average cost information from
+		//this class, so we should be able to destroy most of the private objects.
+		this.stockCandleArray = new StockCandleArray(stockCandleArray);
 		setMapping();
 	}
 	
 	public void destroy() {
-		stockCandleArray = null;
+		if (stockCandleArray != null) {
+			stockCandleArray.destroy();
+			stockCandleArray = null;
+		}
+		if (mdStockCandleArray != null) {
+			mdStockCandleArray.destroy();
+			mdStockCandleArray = null;
+		}
 		if (priceVolumeMapArray != null) {
 			priceVolumeMapArray.clear();
+			priceVolumeMapArray = null;
 		}
-		priceVolumeMapArray = null;
 		dayTradingDistribution = null;
 		sellRates = null;
 		symbol = null;		
 		
+		System.gc();
 	}
 	
 	/**
@@ -95,15 +107,14 @@ public class StockAverageCostIndicator {
 	private void setMapping() throws Exception {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
-		ArrayList<IntraDayStockCandleArray> mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
-		mdStockCandleArray = IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
+		mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayYahoo(symbol);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
 			long intraDayVolume = stockCandle.getVolume();
 			IntraDayStockCandleArray idStockCandleArray = null;
 			//Try to use intraday data for the price / volume mapping if needed.
 			if (StockConst.USE_INTRADAY_DATA) {
-				idStockCandleArray = getIntraDayData(stockCandle.getDate(), mdStockCandleArray);
+				idStockCandleArray = mdStockCandleArray.get(stockCandle.getDate());
 			}
 			//If idStockCandleArray is null then we either do not have the intraday data or
 			//we are not using the intraday data.
@@ -124,17 +135,6 @@ public class StockAverageCostIndicator {
 		//Set daily sell rate mapping
 		sellRates = StockSellRate.getSellRates();
 		
-	}
-	
-	//Given a date, find the corresponding intraday candle array if we have the intraday data for that date
-	private IntraDayStockCandleArray getIntraDayData(Date date, ArrayList<IntraDayStockCandleArray> mdStockCandleArray) {
-		for (int i = 0; i < mdStockCandleArray.size(); i++){
-			IntraDayStockCandleArray array = mdStockCandleArray.get(i);
-			if (array.getDate().equals(date)){
-				return array;
-			}
-		}
-		return null;
 	}
 	
 	/**

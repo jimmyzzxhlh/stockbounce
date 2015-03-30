@@ -33,9 +33,16 @@ public class StockCandleArray {
 	}
 	
 	public void destroy() {
-		if (stockCandleArray == null) return;
-		stockCandleArray.clear();
-		stockCandleArray = null;
+		if (stockCandleArray != null) {
+			for (StockCandle stockCandle : stockCandleArray) {
+				stockCandle.destroy();
+			}
+			stockCandleArray.clear();
+			stockCandleArray = null;
+		}
+		symbol = null;
+		startLocalDate = null;
+		endLocalDate = null;
 	}
 	
 	public ArrayList<StockCandle> getStockCandleArray() {
