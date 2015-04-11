@@ -39,6 +39,25 @@ public class StockEnum {
 		NONE		
 	}
 	
+	public enum StockOrderType {
+		BUY,
+		SELL,
+		BUY_LIMIT,
+		SELL_LIMIT,
+		BUY_STOP,
+		SELL_STOP
+	}
+	
+	public enum StockOrderStatus {
+		NA,
+		OPENED_MARKET,
+		OPENED_LIMIT,
+		CLOSED_MARKET,
+		CLOSED_TAKE_PROFIT,
+		CLOSED_STOP_LOSS,
+		CANCELED
+	}
+	
 	public enum StockPatternType {
 		ADVANCE_BLOCK,
 		BEARISH_BELT_HOLD,
@@ -84,5 +103,19 @@ public class StockEnum {
 		WHITE_HANGING_MAN,
 		WHITE_LONG_DAY,
 		WHITE_MARUBOZU
+	}
+	
+	public static boolean isBuyOrder(StockOrderType type) {
+		if (type == StockOrderType.BUY || type == StockOrderType.BUY_LIMIT || type == StockOrderType.BUY_STOP) { 
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isSellOrder(StockOrderType type) {
+		if (type == StockOrderType.SELL || type == StockOrderType.SELL_LIMIT || type == StockOrderType.SELL_STOP) { 
+			return true;
+		}
+		return false;
 	}
 }
