@@ -49,12 +49,12 @@ public class StockEnum {
 	}
 	
 	public enum StockOrderStatus {
-		NA,
-		OPENED_MARKET,
-		OPENED_LIMIT,
-		CLOSED_MARKET,
+		OPENED,
+		PENDING,
+		CLOSED,   //Closed at market price
 		CLOSED_TAKE_PROFIT,
-		CLOSED_STOP_LOSS,
+		CLOSED_STOP_LOSS, 
+		CLOSED_TRAILING_STOP,
 		CANCELED
 	}
 	

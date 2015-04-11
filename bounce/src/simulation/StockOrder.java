@@ -4,6 +4,7 @@ import intraday.IntraDayStockCandle;
 
 import java.util.Date;
 
+import stock.StockCandle;
 import stock.StockEnum;
 import stock.StockEnum.StockOrderStatus;
 import stock.StockEnum.StockOrderType;
@@ -19,13 +20,13 @@ public class StockOrder {
 	
 	private String symbol;
 	
-	private double open;
+	private double open;  //The buy / sell price when the order is opened. 
 	
-	private double close;
+	private double close; //The buy / sell price when the order is closed.
 	
-	private double bid;
+	private double bid;   //For buy order
 	
-	private double ask;
+	private double ask;   //For sell order
 	
 	private Date openDate;
 
@@ -109,7 +110,10 @@ public class StockOrder {
 		this.type = type;
 		//If the order type is market order, then we assume that the order is automatically opened.
 		if (type == StockOrderType.BUY || type == StockOrderType.SELL) {
-			this.status = StockOrderStatus.OPENED_MARKET;
+			this.status = StockOrderStatus.OPENED;
+		}
+		else {
+			this.status = StockOrderStatus.PENDING;
 		}
 		
 		if (StockEnum.isBuyOrder(type)) {
@@ -120,13 +124,24 @@ public class StockOrder {
 		}
 	}
 	
-	public void checkOpenOrder(IntraDayStockCandle idStockCandle) {
+	/**
+	 * Check the order status and process the order based on the current intraday stock candle.
+	 * If the order is in pending status, check if the order will be triggered to open.
+	 * If the order is in opened status, check if the order can be closed by automatic stop loss / take profit.
+	 * @param idStockCandle
+	 */
+	public void process(IntraDayStockCandle idStockCandle) {
 		
 	}
 	
-	public boolean closeOrder(String symbol, Date openDate, StockOrderType type, double closePrice) {
-		return false;
-	
+	/**
+	 * Check the order status and process the order based on the current daily stock candle.
+	 * If the order is in pending status, check if the order will be triggered to open.
+	 * If the order is in opened status, check if the order can be closed by automatic stop loss / take profit.
+	 * @param stockCandle
+	 */
+	public void process(StockCandle stockCandle) {
+		
 	}
 	
 	
