@@ -20,13 +20,13 @@ import download.StockDownload;
 
 public class DownloadStocksTest {
 	
-	private static final String SYMBOL = "ES";
+	private static final String SYMBOL = "BABA";
 	private static final String START_DATE = "20050101";
-	private static final String END_DATE = "20150321";
+	private static final String END_DATE = "20150411";
 	
 	public static void main(String args[]) throws Exception {
-//		downloadSingleStock();
-		downloadStocks();
+		downloadSingleStock();
+//		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
 //		downloadIntraDayStocksFromGoogle();

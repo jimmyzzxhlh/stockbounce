@@ -40,9 +40,9 @@ public class StockEnum {
 	}
 	
 	public enum StockOrderType {
-		BUY,
-		SELL,
-		BUY_LIMIT,
+		BUY,        //Buy at market price
+		SELL,       //Sell at market price
+		BUY_LIMIT,  //Place a pending buy order below the market price and wait for triggering
 		SELL_LIMIT,
 		BUY_STOP,
 		SELL_STOP
@@ -51,11 +51,7 @@ public class StockEnum {
 	public enum StockOrderStatus {
 		OPENED,
 		PENDING,
-		CLOSED,   //Closed at market price
-		CLOSED_TAKE_PROFIT,
-		CLOSED_STOP_LOSS, 
-		CLOSED_TRAILING_STOP,
-		CANCELED
+		CLOSED
 	}
 	
 	public enum StockPatternType {

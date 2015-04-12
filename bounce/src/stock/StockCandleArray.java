@@ -66,6 +66,11 @@ public class StockCandleArray {
 		return stockCandleArray.get(index).close;
 	}
 	
+	public double getClose(Date date) {
+		int dateIndex = this.getDateIndex(date);
+		return getClose(dateIndex);
+	}
+	
 	public long getVolume(int index) {
 		return stockCandleArray.get(index).volume;
 	}

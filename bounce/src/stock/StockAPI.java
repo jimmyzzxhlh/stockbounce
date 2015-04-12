@@ -63,7 +63,7 @@ public class StockAPI {
 	 * @throws Exception
 	 */
 	public static MultipleDaysStockCandleArray getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
-		return IntraDayAnalysisYahoo.getIntraDayStockCandleArray(symbol);
+		return IntraDayAnalysisYahoo.getMultipleDaysStockCandleArray(symbol);
 	}
 	
 	/**
