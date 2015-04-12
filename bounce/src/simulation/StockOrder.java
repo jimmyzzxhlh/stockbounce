@@ -1,11 +1,5 @@
 package simulation;
 
-import intraday.IntraDayStockCandle;
-
-import java.util.Date;
-
-import stock.StockCandle;
-import stock.StockEnum;
 import stock.StockEnum.StockOrderStatus;
 import stock.StockEnum.StockOrderType;
 
@@ -21,13 +15,10 @@ public class StockOrder {
 	
 	private String symbol;
 	
-	private double price;
+	//This is the price specified on the order
+	private double price;  
 	
 	private long shares;
-	
-	private Date placeDate;
-
-	private Date triggerDate;
 	
 	private StockOrderStatus status;
 	
@@ -41,22 +32,6 @@ public class StockOrder {
 		this.price = price;
 	}
 
-	public Date getPlaceDate() {
-		return placeDate;
-	}
-
-	public void setPlaceDate(Date placeDate) {
-		this.placeDate = placeDate;
-	}
-
-	public Date getTriggerDate() {
-		return triggerDate;
-	}
-
-	public void setTriggerDate(Date triggerDate) {
-		this.triggerDate = triggerDate;
-	}
-	
 	public StockOrderType getType() {
 		return type;
 	}
@@ -80,6 +55,14 @@ public class StockOrder {
 	public void setTrailingStop(double trailingStop) {
 		this.trailingStop = trailingStop;
 	}
+	
+	public long getShares() {
+		return shares;
+	}
+
+	public void setShares(long shares) {
+		this.shares = shares;
+	}
 
 	public StockOrderStatus getStatus() {
 		return status;
@@ -93,9 +76,18 @@ public class StockOrder {
 		
 	}
 	
+	/**
+	 * Initialize a market order.
+	 * Notice that this might not be useful for now, as for testing we are pretty much assuming that
+	 * the market order will be traded immediately.
+	 * @param symbol
+	 * @param type
+	 * @param price
+	 * @param shares
+	 * @param trailingStop
+	 */
 	public void initMarketOrder(String symbol, StockOrderType type, double price, long shares, double trailingStop) {
 		this.symbol = symbol;
-		this.placeDate = placeDate;
 		this.type = type;
 		this.price = price;
 		this.shares = shares;

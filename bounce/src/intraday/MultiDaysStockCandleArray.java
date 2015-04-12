@@ -9,13 +9,13 @@ import java.util.Date;
  * @author jimmyzzxhlh-Dell
  *
  */
-public class MultipleDaysStockCandleArray {
+public class MultiDaysStockCandleArray {
 
 	private ArrayList<IntraDayStockCandleArray> mdStockCandleArray;
 	
 	private String symbol;
 	
-	public MultipleDaysStockCandleArray(String symbol) {
+	public MultiDaysStockCandleArray(String symbol) {
 		this.symbol = symbol;
 		mdStockCandleArray = new ArrayList<IntraDayStockCandleArray>();
 	}

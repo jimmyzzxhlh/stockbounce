@@ -3,7 +3,7 @@ package stock;
 import intraday.IntraDayAnalysisGoogle;
 import intraday.IntraDayAnalysisYahoo;
 import intraday.IntraDayVolumeDistribution;
-import intraday.MultipleDaysStockCandleArray;
+import intraday.MultiDaysStockCandleArray;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class StockAPI {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultipleDaysStockCandleArray getIntraDayStockCandleArrayGoogle(File file) throws Exception {
+	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayGoogle(File file) throws Exception {
 		return IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
 	}
 	
@@ -62,7 +62,7 @@ public class StockAPI {
 	 * @return See description
 	 * @throws Exception
 	 */
-	public static MultipleDaysStockCandleArray getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
+	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
 		return IntraDayAnalysisYahoo.getMultipleDaysStockCandleArray(symbol);
 	}
 	

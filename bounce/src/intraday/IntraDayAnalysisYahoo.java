@@ -55,7 +55,7 @@ public class IntraDayAnalysisYahoo {
 	 */
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultipleDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
+		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			long volumeDay = 0;
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -73,7 +73,7 @@ public class IntraDayAnalysisYahoo {
 	 */
 	public static void printDailyPriceForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultipleDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
+		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
 		System.out.println("Date Time Open High Low Close");
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -114,9 +114,9 @@ public class IntraDayAnalysisYahoo {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultipleDaysStockCandleArray getMultipleDaysStockCandleArray(String symbol) throws Exception {
+	public static MultiDaysStockCandleArray getMultipleDaysStockCandleArray(String symbol) throws Exception {
 		//Create an object of multi-days stock candle array.
-		MultipleDaysStockCandleArray mdStockCandleArray = new MultipleDaysStockCandleArray(symbol);
+		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
 		//Read from a folder
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
 		for (File file : directory.listFiles()) {

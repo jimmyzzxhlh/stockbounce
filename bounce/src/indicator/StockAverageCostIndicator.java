@@ -3,7 +3,7 @@ package indicator;
 import intraday.IntraDayAnalysisYahoo;
 import intraday.IntraDayPriceVolumeMap;
 import intraday.IntraDayStockCandleArray;
-import intraday.MultipleDaysStockCandleArray;
+import intraday.MultiDaysStockCandleArray;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import yahoo.YahooParser;
 public class StockAverageCostIndicator {
 
 	private StockCandleArray stockCandleArray;
-	private MultipleDaysStockCandleArray mdStockCandleArray;
+	private MultiDaysStockCandleArray mdStockCandleArray;
 	private ArrayList<HashMap<Integer, Long>> priceVolumeMapArray;
 	private double[] dayTradingDistribution;
 	private double[] sellRates;

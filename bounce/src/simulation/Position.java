@@ -42,4 +42,8 @@ public class Position {
 	public double getFloatingProfit(double currentPrice) {
 		return (currentPrice - price) * shares;
 	}
+	
+	public double getFloatingProfitPercentage(double currentPrice) {
+		return (currentPrice - price) * 100.0 / price;
+	}
 }

@@ -1,7 +1,7 @@
 package simulation;
 
 import intraday.IntraDayStockCandle;
-import intraday.MultipleDaysStockCandleArray;
+import intraday.MultiDaysStockCandleArray;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -11,20 +11,27 @@ import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockEnum.StockOrderType;
 
-public class StrategySimluation {
+public class TradeSimluation {
 
 	private Portfolio portfolio;
 	
+	//Store all the pending orders for each symbol.
 	//Assume that we will not have multiple pending orders for one symbol.
 	private HashMap<String, StockOrder> pendingOrdersMap;
 	
+	//Store all the daily stock candle array for each symbol.
+	//Notice that this hashmap (and also the intraday stock candle array) may become very big.
+	//We can consider destroy the stock candle array once we have cleared the position for the symbol. 
 	private HashMap<String, StockCandleArray> stockCandleArrayMap;
 	
-	private HashMap<String, MultipleDaysStockCandleArray> mdStockCandleArrayMap;
+	//Store all the intraday stock candle array for each symbol.
+	private HashMap<String, MultiDaysStockCandleArray> mdStockCandleArrayMap;
 	
-	public StrategySimluation() {
+	public TradeSimluation() {
 		portfolio = new Portfolio();
 		pendingOrdersMap = new HashMap<String, StockOrder>();
+		stockCandleArrayMap = new HashMap<String, StockCandleArray>();
+		mdStockCandleArrayMap = new HashMap<String, MultiDaysStockCandleArray>();
 	}
 	
 	
@@ -38,6 +45,23 @@ public class StrategySimluation {
 			pendingOrdersMap = null;
 		}
 		
+		//We destory the stock candle array objects here as we are assuming that we created
+		//new objects instead of passing the stock candle array objects from a different source (such as GUI).
+		if (stockCandleArrayMap != null) {
+			for (StockCandleArray stockCandleArray : stockCandleArrayMap.values()) {
+				stockCandleArray.destroy();
+			}
+			stockCandleArrayMap.clear();
+			stockCandleArrayMap = null;
+		}
+		
+		if (mdStockCandleArrayMap != null) {
+			for (MultiDaysStockCandleArray mdStockCandleArray : mdStockCandleArrayMap.values()) {
+				mdStockCandleArray.destroy();
+			}
+			mdStockCandleArrayMap.clear();
+			mdStockCandleArrayMap = null;
+		}
 	}
 	
 	
