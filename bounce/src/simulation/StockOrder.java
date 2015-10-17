@@ -87,7 +87,7 @@ public class StockOrder {
 	 * @param trailingStop
 	 */
 	public void initMarketOrder(String symbol, StockOrderType type, double price, long shares, double trailingStop) {
-		this.symbol = symbol;
+		this.symbol = symbol; 
 		this.type = type;
 		this.price = price;
 		this.shares = shares;
