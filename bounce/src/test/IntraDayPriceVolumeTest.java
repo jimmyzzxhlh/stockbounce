@@ -1,6 +1,6 @@
 package test;
 
-import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayReaderYahoo;
 
 public class IntraDayPriceVolumeTest {
 
@@ -12,10 +12,10 @@ public class IntraDayPriceVolumeTest {
 	
 
 	private static void testPrintDailyVolume() throws Exception {
-		IntraDayAnalysisYahoo.printDailyVolumeForSingleStock();
+		IntraDayReaderYahoo.printDailyVolumeForSingleStock();
 	}
 	
 	private static void testPrintDailyPrice() throws Exception {
-		IntraDayAnalysisYahoo.printDailyPriceForSingleStock();
+		IntraDayReaderYahoo.printDailyPriceForSingleStock();
 	}
 }

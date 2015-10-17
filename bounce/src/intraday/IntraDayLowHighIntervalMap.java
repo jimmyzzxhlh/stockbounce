@@ -9,7 +9,7 @@ import java.util.HashMap;
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.StockCandleClass;
-import stock.StockFileWriter;
+import util.StockFileWriter;
 import util.StockUtil;
 
 /**

@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import stock.StockEnum.EarningsTimeType;
+import util.StockFileWriter;
 import util.StockUtil;
 
 /**

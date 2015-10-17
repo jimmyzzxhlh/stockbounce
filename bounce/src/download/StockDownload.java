@@ -25,12 +25,14 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import intraday.IntraDayReaderYahoo;
+import intraday.IntraDayStockCandleArray;
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Exchange;
 import stock.StockExchange;
-import stock.StockFileWriter;
 import stock.StockSymbolList;
+import util.StockFileWriter;
 import util.StockUtil;
 
 /**
@@ -361,13 +363,13 @@ public class StockDownload {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean downloadIntraDayStockFromYahoo(Exchange exchange, String symbol, Date today) {
+	public static boolean downloadIntraDayStockFromYahoo(Exchange exchange, String symbol, String dateString) {
 		String directory = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
 			directoryFile.mkdirs();
 		}
-		String fileStock = directory + StockUtil.formatDate(today) + ".txt";
+		String fileStock = directory + dateString + ".txt";
 		File file = new File(fileStock);
 		if (!file.exists()) {
 			try {
@@ -417,25 +419,14 @@ public class StockDownload {
 	 * @param exchange Exchange. Can be null.
 	 * @throws Exception
 	 */
-	public static void downloadIntraDayStocksFromYahoo(Exchange exchange, Date date, int sleepTime) throws Exception {
+	public static void downloadIntraDayStocksFromYahoo(Exchange exchange, String dateString, int sleepTime) throws Exception {
 		StockUtil.createNewDirectory(StockExchange.getIntraDayDirectory(exchange));
 		
-		ArrayList<String> symbolList = null;
-		switch (exchange) {
-		case SSE:
-			symbolList = StockSymbolList.getSSESymbolList();
-			break;
-		case SZSE:
-			symbolList = StockSymbolList.getSZSESymbolList();
-			break;
-		default:
-			symbolList = StockSymbolList.getUSSymbolList();
-			break;
-		}
+		ArrayList<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
+
 		if (symbolList == null) return;
 		int retry = 0;
 		int index = 0;
-		Random random = new Random();
 		while (index < symbolList.size()) {
 			String symbol = symbolList.get(index);
 			if (retry > 0) {
@@ -444,15 +435,41 @@ public class StockDownload {
 			else {
 				System.out.println(symbol);
 			}
-			boolean downloaded = downloadIntraDayStockFromYahoo(exchange, symbol, date);
-			if (downloaded) {
-//				int sleepTime = random.nextInt(30 - 15 + 1) + 15;
+			boolean downloaded = downloadIntraDayStockFromYahoo(exchange, symbol, dateString);
+			if (downloaded) {				
 				if (sleepTime > 0) {
 					StockUtil.sleepThread(sleepTime);
-				}
+				}				
 			}
 			index++;
 		}	
+	}
+	
+	public static void verifyIntraDayDataFromYahoo(Exchange exchange, String dateString) {
+		ArrayList<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
+
+		if (symbolList == null) return;
+		int errorSymbolCount = 0;
+		for (String symbol : symbolList) {
+			if (!verifyIntraDayDataFromYahoo(symbol, dateString)) {		
+				errorSymbolCount++;
+			}
+		}	
+		System.out.println("Total verified: " + symbolList.size() + ", error: " + errorSymbolCount);
+	}
+	
+	private static boolean verifyIntraDayDataFromYahoo(String symbol, String dateString) {
+		IntraDayStockCandleArray idStockCandleArray = null;
+		boolean returnValue = true;
+		try {
+			idStockCandleArray = IntraDayReaderYahoo.getIntraDayStockCandleArray(symbol, dateString);
+		}
+		catch (Exception e) {
+			System.err.println("Some error is found for " + symbol + " on + " + dateString);
+			returnValue = false;
+		}
+		if (idStockCandleArray != null) idStockCandleArray.destroy();
+		return returnValue;
 	}
 	
 	/**
@@ -560,6 +577,7 @@ public class StockDownload {
 
 	}
 	
-
+	
+	
 
 }

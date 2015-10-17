@@ -1,7 +1,7 @@
 package test;
 
-import intraday.IntraDayAnalysisGoogle;
-import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayReaderGoogle;
+import intraday.IntraDayReaderYahoo;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -38,13 +38,13 @@ public class TimestampTest {
 	
 	private static void testTimestampTwo() {
 		String line = "a1415629800,12.11,12.11,12.11,12.11,484";
-		System.out.println(IntraDayAnalysisGoogle.getTimestamp(line));
+		System.out.println(IntraDayReaderGoogle.getTimestamp(line));
 	}
 	
 	private static void testTimestampThree() {
 		Timestamp ts = new Timestamp(1418849881 * 1000L);  //Notice that we must have the "L" besides 1000 so that it is returning a long value!
 		System.out.println(ts);
-		System.out.println(IntraDayAnalysisYahoo.getIntervalFromTimestamp(ts));
+		System.out.println(IntraDayReaderYahoo.getIntervalFromTimestamp(ts));
 		
 	}
 	

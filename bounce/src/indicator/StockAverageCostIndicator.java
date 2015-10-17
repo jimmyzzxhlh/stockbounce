@@ -1,6 +1,6 @@
 package indicator;
 
-import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayReaderYahoo;
 import intraday.IntraDayPriceVolumeMap;
 import intraday.IntraDayStockCandleArray;
 import intraday.MultiDaysStockCandleArray;
@@ -16,9 +16,9 @@ import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockConst;
 import stock.StockDayTradingDistribution;
-import stock.StockFileWriter;
 import stock.StockMarketCap;
 import stock.StockSellRate;
+import util.StockFileWriter;
 import util.StockUtil;
 import yahoo.YahooParser;
 

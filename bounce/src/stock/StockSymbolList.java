@@ -49,6 +49,22 @@ public class StockSymbolList {
 		return szseSymbolList;
 	}
 	
+	public static ArrayList<String> getSymbolListFromExchange(Exchange exchange) {
+		ArrayList<String> symbolList = null;
+		switch (exchange) {
+		case SSE:
+			symbolList = StockSymbolList.getSSESymbolList();
+			break;
+		case SZSE:
+			symbolList = StockSymbolList.getSZSESymbolList();
+			break;
+		default:
+			symbolList = StockSymbolList.getUSSymbolList();
+			break;
+		}
+		return symbolList;
+	}
+	
 	private static void setUSSymbolList() {
 		getAll = false;
 		usSymbolList = new ArrayList<String>();

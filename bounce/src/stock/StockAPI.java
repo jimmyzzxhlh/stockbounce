@@ -1,7 +1,7 @@
 package stock;
 
-import intraday.IntraDayAnalysisGoogle;
-import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayReaderGoogle;
+import intraday.IntraDayReaderYahoo;
 import intraday.IntraDayVolumeDistribution;
 import intraday.MultiDaysStockCandleArray;
 
@@ -52,7 +52,7 @@ public class StockAPI {
 	 * @throws Exception
 	 */
 	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayGoogle(File file) throws Exception {
-		return IntraDayAnalysisGoogle.getIntraDayStockCandleArray(file);
+		return IntraDayReaderGoogle.getIntraDayStockCandleArray(file);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class StockAPI {
 	 * @throws Exception
 	 */
 	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
-		return IntraDayAnalysisYahoo.getMultipleDaysStockCandleArray(symbol);
+		return IntraDayReaderYahoo.getMultipleDaysStockCandleArray(symbol);
 	}
 	
 	/**

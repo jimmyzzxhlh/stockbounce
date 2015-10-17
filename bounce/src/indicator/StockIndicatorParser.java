@@ -8,8 +8,8 @@ import java.util.Date;
 import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockConst;
-import stock.StockFileWriter;
 import stock.StockParser;
+import util.StockFileWriter;
 import util.StockUtil;
 import yahoo.YahooParser;
 

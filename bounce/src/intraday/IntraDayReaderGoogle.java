@@ -11,7 +11,13 @@ import stock.StockConst;
 import stock.StockMarketCap;
 import util.StockUtil;
 
-public class IntraDayAnalysisGoogle {
+/**
+ * @deprecated
+ * This class is pretty much depracated as the Google data doesn't seem to be too reliable.
+ * @author jimmyzzxhlh-Dell
+ *
+ */
+public class IntraDayReaderGoogle {
 	
 	/**
 	 * Return timestamp from a line in the intraday data.

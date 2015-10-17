@@ -1,7 +1,7 @@
 package test;
 
-import intraday.IntraDayAnalysisGoogle;
-import intraday.IntraDayAnalysisYahoo;
+import intraday.IntraDayReaderGoogle;
+import intraday.IntraDayReaderYahoo;
 import intraday.IntraDayLowHighIntervalMap;
 import intraday.IntraDayPriceVolumeMap;
 import intraday.IntraDayStockCandle;
@@ -51,11 +51,11 @@ public class AnalysisIntraDayTest {
 	
 	private static void testPrintDailyVolume() throws Exception {
 //		IntraDayAnalysisGoogle.printDailyVolumeForSingleStock();
-		IntraDayAnalysisYahoo.printDailyVolumeForSingleStock();
+		IntraDayReaderYahoo.printDailyVolumeForSingleStock();
 	}
 	
 	private static void testPrintDailyPrice() throws Exception {
-		IntraDayAnalysisYahoo.printDailyPriceForSingleStock();
+		IntraDayReaderYahoo.printDailyPriceForSingleStock();
 	}
 	
 	
@@ -85,7 +85,7 @@ public class AnalysisIntraDayTest {
 	}
 	
 	private static void testAnalyzeSimplePriceModelGoogle() throws Exception {
-		IntraDayAnalysisGoogle.analyzeSimplePriceModel();
+		IntraDayReaderGoogle.analyzeSimplePriceModel();
 	}
 	
 	private static void testIntraDayHighLowInterval() throws Exception {

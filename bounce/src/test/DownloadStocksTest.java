@@ -1,6 +1,7 @@
 package test;
 
 import indicator.StockAverageCostIndicator;
+import intraday.IntraDayReaderYahoo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,7 +15,7 @@ import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Country;
 import stock.StockEnum.Exchange;
-import stock.StockFileWriter;
+import util.StockFileWriter;
 import util.StockUtil;
 import download.StockDownload;
 
@@ -25,7 +26,7 @@ public class DownloadStocksTest {
 	private static final String END_DATE = "20150411";
 	
 	public static void main(String args[]) throws Exception {
-		downloadSingleStock();
+//		downloadSingleStock();
 //		downloadStocks();
 //		downloadOutstandingSharesCSV();
 //		downloadPreviousCloseCSV();
@@ -43,6 +44,7 @@ public class DownloadStocksTest {
 //		extractIntraDayFromMultipleDays();
 //		downloadCompanyListsFromSSE();
 //		analyzeIndicator();
+		testVerifyIntraDayData();
 	}	
 	
 	private static void downloadSingleStock() throws Exception {
@@ -71,13 +73,21 @@ public class DownloadStocksTest {
 	private static void downloadIntraDayStocksFromYahoo(Country country) throws Exception {
 		Scanner reader = new Scanner(System.in);
 		System.out.println(country.name() + ": Enter date for the file name (e.g. 20141226). Enter 1 to use today. Enter nothing to skip downloading.");
-		String dateString = reader.nextLine().trim();
-		if (dateString.length() <= 0) return;
-		Date date = new Date();
-		if (!dateString.equals("1")) {
-			date = StockUtil.parseDate(dateString);
+		String inputString;
+		String dateString = null;
+		while (dateString == null) {
+			inputString = reader.nextLine().trim();
+			if (inputString.length() <= 0) break;
+			if (inputString.equals("1")) {
+				dateString = StockUtil.formatDate(new Date());
+				break;
+			}
+			else {
+				Date date = StockUtil.parseDate(dateString);
+				if (date != null) break;
+			}				
 		}
-		System.out.println(country.name() + ": Enter sleep time, nothing then use the default sleep time 500.");
+		System.out.println(country.name() + ": Enter sleep time, nothing then use the default sleep time 300.");
 		String sleepTimeString = reader.nextLine().trim();
 		int sleepTime = 0;
 		if (sleepTimeString.length() <= 0) {
@@ -89,11 +99,17 @@ public class DownloadStocksTest {
 		switch (country) {
 		case US:
 			//Setting a default US exchange (any US exchange is OK here).
-			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.NASDAQ, date, sleepTime);
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.NASDAQ, dateString, sleepTime);
+			System.out.println("Verifying data...");
+			StockDownload.verifyIntraDayDataFromYahoo(Exchange.NASDAQ, dateString);
 			break;
 		case CHINA:
-			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SSE, date, sleepTime);
-			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SZSE, date, sleepTime);
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SSE, dateString, sleepTime);
+			System.out.println("Verifying data...");
+			StockDownload.verifyIntraDayDataFromYahoo(Exchange.SSE, dateString);
+			StockDownload.downloadIntraDayStocksFromYahoo(Exchange.SZSE, dateString, sleepTime);
+			System.out.println("Verifying data...");
+			StockDownload.verifyIntraDayDataFromYahoo(Exchange.SZSE, dateString);
 			break;
 		}
 				
@@ -386,5 +402,18 @@ public class DownloadStocksTest {
 	
 	private static void analyzeIndicator() throws Exception {
 		StockAverageCostIndicator.analyzeIndicator();
+	}
+	
+	private static void testVerifyIntraDayData() {
+		String symbol = "CAMT";
+		String date = "20141215";
+		try {
+			IntraDayReaderYahoo.getIntraDayStockCandleArray(symbol, date);
+		}
+		catch (Exception e) {
+			System.err.println("Some error is found.");
+			return;
+		}
+		System.out.println("No error is found.");
 	}
 }

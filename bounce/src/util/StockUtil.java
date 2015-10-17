@@ -270,7 +270,7 @@ public class StockUtil {
 			date = simpleDateFormat.parse(dateString);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			
 		}
 		return date;
 		

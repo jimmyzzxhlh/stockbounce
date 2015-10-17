@@ -45,7 +45,7 @@ public class StockConst {
 	//Use intraday data flag
 	public static final boolean USE_INTRADAY_DATA = true;
 	
-	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 500;
+	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 300;
 	
 	public static final double LONG_DAY_PERCENTAGE = 0.01;
 	

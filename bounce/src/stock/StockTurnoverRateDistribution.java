@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
 
+import util.StockFileWriter;
 import util.StockUtil;
 import yahoo.YahooParser;
 
