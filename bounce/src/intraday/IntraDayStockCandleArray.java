@@ -26,6 +26,8 @@ public class IntraDayStockCandleArray implements Comparable<IntraDayStockCandleA
 	private double low = NAN;
 	private long volume = NANINT;
 	private Date date;
+	private String timeZone;
+	private int gmtOffset;
 	private ArrayList<Integer> highIntervals = null;
 	private ArrayList<Integer> lowIntervals = null;
 	private Timestamp ts;
@@ -95,6 +97,22 @@ public class IntraDayStockCandleArray implements Comparable<IntraDayStockCandleA
 		this.date = date;
 	}
 	
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	public int getGmtOffset() {
+		return gmtOffset;
+	}
+
+	public void setGmtOffset(int gmtOffset) {
+		this.gmtOffset = gmtOffset;
+	}
+
 	public Timestamp getTimestamp() {
 		return ts;
 	}

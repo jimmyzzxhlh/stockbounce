@@ -19,8 +19,16 @@ public class StockFileWriter {
 	public StockFileWriter(String filename) throws Exception {
 		this.filename = filename;
 		file = new File(filename);
-		file.createNewFile();
+		if (!file.exists()) file.createNewFile();
 		fw = new FileWriter(file.getAbsoluteFile());
+		bw = new BufferedWriter(fw);
+	}
+	
+	public StockFileWriter(String filename, boolean appended) throws Exception {
+		this.filename = filename;
+		file = new File(filename);
+		if (!file.exists()) file.createNewFile();
+		fw = new FileWriter(file.getAbsoluteFile(), appended);
 		bw = new BufferedWriter(fw);
 	}
 

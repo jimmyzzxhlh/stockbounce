@@ -1,14 +1,14 @@
 package stock;
 
-import intraday.IntraDayReaderGoogle;
-import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayVolumeDistribution;
-import intraday.MultiDaysStockCandleArray;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import intraday.IntraDayReaderGoogle;
+import intraday.IntraDayReaderYahoo;
+import intraday.IntraDayVolumeDistribution;
+import intraday.MultiDaysStockCandleArray;
+import stock.StockEnum.Exchange;
 import yahoo.YahooParser;
 
 /**
@@ -62,8 +62,8 @@ public class StockAPI {
 	 * @return See description
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayYahoo(String symbol) throws Exception {
-		return IntraDayReaderYahoo.getMultipleDaysStockCandleArray(symbol);
+	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayYahoo(Exchange exchange, String symbol) throws Exception {
+		return IntraDayReaderYahoo.getMultipleDaysStockCandleArray(exchange, symbol);
 	}
 	
 	/**

@@ -16,6 +16,7 @@ import stock.StockCandle;
 import stock.StockCandleArray;
 import stock.StockConst;
 import stock.StockDayTradingDistribution;
+import stock.StockEnum.Exchange;
 import stock.StockMarketCap;
 import stock.StockSellRate;
 import util.StockFileWriter;
@@ -107,7 +108,8 @@ public class StockAverageCostIndicator {
 	private void setMapping() throws Exception {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
-		mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayYahoo(symbol);
+		//TODO - Should replace the hard-coded exchange
+		mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayYahoo(Exchange.NASDAQ, symbol);
 		for (int i = 0; i < stockCandleArray.size(); i++) {
 			StockCandle stockCandle = stockCandleArray.get(i);
 			long intraDayVolume = stockCandle.getVolume();

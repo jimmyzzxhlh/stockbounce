@@ -8,6 +8,8 @@ public class StockConst {
 	public static final String TURNOVER_RATE_DISTRIBUTION_FILENAME = "D:\\zzx\\Stock\\TurnoverRateDistribution.csv";
 	public static final int TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH = 1001;
 	
+	
+	
 	//Market capitalization definition:
 	//Large: >= 10 billion
 	//Middle: 2-10 billion
@@ -38,7 +40,10 @@ public class StockConst {
 	public static final String INTRADAY_DIRECTORY_PATH_GOOGLE = "D:\\zzx\\Stock\\IntraDayGoogle\\";
 	public static final String INTRADAY_DIRECTORY_SSE_PATH = "D:\\zzx\\Stock\\IntraDaySSE\\";
 	public static final String INTRADAY_DIRECTORY_SZSE_PATH = "D:\\zzx\\Stock\\IntraDaySZSE\\";
-	
+
+	//Process intraday data flag. True if the data is already combined
+	public static final boolean INTRADAY_IS_DATA_COMBINED = false;
+
 	//Indicator Analysis Folder
 	public static final String AVERAGE_COST_ANALYSIS_PATH = "D:\\zzx\\Stock\\AverageCostAnalysis\\";
 	
@@ -48,6 +53,7 @@ public class StockConst {
 	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 300;
 	
 	public static final double LONG_DAY_PERCENTAGE = 0.01;
+	
 	
 	//Earnings related
 	public static final String EARNINGS_DATES_DIRECTORY_PATH_ZACH = "D:\\zzx\\Stock\\EarningsDatesZach\\";

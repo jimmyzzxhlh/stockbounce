@@ -195,6 +195,23 @@ public class StockUtil {
 		directory.mkdir();		
 	}
 	
+	/**
+	 * ***********This function should be used cautiously***********
+	 * @param directory
+	 * @return
+	 */
+	public static boolean deleteDirectory(File directory) {
+	    if(directory.exists()){
+	        File[] files = directory.listFiles();
+	        if(files != null){
+	            for (int i = 0; i < files.length; i++) {
+	                if(files[i].isDirectory()) deleteDirectory(files[i]);
+	                else files[i].delete();	                
+	            }
+	        }
+	    }
+	    return (directory.delete());
+	}
 	/** 
 	 * Finds the value of the given enumeration by name, case-insensitive. 
 	 * Throws an IllegalArgumentException if no match is found.  

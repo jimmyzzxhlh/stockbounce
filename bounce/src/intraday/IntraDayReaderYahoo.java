@@ -4,11 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 import stock.StockConst;
+import stock.StockEnum.Exchange;
+import stock.StockExchange;
 import util.StockUtil;
 
 public class IntraDayReaderYahoo {
@@ -67,6 +68,7 @@ public class IntraDayReaderYahoo {
 		Timestamp ts;
 		if (data.length <= 5) {
 			System.err.println("Data fields should be 6, but it is " + data.length + ": " + line);
+			return null;
 		}
 		
 		ts = getTimestamp(line);
@@ -87,17 +89,21 @@ public class IntraDayReaderYahoo {
 	
 	/**
 	 * Return an array of an array of intraday stock candles.
-	 * A intraday data file downloaded from Google API contains at most 15 days.
-	 * Each day contains at most 391 intraday stock candles (from 8:30 AM to 3:00 PM, inclusively).
+	 * Notice that this function will be deprecated in the future as we wil combine all the intraday data
+	 * together into one file to improve the read performance.
 	 * @param file
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getMultipleDaysStockCandleArray(String symbol) throws Exception {
+	public static MultiDaysStockCandleArray getMultipleDaysStockCandleArray(Exchange exchange, String symbol) throws Exception {
+		//Redirect to a different function if we already have the combined data.
+		if (StockConst.INTRADAY_IS_DATA_COMBINED) {
+			return getMultipleDaysStockCandleArrayCombined(exchange, symbol);
+		}		
 		//Create an object of multi-days stock candle array.
 		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
 		//Read from a folder
-		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\");
+		File directory = new File(StockExchange.getIntraDayDirectory(exchange, symbol));
 		for (File file : directory.listFiles()) {
 			System.out.println(file.getAbsolutePath());
 			IntraDayStockCandleArray idStockCandleArray = getIntraDayStockCandleArray(symbol, file);
@@ -109,6 +115,62 @@ public class IntraDayReaderYahoo {
 		return mdStockCandleArray;
 	}
 	
+	private static MultiDaysStockCandleArray getMultipleDaysStockCandleArrayCombined(Exchange exchange, String symbol) throws Exception {
+		//Create an object of multi-days stock candle array.
+		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
+		//Read from a particular file
+		File file = new File(StockExchange.getIntraDayMergedFilePath(exchange, symbol));
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String line = br.readLine();
+		
+		while (line != null) {
+			IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
+			//Start with processing the date.
+			//Date, time zone, gmt offset have a "#" at the beginning
+			Date date = StockUtil.parseDate(line.substring(1));   			
+			line = br.readLine();
+			String timeZone = line.substring(1);
+			line = br.readLine();
+			int gmtOffset = Integer.parseInt(line.substring(1));
+			idStockCandleArray.setDate(date);
+			idStockCandleArray.setTimeZone(timeZone);
+			idStockCandleArray.setGmtOffset(gmtOffset);
+			idStockCandleArray.setSymbol(symbol);
+			line = br.readLine();
+			if (line == null) {
+				System.err.println("No intraday data is found for " + symbol + " on " + StockUtil.formatDate(date));
+				break;
+			}
+			//Store the first time stamp as the general timestamp for the intraday stock candle array
+			idStockCandleArray.setTimeStamp(getTimestamp(line));			
+			//Process the data			
+			while (line != null) {
+				IntraDayStockCandle idStockCandle = getIntraDayStockCandle(line);
+				if (idStockCandle != null) {
+					idStockCandleArray.add(idStockCandle);
+				}
+				line = br.readLine();
+			}
+			//Set open, close, high, low attributes for the current day.
+			idStockCandleArray.setOpen();
+			idStockCandleArray.setClose();
+			idStockCandleArray.setHigh();
+			idStockCandleArray.setLow();
+			//Add the intraday stock candle array to multiple one
+			mdStockCandleArray.add(idStockCandleArray);			
+		}
+		br.close();
+		return mdStockCandleArray;
+	}
+	
+	
+	/**
+	 * Get an intraday stock candle array from a single uncombined file (i.e. only contain 1 day data) 
+	 * @param symbol
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
 	public static IntraDayStockCandleArray getIntraDayStockCandleArray(String symbol, File file) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
@@ -121,7 +183,8 @@ public class IntraDayReaderYahoo {
 		if (line == null) {
 			System.err.println("No intraday data is found for " + symbol + " " + file.getName());
 			br.close();
-			return null;
+			throw new Exception();		
+			
 		}
 		IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
 		Date date = StockUtil.parseDate(StockUtil.getFilenameWithoutExtension(file.getName()));
@@ -135,6 +198,10 @@ public class IntraDayReaderYahoo {
 			if (idStockCandle != null) {
 				idStockCandleArray.add(idStockCandle);
 			}			
+			else {
+				br.close();
+				throw new Exception();
+			}
 			line = br.readLine();
 		}
 		//Set open, close, high, low attributes for the current day.
@@ -146,12 +213,14 @@ public class IntraDayReaderYahoo {
 		return idStockCandleArray;
 	}
 	
-	public static IntraDayStockCandleArray getIntraDayStockCandleArray(String symbol, String dateString) throws Exception {
-		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO + symbol + "\\" + dateString + ".txt");
+	public static IntraDayStockCandleArray getIntraDayStockCandleArray(Exchange exchange, String symbol, String dateString) throws Exception {
+		String filepath = StockExchange.getIntraDayDirectory(exchange, symbol)  + dateString + ".txt";
+		File file = new File(filepath);	
 		if (!file.exists()) {
-			System.err.println("There is no data for " + symbol + " on " + dateString);
-			return null;
+			System.err.println("Intra day file " + dateString + ".txt does not exist for " + symbol);
+			throw new Exception();
 		}
+		
 		return getIntraDayStockCandleArray(symbol, file);
 	}
 	/*******************************Below are testing functions for the intraday reader********************************/
@@ -162,7 +231,7 @@ public class IntraDayReaderYahoo {
 	 */
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
+		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(Exchange.NASDAQ, symbol);
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			long volumeDay = 0;
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
@@ -180,7 +249,7 @@ public class IntraDayReaderYahoo {
 	 */
 	public static void printDailyPriceForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(symbol);
+		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(Exchange.NASDAQ, symbol);
 		System.out.println("Date Time Open High Low Close");
 		for (int i = 0; i < mdStockCandleArray.size(); i++) {
 			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);

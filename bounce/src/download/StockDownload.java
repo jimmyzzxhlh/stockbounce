@@ -451,18 +451,18 @@ public class StockDownload {
 		if (symbolList == null) return;
 		int errorSymbolCount = 0;
 		for (String symbol : symbolList) {
-			if (!verifyIntraDayDataFromYahoo(symbol, dateString)) {		
+			if (!verifyIntraDayDataFromYahoo(exchange, symbol, dateString)) {		
 				errorSymbolCount++;
 			}
 		}	
 		System.out.println("Total verified: " + symbolList.size() + ", error: " + errorSymbolCount);
 	}
 	
-	private static boolean verifyIntraDayDataFromYahoo(String symbol, String dateString) {
+	private static boolean verifyIntraDayDataFromYahoo(Exchange exchange, String symbol, String dateString) {
 		IntraDayStockCandleArray idStockCandleArray = null;
 		boolean returnValue = true;
 		try {
-			idStockCandleArray = IntraDayReaderYahoo.getIntraDayStockCandleArray(symbol, dateString);
+			idStockCandleArray = IntraDayReaderYahoo.getIntraDayStockCandleArray(exchange, symbol, dateString);
 		}
 		catch (Exception e) {
 			System.err.println("Some error is found for " + symbol + " on + " + dateString);

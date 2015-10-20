@@ -135,11 +135,11 @@ public class StockSymbolList {
 					allUSSymbolList.add(symbol);
 					continue;
 				}
-				if (marketCap.equals("n/a")) continue;				
+//				if (marketCap.equals("n/a")) continue;				
 				//If there is no shares outstanding at all then ignore.
 				HashMap<String, Long> sharesOutStandingMap = StockSharesOutstandingMap.getMap();
 				if (!sharesOutStandingMap.containsKey(symbol) || (sharesOutStandingMap.get(symbol) <= 0)) {
-	//				System.out.println(symbol + " does not have shares outstanding data.");
+//					System.out.println(symbol + " does not have shares outstanding data.");
 					continue;					
 				}
 				usSymbolList.add(symbol);

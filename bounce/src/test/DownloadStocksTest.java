@@ -1,8 +1,5 @@
 package test;
 
-import indicator.StockAverageCostIndicator;
-import intraday.IntraDayReaderYahoo;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,13 +8,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Scanner;
 
+import download.StockDataMerge;
+import download.StockDownload;
+import indicator.StockAverageCostIndicator;
+import intraday.IntraDayReaderYahoo;
+import intraday.IntraDayStockCandleArray;
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Country;
 import stock.StockEnum.Exchange;
 import util.StockFileWriter;
 import util.StockUtil;
-import download.StockDownload;
 
 public class DownloadStocksTest {
 	
@@ -35,7 +36,7 @@ public class DownloadStocksTest {
 //		downloadIntraDayStocksFromYahoo(Country.CHINA);
 //		downloadCompanyLists();
 //		downloadEarningsDatesFromZach();
-//		downloadDailyTask();
+		downloadDailyTask();
 //		downloadHTMLURL();
 //		downloadEarningsDatesFromStreetInsider();
 //		downloadHTMLURLWithPostTest();
@@ -44,7 +45,7 @@ public class DownloadStocksTest {
 //		extractIntraDayFromMultipleDays();
 //		downloadCompanyListsFromSSE();
 //		analyzeIndicator();
-		testVerifyIntraDayData();
+		
 	}	
 	
 	private static void downloadSingleStock() throws Exception {
@@ -404,16 +405,7 @@ public class DownloadStocksTest {
 		StockAverageCostIndicator.analyzeIndicator();
 	}
 	
-	private static void testVerifyIntraDayData() {
-		String symbol = "CAMT";
-		String date = "20141215";
-		try {
-			IntraDayReaderYahoo.getIntraDayStockCandleArray(symbol, date);
-		}
-		catch (Exception e) {
-			System.err.println("Some error is found.");
-			return;
-		}
-		System.out.println("No error is found.");
-	}
+
+	
+
 }

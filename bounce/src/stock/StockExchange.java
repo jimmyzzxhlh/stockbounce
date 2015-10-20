@@ -40,6 +40,21 @@ public class StockExchange {
 		return null;
 	}
 	
+	public static String getIntraDayDirectory(Exchange exchange, String symbol) {
+		return getIntraDayDirectory(exchange) + symbol + "\\";
+	}
+	
+	/**
+	 * Return the file path for the merged data. For now the file name is the symbol itself.
+	 * If in the far future the data file is too big, we can consider split them by year.
+	 * @param symbol
+	 * @return
+	 */
+	public static String getIntraDayMergedFilePath(Exchange exchange, String symbol) {
+		return getIntraDayDirectory(exchange) + symbol + ".txt";
+	} 
+	
+	
 	public static String getDownloadCompanyListURL(Exchange exchange) {
 		switch (exchange) {
 		case NASDAQ:
