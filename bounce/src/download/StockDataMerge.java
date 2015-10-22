@@ -70,10 +70,10 @@ public class StockDataMerge {
 	}
 	
 	public static boolean mergeOneIntraDayData(Exchange exchange, String symbol, String dateString) throws Exception {
-		String outputFileName = StockExchange.getIntraDayDirectory(exchange) + "\\" + symbol + "\\" + symbol + ".txt";
+		String outputFileName = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\" + symbol + ".txt";
 		//Pass true parameter to append file instead of overwrite the file!
 		StockFileWriter sfw = new StockFileWriter(outputFileName, true);
-		String intraDayFileName = StockExchange.getIntraDayDirectory(exchange) + "\\" + symbol + "\\" + dateString + ".txt";
+		String intraDayFileName = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\" + dateString + ".txt";
 		File intraDayFile = new File(intraDayFileName);
 		if (!intraDayFile.exists()) {
 			System.err.println("File not found: " + intraDayFileName);
