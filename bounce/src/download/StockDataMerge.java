@@ -1,10 +1,10 @@
 package download;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
+import java.util.ArrayList;
 
+import stock.StockAPI;
 import stock.StockEnum.Exchange;
 import stock.StockExchange;
 import util.StockFileWriter;
@@ -69,7 +69,7 @@ public class StockDataMerge {
 		}								
 	}
 	
-	public static void mergeOneIntraDayData(Exchange exchange, String symbol, String dateString) throws Exception {
+	public static boolean mergeOneIntraDayData(Exchange exchange, String symbol, String dateString) throws Exception {
 		String outputFileName = StockExchange.getIntraDayDirectory(exchange) + "\\" + symbol + "\\" + symbol + ".txt";
 		//Pass true parameter to append file instead of overwrite the file!
 		StockFileWriter sfw = new StockFileWriter(outputFileName, true);
@@ -77,12 +77,12 @@ public class StockDataMerge {
 		File intraDayFile = new File(intraDayFileName);
 		if (!intraDayFile.exists()) {
 			System.err.println("File not found: " + intraDayFileName);
-			return;
+			return false;
 		}
 		sfw.writeLine("#" + dateString);
 		BufferedReader br = new BufferedReader(new FileReader(intraDayFile));
 		String line;
-		boolean hasError = false;
+		boolean success = true;
 		while ((line = br.readLine()) != null) 	{
 			if (line.startsWith("volume")) break;
 			if (line.startsWith("timezone")) {
@@ -99,33 +99,41 @@ public class StockDataMerge {
 			String data[] = line.split(",");
 			if (data.length <= 5) {
 				System.err.println("Data does not have length of 6: " + line + " in " + intraDayFileName);
-				hasError = true;
+				success = false;
 			}
 			sfw.writeLine(line);	
 			
 		}
 		br.close();	
 		sfw.close();
-		System.out.println(symbol + ": Intraday data on " + dateString + " merged.");
-		if (!hasError) {
+//		System.out.println(symbol + ": Intraday data on " + dateString + " merged.");
+		if (success) {
 			intraDayFile.delete();
-			System.out.println(symbol + ": Intraday data on " + dateString + " deleted.");
+//			System.out.println(symbol + ": Intraday data on " + dateString + " deleted.");
 		}
+		return success;
 		
 	}
 	
 	public static void mergeOneIntraDayData(Exchange exchange, String dateString) throws Exception {
-		String directoryPath = StockExchange.getIntraDayDirectory(exchange);
-		File directory = new File(directoryPath);
-		for (File symbolDirectory : directory.listFiles()) {
+		ArrayList<String> symbolList = StockAPI.getSymbolListFromExchange(exchange);
+		int success = 0;
+		int failure = 0;
+		for (String symbol : symbolList) {
+			File symbolDirectory = new File(StockExchange.getIntraDayDirectory(exchange, symbol));
 			if (!symbolDirectory.isDirectory()) {
 				System.err.println(symbolDirectory.getAbsolutePath() + " is not a directory.");
 				continue;
 			}
-			String symbol = symbolDirectory.getName();
-			mergeOneIntraDayData(exchange, symbol, dateString);
+			if (mergeOneIntraDayData(exchange, symbol, dateString)) {
+				success++;
+			}
+			else {
+				failure++;
+			}
 			
 		}
+		System.out.println("Total merged: " + (success+failure) + ", error: " + failure);
 	}
 }
 

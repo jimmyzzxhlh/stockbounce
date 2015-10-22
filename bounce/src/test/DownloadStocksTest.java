@@ -88,6 +88,7 @@ public class DownloadStocksTest {
 				if (date != null) break;
 			}				
 		}
+		if (dateString == null) return;
 		System.out.println(country.name() + ": Enter sleep time, nothing then use the default sleep time 300.");
 		String sleepTimeString = reader.nextLine().trim();
 		int sleepTime = 0;
@@ -114,6 +115,26 @@ public class DownloadStocksTest {
 			break;
 		}
 				
+	}
+	
+	private static void mergeUSIntraDayData() throws Exception {
+		System.out.println("Enter date for the file name (e.g. 20141226). Enter 1 to use today. Enter nothing to skip merging.");
+		Scanner reader = new Scanner(System.in);
+		String dateString = null;		
+		while (dateString == null) {
+			String inputString = reader.nextLine().trim();
+			if (inputString.length() <= 0) break;
+			if (inputString.equals("1")) {
+				dateString = StockUtil.formatDate(new Date());
+				break;
+			}
+			else {
+				Date date = StockUtil.parseDate(dateString);
+				if (date != null) break;
+			}				
+		}
+		if (dateString == null) return;
+		StockDataMerge.mergeOneIntraDayData(Exchange.NASDAQ, dateString);		
 	}
 	
 	private static void downloadDailyTask() throws Exception { 
@@ -153,6 +174,9 @@ public class DownloadStocksTest {
 		taskNumber++;
 		System.out.println(taskNumber + ". Download US Intra day data from Yahoo...");
 		downloadIntraDayStocksFromYahoo(Country.US);
+		taskNumber++;
+		System.out.println(taskNumber + ". Merge US Intra day data from Yahoo...Please check the error log for data download first.");
+		mergeUSIntraDayData();
 		taskNumber++;
 		System.out.println(taskNumber + ". Download China Intra day data from Yahoo...");
 		downloadIntraDayStocksFromYahoo(Country.CHINA);

@@ -73,10 +73,11 @@ public class IntraDayReaderYahoo {
 		
 		ts = getTimestamp(line);
 		int interval = getIntervalFromTimestamp(ts);
-		if (!isValidInterval(interval)) {
-			System.err.println("Interval invalid for: " + line);
-			return null;
-		}
+		//Not checking the interval as the interval is different between US and China.
+//		if (!isValidInterval(interval)) {
+//			System.err.println("Interval invalid for: " + line);
+//			return null;
+//		}
 		IntraDayStockCandle idStockCandle = new IntraDayStockCandle();
 		idStockCandle.setInterval(interval);
 		idStockCandle.setClose(Double.parseDouble(data[1]));

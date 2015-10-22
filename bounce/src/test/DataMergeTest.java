@@ -13,7 +13,8 @@ import util.StockUtil;
 public class DataMergeTest {
 
 	public static void main(String[] args) throws Exception {
-		mergeOneIntraDayData();
+//		mergeOneIntraDayData();
+		mergeOneIntraDayDataForSymbols();
 	}
 	
 	private static void mergeAllData() throws Exception {
@@ -25,6 +26,12 @@ public class DataMergeTest {
 		String symbol = "AAON";
 		StockDataMerge.mergeOneIntraDayData(exchange, symbol, "20151019");
 	}
+	
+	private static void mergeOneIntraDayDataForSymbols() throws Exception {
+		Exchange exchange = Exchange.NASDAQ;
+		StockDataMerge.mergeOneIntraDayData(exchange, "20151019");
+	}
+	
 	/**
 	 * Verify the intraday data.
 	 * If invalid data is found, e.g. Data is not downloaded completely or no intraday data has been found,

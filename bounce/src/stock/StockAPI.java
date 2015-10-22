@@ -45,6 +45,10 @@ public class StockAPI {
 		
 	}
 	
+	public static ArrayList<String> getSymbolListFromExchange(Exchange exchange) {
+		return StockSymbolList.getSymbolListFromExchange(exchange);
+	}
+	
 	/**
 	 * Get intraday data from Google. Will be deprecated in the future.
 	 * @param file

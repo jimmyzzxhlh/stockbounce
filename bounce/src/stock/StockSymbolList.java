@@ -132,7 +132,7 @@ public class StockSymbolList {
 				String marketCap = data[3];
 				//If getting all symbols then just add the symbol. Do not check market cap or shares outstanding.
 				if (getAll) {
-					allUSSymbolList.add(symbol);
+					if (!allUSSymbolList.contains(symbol)) allUSSymbolList.add(symbol);
 					continue;
 				}
 //				if (marketCap.equals("n/a")) continue;				
@@ -142,7 +142,7 @@ public class StockSymbolList {
 //					System.out.println(symbol + " does not have shares outstanding data.");
 					continue;					
 				}
-				usSymbolList.add(symbol);
+				if (!usSymbolList.contains(symbol)) usSymbolList.add(symbol);
 			}
 			br.close();
 			
@@ -162,10 +162,10 @@ public class StockSymbolList {
 			while ((line = br.readLine()) != null) {
 				switch (exchange) {
 				case SSE:
-					sseSymbolList.add(line);
+					if (!sseSymbolList.contains(line)) sseSymbolList.add(line);
 					break;
 				case SZSE:
-					szseSymbolList.add(line);
+					if (!szseSymbolList.contains(line)) szseSymbolList.add(line);
 					break;
 				default:
 					break;
