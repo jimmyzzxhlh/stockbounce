@@ -34,8 +34,8 @@ public class VolumeLowerIndicator extends LowerIndicatorAbstract {
 
 	@Override
 	protected void initializeParameters() {
-		maxVolume = stockCandleArray.getMaxVolume(startDateIndex, endDateIndex);
-		minVolume = stockCandleArray.getMinVolume(startDateIndex, endDateIndex);
+//		maxVolume = stockCandleList.getMaxVolume(startDateIndex, endDateIndex);
+//		minVolume = stockCandleList.getMinVolume(startDateIndex, endDateIndex);
 	}
 	
 	private void setMaxMinVolume() {

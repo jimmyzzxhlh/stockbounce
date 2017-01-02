@@ -5,11 +5,12 @@ import java.util.Date;
 import stock.StockEnum.EarningsTimeType;
 import util.StockUtil;
 
-public class StockEarningsDate implements Comparable<StockEarningsDate>{
+/**
+ * @author Dongyue Xue
+ */
+public class EarningsDate implements Comparable<EarningsDate> {
 
-	/**
-	 * @author Dongyue Xue
-	 */
+
 	private String symbol;
 	private Date date;
 	private EarningsTimeType type; //AMC, NONE, BTO
@@ -17,19 +18,21 @@ public class StockEarningsDate implements Comparable<StockEarningsDate>{
 	private double reported; //999: N/A
 	
 	//true if dates are equal
+	@Override
 	public boolean equals(Object o){
-		if (!(o instanceof StockEarningsDate)){
+		if (!(o instanceof EarningsDate)){
 			return false;
 		}
-		StockEarningsDate stockEarningsDate = (StockEarningsDate) o;
+		EarningsDate stockEarningsDate = (EarningsDate) o;
 		return (stockEarningsDate.getDate() == date);
 	}
 	
-	public int compareTo(StockEarningsDate stockEarningsDate) {
+	@Override
+	public int compareTo(EarningsDate stockEarningsDate) {
 		return date.compareTo(stockEarningsDate.getDate());
 	}
 	
-	public StockEarningsDate(String symbol, Date date, double estimate, EarningsTimeType type, double reported){
+	public EarningsDate(String symbol, Date date, double estimate, EarningsTimeType type, double reported){
 		this.symbol = symbol;
 		this.date = date;
 		this.type = type;
@@ -37,7 +40,7 @@ public class StockEarningsDate implements Comparable<StockEarningsDate>{
 		this.reported = reported;
 	}
 	
-	public StockEarningsDate(String symbol, Date date){
+	public EarningsDate(String symbol, Date date){
 		this.symbol = symbol;
 		this.date = date;
 	}

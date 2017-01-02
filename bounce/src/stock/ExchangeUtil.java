@@ -7,7 +7,7 @@ import stock.StockEnum.Exchange;
  * @author jimmyzzxhlh-Dell
  *
  */
-public class StockExchange {
+public class ExchangeUtil {
 	
 	public static String getCompanyListFilename(Exchange exchange) {
 		switch (exchange) {

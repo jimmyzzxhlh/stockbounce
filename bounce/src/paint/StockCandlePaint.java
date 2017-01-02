@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
-import stock.StockCandle;
-import stock.StockEarningsDatesMap;
+import stock.DailyCandle;
+import stock.EarningsDatesMap;
 import util.StockUtil;
 
 /**
@@ -16,7 +16,7 @@ import util.StockUtil;
  * @author jimmyzzxhlh-Dell
  *
  */
-public class StockCandlePaint extends StockCandle {
+public class StockCandlePaint extends DailyCandle {
 
 	private Graphics2D g2;
 	private double x;
@@ -70,7 +70,7 @@ public class StockCandlePaint extends StockCandle {
 		this.bodyWidth = bodyWidth;
 	}
 	
-	public StockCandlePaint(StockCandle stockCandle) {
+	public StockCandlePaint(DailyCandle stockCandle) {
 		super(stockCandle);
 		lowY = this.low;
 		highY = this.high;

@@ -1,17 +1,11 @@
 package test;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.List;
 
+import stock.EarningsDate;
+import stock.EarningsDatesMap;
 import stock.StockConst;
-import stock.StockEarningsDate;
-import stock.StockEarningsDatesMap;
 
 public class EarningsDatesTest {
 
@@ -25,19 +19,7 @@ public class EarningsDatesTest {
 		testGetMap();
 	}
 
-	
-	public static void testOne() {
-		String string= "10/15/14";
-		DateFormat format = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH);
-		Date date = new Date();
-		try {
-			date = format.parse(string);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(StockEarningsDatesMap.isCloseToEarningsDate("MSFT", date));
-	}
+
 	
 	public static void renameEarningsDatesHTML() { 
 		File directory = new File(StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER);
@@ -48,26 +30,15 @@ public class EarningsDatesTest {
 			file.renameTo(new File(newFilename));
 		}		
 	}
-	
-	public static void testParseStreetInsiderHTML() throws Exception {
-		StockEarningsDatesMap.parseStreetInsider();
-	}
-	
-	public static void testParseZach() throws Exception {
-		StockEarningsDatesMap.parseZach();
-	}
-	
-	public static void testCompareZachStreetInsider() throws Exception {
-		StockEarningsDatesMap.compareZachStreetInsider();
-	}
+
+
 	
 	public static void testParseTheStreet() throws Exception {
-		StockEarningsDatesMap.parseTheStreet();
+		EarningsDatesMap.parseTheStreet();
 	}
 	
 	public static void testGetMap() throws Exception{
-		HashMap<String, ArrayList<StockEarningsDate>> map = StockEarningsDatesMap.getMap();
-		ArrayList<StockEarningsDate> dates = map.get("AAPL");
+		List<EarningsDate> dates = EarningsDatesMap.getEarningsDates("AAPL");
 		for (int index = 0; index < dates.size(); index ++){
 			System.out.println(dates.get(index).getDate());
 			System.out.println(dates.get(index).getEstimate());

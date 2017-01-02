@@ -3,10 +3,11 @@ package test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
+import stock.OutstandingShares;
 import stock.StockAPI;
 import stock.StockMarketCap;
-import stock.StockPreviousCloseMap;
 import stock.StockTurnoverRateDistribution;
 
 public class MarketCapitalizationTest {
@@ -15,7 +16,7 @@ public class MarketCapitalizationTest {
 	private static final double[] turnoverRateDistribution = null;
 
 	public static void main(String args[]) throws Exception {
-//		testSharesOutstanding();
+//		testoutstandingShares();
 //		StockTurnoverRateDistribution.writeTurnoverRateDistribution();
 //		getTurnoverRateDistribution();
 //		testPreviousClose();
@@ -24,12 +25,11 @@ public class MarketCapitalizationTest {
 		testGetChinaSymbolList();
 	}
 	
-	private static void testSharesOutstanding() {
-		HashMap<String, Long> sharesOutstanding = StockAPI.getSharesOutstandingMap();
-		ArrayList<String> symbols = new ArrayList(sharesOutstanding.keySet());
-		Collections.sort(symbols);
-		for (String symbol : symbols) {
-			System.out.println(symbol + " " + sharesOutstanding.get(symbol));
+	private static void testoutstandingShares() {
+		List<String> symbolList = StockAPI.getAllUSSymbolList();
+		Collections.sort(symbolList);
+		for (String symbol : symbolList) {
+			System.out.println(symbol + " " + OutstandingShares.getOutstandingShares(symbol));
 		}
 		
 	}
@@ -42,10 +42,6 @@ public class MarketCapitalizationTest {
 		}
 	}
 
-	private static void testPreviousClose() {
-		HashMap<String, Double> previousCloseMap = StockPreviousCloseMap.getMap();
-		System.out.println(previousCloseMap.get("TRUE").doubleValue());
-	}
 	
 	private static void testMarketCap() {
 		System.out.println(StockMarketCap.getMarketCap("ZNGA"));
@@ -56,7 +52,7 @@ public class MarketCapitalizationTest {
 	}
 	
 	private static void testGetAllSymbolList() {
-		ArrayList<String> symbolList = StockAPI.getAllUSSymbolList();
+		List<String> symbolList = StockAPI.getAllUSSymbolList();
 		for (int i = 0; i < symbolList.size(); i++) {
 			System.out.println(symbolList.get(i));
 		}
@@ -64,12 +60,12 @@ public class MarketCapitalizationTest {
 	
 	private static void testGetChinaSymbolList() {
 //		System.out.println("Shanghai:");
-//		ArrayList<String> symbolList = StockAPI.getSSESymbolList();
+//		List<String> symbolList = StockAPI.getSSESymbolList();
 //		for (int i = 0; i < symbolList.size(); i++) {
 //			System.out.println(symbolList.get(i));
 //		}
 		System.out.println("Shen Zhen:");
-		ArrayList<String> symbolList = StockAPI.getSZSESymbolList();
+		List<String> symbolList = StockAPI.getSZSESymbolList();
 		for (int i = 0; i < symbolList.size(); i++) {
 			System.out.println(symbolList.get(i));
 		}

@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import pattern.StockPattern;
-import stock.StockCandleArray;
+import stock.CandleList;
 import stock.StockConst;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
@@ -25,7 +25,7 @@ public abstract class PatternTest {
 	public void testChart() throws Exception {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
 		File outputFile = new File(OUTPUT_DIRECTORY_PATH + "engulfing.csv");
-		StockCandleArray stockCandleArray, originalStockCandleArray;
+		CandleList stockCandleList, originalstockCandleList;
 		outputFile.createNewFile();
 		FileWriter fw = new FileWriter(outputFile.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
@@ -44,23 +44,23 @@ public abstract class PatternTest {
 		for (File csvFile : directory.listFiles()) {
 			//Initialize parser and parse each line of the stock data.
 			System.out.println(csvFile.getName());
-			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);
+			stockCandleList = YahooParser.readCSVFile(csvFile, 0);
 			//Store a copy of the stock candle array at the beginning so that each time the stock
 			//candle array can be messed up.
-			originalStockCandleArray = new StockCandleArray(stockCandleArray);
-			for (int i = stockCandleArray.size() - 1; i > stockCandleArray.size() - TEST_DAYS; i--) {
+			originalstockCandleList = new CandleList(stockCandleList);
+			for (int i = stockCandleList.size() - 1; i > stockCandleList.size() - TEST_DAYS; i--) {
 				if (i < 0) break;
 				int start = i - STOCK_CANDLE_ARRAY_NORMALIZE_DAYS + 1;
 				int end = i;
 				if (start < 0) start = 0;
-				if (stockCandleArray.get(i).volume < MIN_VOLUME) continue;
+				if (stockCandleList.get(i).getVolume() < MIN_VOLUME) continue;
 				//Normalize the stock array. This is very important as normalization will help eliminate
 				//the affect of absolute price itself.
-				stockCandleArray.normalizeStockCandle(STOCK_CANDLE_NORMALIZE_MAX, start, end);
+				stockCandleList.normalizeStockCandle(STOCK_CANDLE_NORMALIZE_MAX, start, end);
 				//Check whether any pattern occurs.
-				checkPattern(bw, end, stockCandleArray, originalStockCandleArray);
+				checkPattern(bw, end, stockCandleList, originalstockCandleList);
 				//Restore the stock candle array 
-				stockCandleArray = new StockCandleArray(originalStockCandleArray);
+				stockCandleList = new CandleList(originalstockCandleList);
 			}			
 		}
 		bw.close();
@@ -72,25 +72,25 @@ public abstract class PatternTest {
 	 * we enter the market, and output the positions for next several days.
 	 * @param bw Buffered writer for output
 	 * @param index The current index considered in the stock candle array.
-	 * @param stockCandleArray Stock candle array (normalized).
-	 * @param originalStockCandleArray Original stock candle array that has not been normalized yet. For output use.
+	 * @param stockCandleList Stock candle array (normalized).
+	 * @param originalstockCandleList Original stock candle array that has not been normalized yet. For output use.
 	 * @throws Exception
 	 */
-	private void checkPattern(BufferedWriter bw, int index, StockCandleArray stockCandleArray, StockCandleArray originalStockCandleArray) throws Exception {
-		StockPattern stockPattern = new StockPattern(stockCandleArray.getStockCandleArray());
-		stockPattern.setSymbol(stockCandleArray.getSymbol());
+	private void checkPattern(BufferedWriter bw, int index, CandleList stockCandleList, CandleList originalstockCandleList) throws Exception {
+		StockPattern stockPattern = new StockPattern(stockCandleList.getstockCandleList());
+		stockPattern.setSymbol(stockCandleList.getSymbol());
 		YahooDrawPattern drawPattern = new YahooDrawPattern();
-		if (index >= originalStockCandleArray.size() - 1) return;
-		double nextOpen = originalStockCandleArray.get(index + 1).open;
+		if (index >= originalstockCandleList.size() - 1) return;
+		double nextOpen = originalstockCandleList.get(index + 1).open;
 		
 		if (hasPattern(stockPattern, index)) {
 			bw.write(stockPattern.getSymbol() + ",");
 			bw.write(stockPattern.getDate(index) + ",");
 			//Write current close price
-			bw.write(StockCandleArray.formatPrice(originalStockCandleArray.get(index).close) + ",");
+			bw.write(CandleList.formatPrice(originalstockCandleList.get(index).close) + ",");
 			//Write next day's open price if exists
-			if (index < originalStockCandleArray.size() - 1) {
-				bw.write(StockCandleArray.formatPrice(nextOpen) + ",");
+			if (index < originalstockCandleList.size() - 1) {
+				bw.write(CandleList.formatPrice(nextOpen) + ",");
 			}
 			else {
 				bw.write(0 + ",");
@@ -98,15 +98,15 @@ public abstract class PatternTest {
 			
 			//Write prices for the next several days.
 			for (int days = 5; days <= 15; days+=5) {
-				double maxIncreaseRate = StockUtil.changeRate(nextOpen, originalStockCandleArray.getMaxStockPrice(index, days, StockCandleDataType.HIGH));
-				double maxDecreaseRate = StockUtil.changeRate(nextOpen, originalStockCandleArray.getMinStockPrice(index, days, StockCandleDataType.LOW));
-				bw.write(StockCandleArray.formatPrice(maxIncreaseRate * 100) + "%,");
-				bw.write(StockCandleArray.formatPrice(maxDecreaseRate * 100) + "%,");
+				double maxIncreaseRate = StockUtil.changeRate(nextOpen, originalstockCandleList.getMaxStockPrice(index, days, StockCandleDataType.HIGH));
+				double maxDecreaseRate = StockUtil.changeRate(nextOpen, originalstockCandleList.getMinStockPrice(index, days, StockCandleDataType.LOW));
+				bw.write(CandleList.formatPrice(maxIncreaseRate * 100) + "%,");
+				bw.write(CandleList.formatPrice(maxDecreaseRate * 100) + "%,");
 			}
 			bw.newLine();
 			
 			drawPattern.setPatternIndex(index);
-			drawPattern.drawChart(stockCandleArray);
+			drawPattern.drawChart(stockCandleList);
 		}
 	}
 	

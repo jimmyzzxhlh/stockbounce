@@ -1,151 +1,85 @@
 package stock;
 
-import java.util.Date;
-import java.util.HashMap;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
-import stock.StockEnum.StockCandleDataType;
 import stock.StockEnum.StockCandleClass;
+import stock.StockEnum.StockCandleDataType;
 
 /**
- * Class for describing a single stock candle.
+ * This is a class to represent a candle. Should not initialize an instance of this class. 
+ * However, I don't find a better way to restrict the usage. The class cannot be declared as 
+ * an abstract class, otherwise we cannot clone it. 
  * @author jimmyzzxhlh-Dell
  *
  */
-public class StockCandle {
-	
-	private static final double NAN = -1e10;
-	public double open = 0;
-	public double close = 0;
-	public double high = 0;
-	public double low = 0;
-	public long volume = 0;
-	public double adjClose = 0;
-	public String symbol;
-	private double turnoverRate = NAN;
-	private HashMap<String, Long> sharesOutstandingMap = null;
-
-	public Date date;
-
-	
-	public StockCandle() {
-			
-	}
-	
-	/**
-	 * Make a copy of the input stock candle
-	 * @param inputStockCandle
-	 */
-	public StockCandle(StockCandle inputStockCandle) {
-		this.open = inputStockCandle.open;
-		this.close = inputStockCandle.close;
-		this.high = inputStockCandle.high;
-		this.low = inputStockCandle.low;
-		this.volume = inputStockCandle.volume;
-		this.date = inputStockCandle.date;
-		this.adjClose = inputStockCandle.adjClose;
-		this.symbol = inputStockCandle.symbol;
-		this.turnoverRate = inputStockCandle.turnoverRate;
-		this.sharesOutstandingMap = inputStockCandle.sharesOutstandingMap;
-		this.date = inputStockCandle.date;
-	}
-	
-	public StockCandle(Date date, double open, double close, double high, double low, long volume, double adjClose) {
-		this.date = date;
+public abstract class StockCandle {
+	protected double open;
+	protected double close;
+	protected double high;
+	protected double low;
+	protected long volume;
+	protected DateTime instant;  //The instant will be assumed to be UTC time. This is intentional so that it is easier and consistent to implement.
+//	protected double turnoverRate = 0;
+		
+	protected StockCandle(DateTime instant, double open, double close, double high, double low, long volume) {
+		this.instant = instant;
 		this.open = open;
 		this.close = close;
 		this.high = high;
 		this.low = low;
 		this.volume = volume;
-		this.adjClose = adjClose;
-	}
-	
-	public void destroy() {
-		//We are not destroying this object because the mapping is used by other symbols as well.
-		sharesOutstandingMap = null;
 	}
 	
 	/**
-	 * Adj Close is the price that has already considered stock split.
+	 * Clone a stock candle object.
+	 * @param candle
 	 */
-	public void setPriceFromAdjClose() {
-		double ratio = adjClose * 1.0 / close;
-		open = open * ratio;
-		close = adjClose;
-		high = high * ratio;
-		low = low * ratio;
-	}
+//	public StockCandle(StockCandle candle) {
+//		this(candle.instant, candle.open, candle.close, candle.high, candle.low, candle.volume);
+//	}
 	
-	@Override
-	public String toString() {
-		return "Date: " + this.date + " Open: " + this.open + " Close: " + this.close + " High: " + this.high + " Low: " + this.low + " Volume: " + this.volume + " Adj Close: " + this.adjClose;
-	}
+	public abstract StockCandle copy();
 	
-	public double getOpen() {
-		return open;
-	}
-
-	public void setOpen(double open) {
-		this.open = open;
-	}
-
-	public double getClose() {
-		return close;
-	}
-
-	public void setClose(double close) {
-		this.close = close;
-	}
-
-	public double getHigh() {
-		return high;
-	}
-
-	public void setHigh(double high) {
-		this.high = high;
-	}
-
-	public double getLow() {
-		return low;
-	}
-
-	public void setLow(double low) {
-		this.low = low;
-	}
-
-	public long getVolume() {
-		return volume;
-	}
-
-	public void setVolume(long volume) {
-		this.volume = volume;
-	}
+	public DateTime getInstant()    { return instant; }
+	public double getOpen()         { return open;    }
+	public double getClose()        { return close;   }
+	public double getHigh()         { return high;    }
+	public double getLow()          { return low;     }
+	public long getVolume()         { return volume;  }
+//	public double getTurnoverRate() { return turnoverRate; }		
 	
-	public Date getDate() {
-		return date;
-	}
+//	/**
+//	 * Turnover rate = volume / shares outstanding
+//	 * @param outstandingShares
+//	 */
+//	public void setTurnoverRate(long outstandingShares) {
+//		this.turnoverRate = volume * 1.0 / outstandingShares;
+//	}
 	
-	public void setDate(Date date) {
-		this.date = date;
-	}
-	
-	public double getAdjClose() {
-		return adjClose;
-	}
-
-	public void setAdjClose(double adjClose) {
-		this.adjClose = adjClose;
-	}
-	
-	public void setLowOverride(double low) {
-		if ((this.low == 0) || (this.low > low)) {
-			this.low = low;
+	/**
+	 * Get the specific price (open, close, high, low)
+	 * @param dataType
+	 * @return
+	 */
+	public double getStockPrice(StockCandleDataType dataType) {
+		switch (dataType) {
+		case OPEN: return open;
+		case CLOSE: return close;
+		case HIGH: return high;
+		case LOW: return low;
+		default:
+			break;
 		}
+		return 0;
 	}
 	
-	public void setHighOverride(double high) {
-		if ((this.high == 0) || (this.high < high)) {
-			this.high = high;
-		}
+	public boolean isWhiteCandle() {
+		return (close > open);
+	}
+	
+	public boolean isBlackCandle() {
+		return (close < open);
 	}
 	
 	public double getBodyLength() {
@@ -166,102 +100,20 @@ public class StockCandle {
 		return close - low;
 	}
 	
-	/**
-	 * Return the gap between two adjacent stock prices.
-	 * Use open / close price to compute the gap.
-	 * Gap above example (ÏòÉÏÌø¿Õ):
-	 * 
-	 *    ¡ö
-	 *    ¡ö
-	 * 
-	 * |
-	 * ¡õ
-	 * ¡õ
-	 * ¡õ
-	 * ¡õ
-	 * |
-	 * 
-	 * Here the gap length will be 3.
-	 * @param lastStockCandle Last stock price object.
-	 * @param currentStockCandle Current stock price object.
-	 * @return
-	 */
-	public static double getGapLength(StockCandle lastStockCandle, StockCandle currentStockCandle) {
-		if (lastStockCandle.close > lastStockCandle.open) {
-			if (currentStockCandle.open > lastStockCandle.close) return currentStockCandle.open - lastStockCandle.close;
-		}
-		else {
-			if (currentStockCandle.open < lastStockCandle.close) return lastStockCandle.close - currentStockCandle.open;
-		}
-		return 0;
-	}
-	
-	public double getStockPrice(StockCandleDataType dataType) {
-		switch (dataType) {
-		case OPEN: return open;
-		case CLOSE: return close;
-		case HIGH: return high;
-		case LOW: return low;
-		case OPENCLOSEMAX: return Math.max(open, close);
-		default:
-			break;
-		}
-		return 0;
-	}
-	
-	public boolean isWhiteCandle() {
-		return (close > open);
-	}
-	
-	public boolean isBlackCandle() {
-		return (close < open);
-	}
-	
-	public String getSymbol() {
-		return symbol;
-	}
-	
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
-	}
-	
-	public double getTurnoverRate() {
-		if (turnoverRate > 0) return turnoverRate;
-		setTurnoverRate();
-		return turnoverRate;		
-	}
-	
-	public void setTurnoverRate() {
-		if (sharesOutstandingMap == null) {
-			sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
-		}
-		if (symbol == null) {
-			System.err.println("Symbol not set. Cannot get shares outstanding mapping for turnover rate.");
-			return;
-		}
-		long sharesOutstanding = sharesOutstandingMap.get(symbol);
-		turnoverRate = getVolume() * 1.0 / sharesOutstanding;
-	}
-	
-	
 	public boolean isUpperShadowLonger() {
 		return (getUpperShadowLength() >= getLowerShadowLength());
 	}
 	
-	public boolean isWhite() {
-		return (close > open);
-	}
-	
-	public boolean isBlack() {
-		return (close < open);
-	}
-	
+	/**
+	 * Get a candle class.
+	 * @return
+	 */
 	public StockCandleClass getCandleClass() {
 		double bodyLength = getBodyLength();
-		if (isWhite()) {
+		if (isWhiteCandle()) {
 			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockCandleClass.WHITE_LONG;
 		}
-		if (isBlack()) {
+		if (isBlackCandle()) {
 			if (bodyLength / open >= StockConst.LONG_DAY_PERCENTAGE) return StockCandleClass.BLACK_LONG;
 		}
 		if (isUpperShadowLonger())
@@ -269,14 +121,9 @@ public class StockCandle {
 		return StockCandleClass.LOWER_LONGER;
 	}
 	
-	public StockEarningsDate getNextEarningsDate() {
-		return StockEarningsDatesMap.getNextEarningsDate(symbol, date);
+	@Override
+	public String toString() {
+		return String.format("instant=%s, open=%d, close=%d, low=%d, high=%d, volume=%d",
+							 instant, open, close, low, high, volume);
 	}
-	
-	public boolean isEarningsDate() {
-		return StockEarningsDatesMap.isEarningsDate(symbol, date);
-	}
-	
 }
-
-

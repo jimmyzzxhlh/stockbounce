@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import download.StockDataMerge;
 import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayStockCandleArray;
+import intraday.IntraDaystockCandleList;
 import stock.StockConst;
 import stock.StockEnum.Exchange;
 import util.StockUtil;
@@ -45,9 +45,9 @@ public class DataMergeTest {
 //			System.out.println(symbol);
 			for (File file : subDirectory.listFiles()) {
 				String date = StockUtil.getFilenameWithoutExtension(file.getName());
-				IntraDayStockCandleArray idStockCandleArray = null;
+				IntraDaystockCandleList idstockCandleList = null;
 				try {
-					idStockCandleArray = IntraDayReaderYahoo.getIntraDayStockCandleArray(symbol, file);					
+					idstockCandleList = IntraDayReaderYahoo.getIntraDaystockCandleList(symbol, file);					
 				}
 				catch (Exception e) {
 //					System.out.println("Delete file/directory " + file.getAbsolutePath() + "? (1 to delete, -1 to exit the program)");
@@ -73,8 +73,8 @@ public class DataMergeTest {
 //						return;
 //					}
 				}
-				if (idStockCandleArray != null) {
-					idStockCandleArray.destroy();
+				if (idstockCandleList != null) {
+					idstockCandleList.destroy();
 				}
 			}
 			

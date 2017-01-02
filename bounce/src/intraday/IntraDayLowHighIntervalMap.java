@@ -114,23 +114,23 @@ public class IntraDayLowHighIntervalMap {
 		
 		for (File file : directory.listFiles()) {
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			MultiDaysStockCandleArray mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
-			for (int i = 0; i < mdStockCandleArray.size(); i++) {
-				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-				StockCandleClass candleClass = idStockCandleArray.getCandleClass();
+			MultiDaysCandleList mdstockCandleList = StockAPI.getIntraDaystockCandleListGoogle(file);
+			for (int i = 0; i < mdstockCandleList.size(); i++) {
+				IntraDayCandleList idCandleList = mdstockCandleList.get(i);
+				StockCandleClass candleClass = idCandleList.getCandleClass();
 				long lowIntervalTotal = getValueFromStockCandleClassMap(lowIntervalTotalMap, candleClass);
 				long lowIntervalCount = getValueFromStockCandleClassMap(lowIntervalCountMap, candleClass);
 				long highIntervalTotal = getValueFromStockCandleClassMap(highIntervalTotalMap, candleClass);
 				long highIntervalCount = getValueFromStockCandleClassMap(highIntervalCountMap, candleClass);
 				
-				lowIntervalCount += idStockCandleArray.getLowIntervals().size();
-				for (int index = 0; index < idStockCandleArray.getLowIntervals().size(); index++){
-					lowIntervalTotal += idStockCandleArray.getLowIntervals().get(index);					
+				lowIntervalCount += idCandleList.getLowIntervals().size();
+				for (int index = 0; index < idCandleList.getLowIntervals().size(); index++){
+					lowIntervalTotal += idCandleList.getLowIntervals().get(index);					
 				}
 				
-				highIntervalCount += idStockCandleArray.getHighIntervals().size();
-				for (int index = 0; index < idStockCandleArray.getHighIntervals().size(); index++){
-					highIntervalTotal += idStockCandleArray.getHighIntervals().get(index);					
+				highIntervalCount += idCandleList.getHighIntervals().size();
+				for (int index = 0; index < idCandleList.getHighIntervals().size(); index++){
+					highIntervalTotal += idCandleList.getHighIntervals().get(index);					
 				}
 				
 				lowIntervalTotalMap.put(candleClass, lowIntervalTotal);

@@ -5,8 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import stock.StockCandle;
-import stock.StockCandleArray;
+import stock.DailyCandle;
+import stock.CandleList;
 import stock.StockConst;
 import stock.StockParser;
 import util.StockFileWriter;
@@ -48,7 +48,7 @@ public class StockIndicatorParser extends StockParser {
 	}
 
 	@Override
-	public void parseLine(String line, StockCandle stockCandle){
+	public void parseLine(String line, DailyCandle stockCandle){
 		return;
 	}
 	
@@ -176,15 +176,15 @@ public class StockIndicatorParser extends StockParser {
 	public static void writeStockIndicators() throws Exception {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
 		StockFileWriter sfw;
-		StockCandleArray stockCandleArray;
+		CandleList stockCandleList;
 		int excludedDays = 0;
 		int includedPoints = 0;
 		
 		for (File csvFile : directory.listFiles()) {
 			//Initialize parser and parse each line of the stock data.
 			System.out.println(csvFile.getName());
-			stockCandleArray = YahooParser.readCSVFile(csvFile, 0);
-			sfw = new StockFileWriter(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleArray.getSymbol() + "_Indicators.csv");
+			stockCandleList = YahooParser.readCSVFile(csvFile, 0);
+			sfw = new StockFileWriter(StockIndicatorConst.INDICATOR_CSV_DIRECTORY_PATH + stockCandleList.getSymbol() + "_Indicators.csv");
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			
 			String headerLine[] = new String[StockIndicatorConst.PIECE_NUMBER];
@@ -206,59 +206,59 @@ public class StockIndicatorParser extends StockParser {
 			}
 			sfw.newLine();
 			
-			Date[] stockDates = new Date[stockCandleArray.size()];
-			double[] stockOpens = new double[stockCandleArray.size()];
-			double[] stockCloses = new double[stockCandleArray.size()];
-			double[] stockHighs = new double[stockCandleArray.size()];
-			double[] stockLows = new double[stockCandleArray.size()];
-			for (int i = 0; i < stockCandleArray.size(); i++) {
-				stockDates[i] = stockCandleArray.getDate(i);
-				stockOpens[i] = stockCandleArray.getOpen(i);
-				stockCloses[i] = stockCandleArray.getClose(i);
-				stockHighs[i] = stockCandleArray.getHigh(i);
-				stockLows[i] = stockCandleArray.getLow(i);
+			Date[] stockDates = new Date[stockCandleList.size()];
+			double[] stockOpens = new double[stockCandleList.size()];
+			double[] stockCloses = new double[stockCandleList.size()];
+			double[] stockHighs = new double[stockCandleList.size()];
+			double[] stockLows = new double[stockCandleList.size()];
+			for (int i = 0; i < stockCandleList.size(); i++) {
+				stockDates[i] = stockCandleList.getDate(i);
+				stockOpens[i] = stockCandleList.getOpen(i);
+				stockCloses[i] = stockCandleList.getClose(i);
+				stockHighs[i] = stockCandleList.getHigh(i);
+				stockLows[i] = stockCandleList.getLow(i);
 			}
 			
-			double[] stockGains = StockGain.getStockGain(stockCandleArray, StockIndicatorConst.STOCK_GAIN_PERIOD);
-			double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, StockIndicatorConst.RSI_PERIOD);
-			double[] bbandsPercentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
-			double[] bbandsBandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleArray, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
-			double[] emaDistance = StockIndicatorAPI.getExponentialMovingAverageDistance(stockCandleArray, StockIndicatorConst.EMA_DISTANCE_PERIOD);
-			long[] volume = StockIndicatorAPI.getVolume(stockCandleArray);
+			double[] stockGains = StockGain.getStockGain(stockCandleList, StockIndicatorConst.STOCK_GAIN_PERIOD);
+			double[] rsi = StockIndicatorAPI.getRSI(stockCandleList, StockIndicatorConst.RSI_PERIOD);
+			double[] bbandsPercentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleList, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
+			double[] bbandsBandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleList, StockIndicatorConst.BOLLINGER_BANDS_PERIOD, StockIndicatorConst.BOLLINGER_BANDS_K);
+			double[] emaDistance = StockIndicatorAPI.getExponentialMovingAverageDistance(stockCandleList, StockIndicatorConst.EMA_DISTANCE_PERIOD);
+			long[] volume = StockIndicatorAPI.getVolume(stockCandleList);
 			//Add new indicators here
-			for (int i = 0; i < stockCandleArray.size(); i++) 
+			for (int i = 0; i < stockCandleList.size(); i++) 
 			{
-				if (stockCandleArray.getClose(i) < 3){
+				if (stockCandleList.getClose(i) < 3){
 					continue;
 				}
-				if (stockCandleArray.getVolume(i) < 5e5){
+				if (stockCandleList.getVolume(i) < 5e5){
 					continue;
 				}
-				//if (stockCandleArray.getVolume(i) * stockCandleArray.getClose(i) < 1e7){
+				//if (stockCandleList.getVolume(i) * stockCandleList.getClose(i) < 1e7){
 				//	continue;
 				//}
 				//Exclude stock gains impacted by breaking news
 				boolean exclude = false;
-				if (i + StockIndicatorConst.STOCK_GAIN_PERIOD < stockCandleArray.size()) 
+				if (i + StockIndicatorConst.STOCK_GAIN_PERIOD < stockCandleList.size()) 
 				{
 					for (int j = 0; j < StockIndicatorConst.STOCK_GAIN_PERIOD; j ++)
 					{			
-						double closePrice = stockCandleArray.getClose(i + j);
-						double nextdayOpenPrice = stockCandleArray.getOpen(i + j + 1);
-						double nextdayClosePrice = stockCandleArray.getClose(i + j + 1);
+						double closePrice = stockCandleList.getClose(i + j);
+						double nextdayOpenPrice = stockCandleList.getOpen(i + j + 1);
+						double nextdayClosePrice = stockCandleList.getClose(i + j + 1);
 						if (Math.abs(nextdayOpenPrice - closePrice)/closePrice > StockIndicatorConst.NEXTDAY_OPEN_DIFFERENCE_THRESHOLD) {
 							exclude = true;								
-							//System.out.println(stockCandleArray.getSymbol() + " Next day open difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							//System.out.println(stockCandleList.getSymbol() + " Next day open difference exceeds threshold: " + stockCandleList.get(i + j).date);
 							break;
 						}
 						if (Math.abs(nextdayClosePrice - nextdayOpenPrice)/closePrice > StockIndicatorConst.SAMEDAY_OPEN_CLOSE_DIFFERENCE_THRESHOLD) {
 							exclude = true;
-							//System.out.println(stockCandleArray.getSymbol() + " Same day open/close difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							//System.out.println(stockCandleList.getSymbol() + " Same day open/close difference exceeds threshold: " + stockCandleList.get(i + j).date);
 							break;
 						}
 						if (Math.abs(nextdayClosePrice - closePrice)/closePrice > StockIndicatorConst.NEXTDAY_CLOSE_DIFFERENCE_THRESHOLD) {
 							exclude = true;
-							//System.out.println(stockCandleArray.getSymbol() + " Next day close difference exceeds threshold: " + stockCandleArray.get(i + j).date);
+							//System.out.println(stockCandleList.getSymbol() + " Next day close difference exceeds threshold: " + stockCandleList.get(i + j).date);
 							break;
 						}
 					}

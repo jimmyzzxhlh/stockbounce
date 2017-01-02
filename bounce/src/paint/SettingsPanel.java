@@ -200,7 +200,7 @@ public class SettingsPanel extends JPanel {
 		stockChartPanel.setStartDate(startLocalDate.toDate());
 		stockChartPanel.setEndDate(endLocalDate.toDate());
 		//If resetting all the objects then we need to read the data from stock candle array file again.
-		if (!stockChartPanel.initializeStockCandleArray(resetAll)) return;
+		if (!stockChartPanel.initializestockCandleList(resetAll)) return;
 		//Since we are resetting all the objects we will reinitialize the indicator object.
 		if (resetAll) {
 			if (averageCostIndicatorCheckBox.isSelected()) {
@@ -237,7 +237,7 @@ public class SettingsPanel extends JPanel {
 	}
 	
 	private void nextDateButtonActionPerformed() {
-		LocalDate lastLocalDate = stockChartPanel.getStockCandleArray().getEndLocalDate();
+		LocalDate lastLocalDate = stockChartPanel.getstockCandleList().getEndLocalDate();
 		boolean startOutOfBound = false;
 		boolean endOutOfBound = false;
 		//Get the next available start date and end date.
@@ -247,7 +247,7 @@ public class SettingsPanel extends JPanel {
 				endOutOfBound = true;
 				break;
 			}			
-			if (stockChartPanel.getStockCandleArray().hasDate(endLocalDate)) {
+			if (stockChartPanel.getstockCandleList().hasDate(endLocalDate)) {
 				break;
 			}
 		}
@@ -266,7 +266,7 @@ public class SettingsPanel extends JPanel {
 			if (startLocalDate.isAfter(lastLocalDate)) {
 				startOutOfBound = true;
 			}
-			if (stockChartPanel.getStockCandleArray().hasDate(startLocalDate)) {
+			if (stockChartPanel.getstockCandleList().hasDate(startLocalDate)) {
 				break;
 			}			
 		}
@@ -284,7 +284,7 @@ public class SettingsPanel extends JPanel {
 	}
 	
 	private void previousDateButtonActionPerformed() {
-		LocalDate firstLocalDate = stockChartPanel.getStockCandleArray().getStartLocalDate();
+		LocalDate firstLocalDate = stockChartPanel.getstockCandleList().getStartLocalDate();
 		boolean startOutOfBound = false;
 		boolean endOutOfBound = false;
 		
@@ -295,7 +295,7 @@ public class SettingsPanel extends JPanel {
 			if (startLocalDate.isBefore(firstLocalDate)) {
 				startOutOfBound = true;
 			}
-			if (stockChartPanel.getStockCandleArray().hasDate(startLocalDate)) {
+			if (stockChartPanel.getstockCandleList().hasDate(startLocalDate)) {
 				break;
 			}			
 		}
@@ -316,7 +316,7 @@ public class SettingsPanel extends JPanel {
 				endOutOfBound = true;
 				break;
 			}			
-			if (stockChartPanel.getStockCandleArray().hasDate(endLocalDate)) {
+			if (stockChartPanel.getstockCandleList().hasDate(endLocalDate)) {
 				break;
 			}
 		}

@@ -57,6 +57,6 @@ public abstract class StockParser {
 		br.close();
 	}
 	
-	public abstract void parseLine(String line, StockCandle stockCandle);
+	public abstract StockCandle parseLine(String line);
 		
 }

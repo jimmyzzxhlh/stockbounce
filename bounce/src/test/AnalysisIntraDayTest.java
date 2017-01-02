@@ -1,25 +1,23 @@
 package test;
 
-import intraday.IntraDayReaderGoogle;
-import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayLowHighIntervalMap;
-import intraday.IntraDayPriceVolumeMap;
-import intraday.IntraDayStockCandle;
-import intraday.IntraDayStockCandleArray;
-import intraday.IntraDayVolumeDistribution;
-import intraday.MultiDaysStockCandleArray;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import org.joda.time.LocalDate;
+
+import intraday.IntraDayLowHighIntervalMap;
+import intraday.IntraDayPriceVolumeMap;
+import intraday.IntraDayReaderGoogle;
+import intraday.IntraDayReaderYahoo;
+import intraday.IntraDayVolumeDistribution;
+import intraday.IntraDaystockCandleList;
+import intraday.MultiDaysCandleList;
+import stock.DayTradingDistribution;
 import stock.StockAPI;
 import stock.StockCandle;
 import stock.StockConst;
-import stock.StockDayTradingDistribution;
 import stock.StockEnum.StockCandleClass;
 import stock.StockMarketCap;
 import stock.StockTurnoverRateDistribution;
@@ -29,23 +27,13 @@ public class AnalysisIntraDayTest {
 	public static void main(String args[]) throws Exception {
 //		testPrintDailyVolume();
 //		testPrintDailyPrice();
-//		testReadIntraDayStockCandleArray();
+//		testReadIntraDaystockCandleList();
 //		testIntraDayVolumeDistribution();
 //		testIntraDayHighLowInterval();
-//		testAnalyzeSimplePriceModelGoogle();
 		testDayTradingDistribution();		
 //		testTurnoverRate();
 //		testIntraDayLowHighIntervalMap();
 //		testIntraDayPriceVolumeMap();
-	}
-	
-	private static void testReadIntraDayStockGoogle() throws Exception {
-		BufferedReader br = new BufferedReader(new FileReader(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + "GGACU.txt"));
-		String line;
-		while ((line = br.readLine()) != null) {
-			System.out.println(line);
-		}
-		br.close();
 	}
 
 	
@@ -58,27 +46,7 @@ public class AnalysisIntraDayTest {
 		IntraDayReaderYahoo.printDailyPriceForSingleStock();
 	}
 	
-	
-	private static void testReadIntraDayStockCandleArrayGoogle() throws Exception {
-		String symbol = "GOOG";
-		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt");
-		MultiDaysStockCandleArray mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
-		for (int i = 0; i < mdStockCandleArray.size(); i++) {
-			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-			System.out.println(idStockCandleArray.getTimestamp());
-			for (int j = 0; j < idStockCandleArray.size(); j++) {
-				IntraDayStockCandle idStockCandle = idStockCandleArray.get(j);
-				System.out.print(idStockCandle.getInterval() + ": ");
-				System.out.print(StockUtil.getRoundTwoDecimals(idStockCandle.close) + " ");
-				System.out.print(StockUtil.getRoundTwoDecimals(idStockCandle.high) + " ");
-				System.out.print(StockUtil.getRoundTwoDecimals(idStockCandle.low) + " ");
-				System.out.print(StockUtil.getRoundTwoDecimals(idStockCandle.open) + " ");
-				System.out.print(idStockCandle.volume + " ");
-				System.out.println();
-				
-			}
-		}
-	}
+
 	
 	private static void testIntraDayVolumeDistribution() {
 		System.out.println(IntraDayVolumeDistribution.getVolumeRate(0));
@@ -110,19 +78,19 @@ public class AnalysisIntraDayTest {
 			String symbol = StockUtil.getSymbolFromFile(file);
 			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
 //			if (!symbol.equals("GOOG")) continue;
-			MultiDaysStockCandleArray mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayGoogle(file);
-			dailyCandleCount += mdStockCandleArray.size(); 
-			for (int i = 0; i < mdStockCandleArray.size(); i++) {
-				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-				Timestamp ts = idStockCandleArray.getTimestamp();
-				StockCandleClass candleClass = idStockCandleArray.getCandleClass();
+			MultiDaysCandleList mdstockCandleList = StockAPI.getIntraDaystockCandleListGoogle(file);
+			dailyCandleCount += mdstockCandleList.size(); 
+			for (int i = 0; i < mdstockCandleList.size(); i++) {
+				IntraDaystockCandleList idstockCandleList = mdstockCandleList.get(i);
+				Timestamp ts = idstockCandleList.getTimestamp();
+				StockCandleClass candleClass = idstockCandleList.getCandleClass();
 				switch (candleClass) {
 				case WHITE_LONG:
-//					countInterval(intervalWhiteLongHigh, idStockCandleArray.getHighIntervals());
-//					countInterval(intervalWhiteLongLow, idStockCandleArray.getLowIntervals());
+//					countInterval(intervalWhiteLongHigh, idstockCandleList.getHighIntervals());
+//					countInterval(intervalWhiteLongLow, idstockCandleList.getLowIntervals());
 					
-					ArrayList<Integer> highIntervals = idStockCandleArray.getHighIntervals();
-					ArrayList<Integer> lowIntervals = idStockCandleArray.getLowIntervals();
+					ArrayList<Integer> highIntervals = idstockCandleList.getHighIntervals();
+					ArrayList<Integer> lowIntervals = idstockCandleList.getLowIntervals();
 					countInterval(intervalWhiteLongHigh, highIntervals);
 					countInterval(intervalWhiteLongLow, lowIntervals);
 					for (int j = 0; j < highIntervals.size(); j++) {
@@ -137,24 +105,24 @@ public class AnalysisIntraDayTest {
 					}
 					break;
 				case BLACK_LONG:
-					countInterval(intervalBlackLongHigh, idStockCandleArray.getHighIntervals());
-					countInterval(intervalBlackLongLow, idStockCandleArray.getLowIntervals());
+					countInterval(intervalBlackLongHigh, idstockCandleList.getHighIntervals());
+					countInterval(intervalBlackLongLow, idstockCandleList.getLowIntervals());
 					break;
 				case UPPER_LONGER:
-					countInterval(intervalUpperLongerHigh, idStockCandleArray.getHighIntervals());
-					countInterval(intervalUpperLongerLow, idStockCandleArray.getLowIntervals());
+					countInterval(intervalUpperLongerHigh, idstockCandleList.getHighIntervals());
+					countInterval(intervalUpperLongerLow, idstockCandleList.getLowIntervals());
 					break;
 				case LOWER_LONGER:
-					countInterval(intervalLowerLongerHigh, idStockCandleArray.getHighIntervals());
-					countInterval(intervalLowerLongerLow, idStockCandleArray.getLowIntervals());
+					countInterval(intervalLowerLongerHigh, idstockCandleList.getHighIntervals());
+					countInterval(intervalLowerLongerLow, idstockCandleList.getLowIntervals());
 					break;					
 				}
-//				intervalHigh[idStockCandleArray.getHighInterval()]++;
-//				intervalLow[idStockCandleArray.getLowInterval()]++;
-//				System.out.println(ts + " " + new Timestamp(ts.getTime() + idStockCandleArray.getHighInterval() * 60000) + " " + idStockCandleArray.getHighInterval() + " " + idStockCandleArray.getHigh());
-//				System.out.println(ts + " " + new Timestamp(ts.getTime() + idStockCandleArray.getLowInterval() * 60000) + " " + idStockCandleArray.getLowInterval() + " " + idStockCandleArray.getLow());
-				highCount += idStockCandleArray.getHighIntervals().size();
-				lowCount += idStockCandleArray.getLowIntervals().size();
+//				intervalHigh[idstockCandleList.getHighInterval()]++;
+//				intervalLow[idstockCandleList.getLowInterval()]++;
+//				System.out.println(ts + " " + new Timestamp(ts.getTime() + idstockCandleList.getHighInterval() * 60000) + " " + idstockCandleList.getHighInterval() + " " + idstockCandleList.getHigh());
+//				System.out.println(ts + " " + new Timestamp(ts.getTime() + idstockCandleList.getLowInterval() * 60000) + " " + idstockCandleList.getLowInterval() + " " + idstockCandleList.getLow());
+				highCount += idstockCandleList.getHighIntervals().size();
+				lowCount += idstockCandleList.getLowIntervals().size();
 			}
 			
 		}
@@ -207,7 +175,7 @@ public class AnalysisIntraDayTest {
 	}
 	
 	public static void testDayTradingDistribution() {
-		double[] distribution = StockDayTradingDistribution.getDayTradingDistribution();
+		double[] distribution = DayTradingDistribution.getDayTradingDistribution();
 		for (int i = 0; i < distribution.length; i++) {
 			System.out.println(distribution[i]);
 		}
@@ -228,12 +196,7 @@ public class AnalysisIntraDayTest {
 	}
 	
 	public static void testIntraDayPriceVolumeMap() {
-		StockCandle stockCandle = new StockCandle();
-		stockCandle.open = 95;
-		stockCandle.close = 105;
-		stockCandle.low = 90;
-		stockCandle.high = 110;
-		stockCandle.volume = 1000000;
+		StockCandle stockCandle = new StockCandle(new LocalDate(), 95.0, 105.0, 90.0, 110.0, 1000000);
 		System.out.println("Candle class: " + stockCandle.getCandleClass());
 		TreeMap<Integer, Long> map = new TreeMap<Integer, Long>(IntraDayPriceVolumeMap.getMap(stockCandle));
 		for (int price : map.keySet()) {

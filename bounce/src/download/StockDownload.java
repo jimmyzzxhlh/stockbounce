@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +27,11 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayStockCandleArray;
+import intraday.IntraDaystockCandleList;
+import stock.ExchangeUtil;
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Exchange;
-import stock.StockExchange;
 import stock.StockSymbolList;
 import util.StockFileWriter;
 import util.StockUtil;
@@ -98,7 +99,7 @@ public class StockDownload {
 		if (this.startDate == null)
 			this.startDate = DEFAULT_START_DATE;
 		
-		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
+		List<String> symbolList = StockAPI.getUSSymbolList();
 		int retry = 0;
 		int index = 0;
 		while (index < symbolList.size()) {
@@ -184,8 +185,8 @@ public class StockDownload {
 	}
 	
 	private static void downloadCompanyList(Exchange exchange) {
-		String urlString = StockExchange.getDownloadCompanyListURL(exchange);
-		String filename = StockExchange.getCompanyListFilename(exchange);
+		String urlString = ExchangeUtil.getDownloadCompanyListURL(exchange);
+		String filename = ExchangeUtil.getCompanyListFilename(exchange);
 		StockUtil.downloadURL(urlString, filename);
 		StockUtil.sleepThread(1000);
 	}
@@ -211,7 +212,7 @@ public class StockDownload {
 		}
 		StringBuilder sb = new StringBuilder();
 		//Get all the symbols from company file.
-		ArrayList<String> symbolList = StockAPI.getAllUSSymbolList();
+		List<String> symbolList = StockAPI.getAllUSSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -240,7 +241,7 @@ public class StockDownload {
 	
 	/**
 	 * Static function for downloading previous close price, used with outstanding shares CSV to compute
-	 * the market capitalization if an instance of {@StockCandleArray} is not given.
+	 * the market capitalization if an instance of {@stockCandleList} is not given.
 	 * Example:
 	 * http://finance.yahoo.com/d/quotes.csv?s=AAPL+GOOG+YHOO&f=sp
 	 */
@@ -249,7 +250,7 @@ public class StockDownload {
 		File f = new File(StockConst.PREVIOUS_CLOSE_FILENAME);
 		f.delete();
 		StringBuilder sb = new StringBuilder();
-		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
+		List<String> symbolList = StockAPI.getUSSymbolList();
 		int count = 0;
 		for (int i = 0; i < symbolList.size(); i++) {
 			count++;
@@ -334,7 +335,7 @@ public class StockDownload {
 	 */
 	public static void downloadIntraDayStocksFromGoogle() throws Exception {
 		StockUtil.createNewDirectory(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE);
-		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
+		List<String> symbolList = StockAPI.getUSSymbolList();
 		int retry = 0;
 		int index = 0;
 		Random random = new Random();
@@ -364,7 +365,7 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static boolean downloadIntraDayStockFromYahoo(Exchange exchange, String symbol, String dateString) {
-		String directory = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\";
+		String directory = ExchangeUtil.getIntraDayDirectory(exchange) + symbol + "\\";
 		File directoryFile = new File(directory);
 		if (!directoryFile.exists()) {
 			directoryFile.mkdirs();
@@ -388,7 +389,7 @@ public class StockDownload {
 		}
 //		System.out.println(fileStock);
 		//Format symbol
-		String urlSymbol = StockExchange.getURLSymbol(exchange, symbol);
+		String urlSymbol = ExchangeUtil.getURLSymbol(exchange, symbol);
 	
 		String siteAddress = "http://chartapi.finance.yahoo.com/instrument/1.0/" + urlSymbol + "/chartdata;type=quote;range=3d/csv";
 		boolean success = false;
@@ -420,9 +421,9 @@ public class StockDownload {
 	 * @throws Exception
 	 */
 	public static void downloadIntraDayStocksFromYahoo(Exchange exchange, String dateString, int sleepTime) throws Exception {
-		StockUtil.createNewDirectory(StockExchange.getIntraDayDirectory(exchange));
+		StockUtil.createNewDirectory(ExchangeUtil.getIntraDayDirectory(exchange));
 		
-		ArrayList<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
+		List<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
 
 		if (symbolList == null) return;
 		int retry = 0;
@@ -446,7 +447,7 @@ public class StockDownload {
 	}
 	
 	public static void verifyIntraDayDataFromYahoo(Exchange exchange, String dateString) {
-		ArrayList<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
+		List<String> symbolList = StockSymbolList.getSymbolListFromExchange(exchange);
 
 		if (symbolList == null) return;
 		int errorSymbolCount = 0;
@@ -459,16 +460,16 @@ public class StockDownload {
 	}
 	
 	private static boolean verifyIntraDayDataFromYahoo(Exchange exchange, String symbol, String dateString) {
-		IntraDayStockCandleArray idStockCandleArray = null;
+		IntraDaystockCandleList idstockCandleList = null;
 		boolean returnValue = true;
 		try {
-			idStockCandleArray = IntraDayReaderYahoo.getIntraDayStockCandleArray(exchange, symbol, dateString);
+			idstockCandleList = IntraDayReaderYahoo.getIntraDaystockCandleList(exchange, symbol, dateString);
 		}
 		catch (Exception e) {
 			System.err.println("Some error is found for " + symbol + " on + " + dateString);
 			returnValue = false;
 		}
-		if (idStockCandleArray != null) idStockCandleArray.destroy();
+		if (idstockCandleList != null) idstockCandleList.destroy();
 		return returnValue;
 	}
 	
@@ -501,7 +502,7 @@ public class StockDownload {
 	}
 	
 	public static void downloadEarningsDatesFromStreetInsider() {
-		ArrayList<String> symbols = StockAPI.getAllUSSymbolList();
+		List<String> symbols = StockAPI.getAllUSSymbolList();
 		for (String symbol : symbols) {
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_STREET_INSIDER + symbol + ".html";
 			if (StockUtil.fileExists(filename)) {
@@ -518,7 +519,7 @@ public class StockDownload {
 	}
 	
 	public static void downloadEarningsDatesFromTheStreet() {
-		ArrayList<String> symbols = StockAPI.getUSSymbolList();
+		List<String> symbols = StockAPI.getUSSymbolList();
 		StockUtil.createNewDirectory(StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET);
 		for (String symbol : symbols) {
 			String filename = StockConst.EARNINGS_DATES_DIRECTORY_PATH_THE_STREEET + symbol + ".html";

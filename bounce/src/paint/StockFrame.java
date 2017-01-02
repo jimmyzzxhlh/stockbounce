@@ -5,14 +5,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import stock.StockCandle;
+import stock.CandleList;
+import stock.DailyCandle;
 
 
 @SuppressWarnings("serial")
@@ -30,7 +30,7 @@ import stock.StockCandle;
  */
 public class StockFrame extends JFrame implements ActionListener {
 	static final int CANDLE_WIDTH = 5;
-	public ArrayList<StockCandle> stockCandleArray;
+	public CandleList candleList;
 	public int candleDays = 1;             // How many candles are combined together, 1 - Daily chart 
 	public int candleDaysOffset = 0;       // We have total number of <candleDays> possible charts
 	private JTextField textField;
@@ -64,7 +64,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		if (patternIndex == -1) return;
 		
 		//Draw a circle centering the indexed candle
-		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
+		DailyCandle indexedStockCandle = candleList.get(patternIndex);
 		
 		int openInt = (int) Math.floor(indexedStockCandle.open);
 		int closeInt = (int) Math.floor(indexedStockCandle.close);
@@ -84,16 +84,16 @@ public class StockFrame extends JFrame implements ActionListener {
 	 * @param g
 	 */
 	public void paintCandles(Graphics g) {
-		StockCandle currentStockCandle;
-		StockCandle formattedStockCandle;
-		if (stockCandleArray == null) return;
+		DailyCandle currentStockCandle;
+		DailyCandle formattedStockCandle;
+		if (candleList == null) return;
 		int i = candleDaysOffset;
-		while (i < stockCandleArray.size()) {
-			formattedStockCandle = new StockCandle();
+		while (i < candleList.size()) {
+			formattedStockCandle = new DailyCandle();
 			//Combine several candles together
 			for (int j = i; j < i + candleDays; j++) {
-				if (j >= stockCandleArray.size()) break;
-				currentStockCandle = stockCandleArray.get(j);
+				if (j >= candleList.size()) break;
+				currentStockCandle = candleList.get(j);
 				if (j == i) {
 					formattedStockCandle.setDate(currentStockCandle.getDate());
 					formattedStockCandle.setOpen(currentStockCandle.getOpen());					
@@ -110,7 +110,7 @@ public class StockFrame extends JFrame implements ActionListener {
 		}	
 	}
 	
-	public void paintCandle(Graphics g, int x, StockCandle stockCandle) {
+	public void paintCandle(Graphics g, int x, DailyCandle stockCandle) {
 		int frameHeight = 0;
 		int bodyHeight;
 		int upperShadowStart;

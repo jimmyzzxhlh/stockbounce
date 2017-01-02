@@ -1,6 +1,6 @@
 package indicator;
 
-import stock.StockCandleArray;
+import stock.CandleList;
 
 /**
  * Static class for computing indicators. 
@@ -19,20 +19,20 @@ public class StockIndicatorAPI {
 	
 	/**
 	 * Get simple moving average from a stock candle array.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return An array that lists simple moving average of each data point. 
 	 */
-	public static double[] getSimpleMovingAverage(StockCandleArray stockCandleArray, int period) {
-		double[] movingAverage = new double[stockCandleArray.size()];
+	public static double[] getSimpleMovingAverage(CandleList stockCandleList, int period) {
+		double[] movingAverage = new double[stockCandleList.size()];
 		double sum = 0;
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			sum += stockCandleArray.getClose(i);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			sum += stockCandleList.getClose(i);
 			if (i < period - 1) {
 				movingAverage[i] = StockIndicatorConst.NAN;
 				continue;
 			}
-			if (i >= period) sum -= stockCandleArray.getClose(i - period);
+			if (i >= period) sum -= stockCandleList.getClose(i - period);
 			movingAverage[i] = sum / (period * 1.0);				
 		}
 		return movingAverage;	
@@ -41,12 +41,12 @@ public class StockIndicatorAPI {
 	/**
 	 * See the following definition for exponential moving average.
 	 * http://www.incrediblecharts.com/indicators/exponential_moving_average.php 
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return An array that lists exponential moving average of each data point. 
 	 */
-	public static double[] getExponentialMovingAverage(StockCandleArray stockCandleArray, int period) {
-		double[] ema = new double[stockCandleArray.size()];
+	public static double[] getExponentialMovingAverage(CandleList stockCandleList, int period) {
+		double[] ema = new double[stockCandleList.size()];
 		
 		//Why is this 2 / (period + 1)? Because if you think about the last data in the array,
 		//if it needs to have twice the weight as the weight for the other data, then the total weight
@@ -54,9 +54,9 @@ public class StockIndicatorAPI {
 		double emaPercent = 2.0 / (period + 1);
 		double oneMinusEMAPercent = 1 - emaPercent;
 		if (ema.length <= 0) return null;
-		ema[0] = stockCandleArray.getClose(0);		
-		for (int i = 1; i < stockCandleArray.size(); i++) {
-			ema[i] = stockCandleArray.getClose(i) * emaPercent + ema[i - 1] * oneMinusEMAPercent;
+		ema[0] = stockCandleList.getClose(0);		
+		for (int i = 1; i < stockCandleList.size(); i++) {
+			ema[i] = stockCandleList.getClose(i) * emaPercent + ema[i - 1] * oneMinusEMAPercent;
 		}		
 		return ema;
 	}
@@ -84,14 +84,14 @@ public class StockIndicatorAPI {
 	/**
 	 * See the following definition for RSI.
 	 * http://stackoverflow.com/questions/22195412/calculate-macd-and-rsi-in-grails
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return An array that lists RSI of each data point. 
 	 */
-	public static double[] getRSI(StockCandleArray stockCandleArray, int period) {
-		double[] rsi = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() <= period) {
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+	public static double[] getRSI(CandleList stockCandleList, int period) {
+		double[] rsi = new double[stockCandleList.size()];
+		if (stockCandleList.size() <= period) {
+			for (int i = 0; i < stockCandleList.size(); i++) {
 				rsi[i] = StockIndicatorConst.NAN;
 			}
 			return rsi;		
@@ -106,7 +106,7 @@ public class StockIndicatorAPI {
 		
 		//Initialize the average.
 		for (int i = 1; i <= period; i++) {
-			double closeDiff = stockCandleArray.getClose(i) - stockCandleArray.getClose(i - 1);
+			double closeDiff = stockCandleList.getClose(i) - stockCandleList.getClose(i - 1);
 			if (closeDiff > 0) {
 				upAverage += closeDiff;
 			}
@@ -120,8 +120,8 @@ public class StockIndicatorAPI {
 		
 		rsi[period] = 100 - 100.0 / (1 + upAverage / downAverage);
 		
-		for (int i = period + 1; i < stockCandleArray.size(); i++) {
-			double closeDiff = stockCandleArray.getClose(i) - stockCandleArray.getClose(i - 1);
+		for (int i = period + 1; i < stockCandleList.size(); i++) {
+			double closeDiff = stockCandleList.getClose(i) - stockCandleList.getClose(i - 1);
 			double upIncrement = 0;
 			double downIncrement = 0;
 			if (closeDiff > 0) {
@@ -141,14 +141,14 @@ public class StockIndicatorAPI {
 	
 	/**
 	 * Given data point i, compute the standard deviation of the close price from i - period + 1 to i.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return An array that lists the standard deviation of each data point. 
 	 */
-	public static double[] getStandardDeviation(StockCandleArray stockCandleArray, int period) {
-		double[] sdArray = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() < period) {
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+	public static double[] getStandardDeviation(CandleList stockCandleList, int period) {
+		double[] sdArray = new double[stockCandleList.size()];
+		if (stockCandleList.size() < period) {
+			for (int i = 0; i < stockCandleList.size(); i++) {
 				sdArray[i] = StockIndicatorConst.NAN;
 			}
 			return sdArray;
@@ -158,17 +158,17 @@ public class StockIndicatorAPI {
 			sdArray[i] = StockIndicatorConst.NAN;
 		}
 		
-		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+		for (int i = period - 1; i < stockCandleList.size(); i++) {
 			double average = 0;
 			int start = i - period + 1;
 			int end = i;
 			for (int j = start; j <= end; j++) {
-				average += stockCandleArray.getClose(j);
+				average += stockCandleList.getClose(j);
 			}
 			average /= (period * 1.0);
 			double sd = 0;
 			for (int j = start; j <= end; j++) {
-				sd += (stockCandleArray.getClose(j) - average) * (stockCandleArray.getClose(j) - average); 
+				sd += (stockCandleList.getClose(j) - average) * (stockCandleList.getClose(j) - average); 
 			}
 			sd = Math.sqrt(sd / period);
 			sdArray[i] = sd;
@@ -179,7 +179,7 @@ public class StockIndicatorAPI {
 	/**
 	 * See the following wiki for the definition of bollinger bands.
 	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @param k By default k is set to 2. According to normal distribution, about 95% of the data will fall into the range of 
 	 *          average +- 2 * standard deviation. 
@@ -187,23 +187,23 @@ public class StockIndicatorAPI {
 	 *         bollingerBands[1] = middleBB : Simple moving average within the period. 
 	 *         bollingerBands[2] = lowerBB : Middle BB - k * (standard deviation within the period)
 	 */
-	public static double[][] getBollingerBands(StockCandleArray stockCandleArray, int period, int k) {
-		double[][] bollingerBands = new double[3][stockCandleArray.size()];
-		if (stockCandleArray.size() < period) {
+	public static double[][] getBollingerBands(CandleList stockCandleList, int period, int k) {
+		double[][] bollingerBands = new double[3][stockCandleList.size()];
+		if (stockCandleList.size() < period) {
 			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < stockCandleArray.size(); j++) {
+				for (int j = 0; j < stockCandleList.size(); j++) {
 					bollingerBands[i][j] = StockIndicatorConst.NAN;
 				}
 			}
 			return bollingerBands;
 		}
 		
-		double[] movingAverage = getSimpleMovingAverage(stockCandleArray, period);
-		double[] standardDeviation = getStandardDeviation(stockCandleArray, period);
+		double[] movingAverage = getSimpleMovingAverage(stockCandleList, period);
+		double[] standardDeviation = getStandardDeviation(stockCandleList, period);
 		for (int i = 0; i < period - 1; i++) {
 			bollingerBands[0][i] = bollingerBands[1][i] = bollingerBands[2][i] = StockIndicatorConst.NAN;
 		}
-		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+		for (int i = period - 1; i < stockCandleList.size(); i++) {
 			bollingerBands[1][i] = movingAverage[i];                                 //middle
 			bollingerBands[0][i] = bollingerBands[1][i] + k * standardDeviation[i];  //upper
 			bollingerBands[2][i] = bollingerBands[1][i] - k * standardDeviation[i];  //lower
@@ -219,15 +219,15 @@ public class StockIndicatorAPI {
 	 * and close price is less than the lower BB, then %b < 0. There is no restricted range for %b.
 	 * See the following wiki for the definition of bollinger bands.
 	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @param k
 	 * @return An array that lists the %b indicator.
 	 */
-	public static double[] getBollingerBandsPercentB(StockCandleArray stockCandleArray, int period, int k) {
-		double[] percentB = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() < period) {
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+	public static double[] getBollingerBandsPercentB(CandleList stockCandleList, int period, int k) {
+		double[] percentB = new double[stockCandleList.size()];
+		if (stockCandleList.size() < period) {
+			for (int i = 0; i < stockCandleList.size(); i++) {
 				percentB[i] = StockIndicatorConst.NAN;
 			}
 			return percentB;
@@ -236,9 +236,9 @@ public class StockIndicatorAPI {
 		for (int i = 0; i < period - 1; i++) {
 			percentB[i] = StockIndicatorConst.NAN;
 		}
-		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
-		for (int i = period - 1; i < stockCandleArray.size(); i++) {
-			percentB[i] = (stockCandleArray.getClose(i) - bollingerBands[2][i]) * 100.0 / (bollingerBands[0][i] - bollingerBands[2][i]);
+		double[][] bollingerBands = getBollingerBands(stockCandleList, period, k);
+		for (int i = period - 1; i < stockCandleList.size(); i++) {
+			percentB[i] = (stockCandleList.getClose(i) - bollingerBands[2][i]) * 100.0 / (bollingerBands[0][i] - bollingerBands[2][i]);
 		}
 		return percentB;
 	}
@@ -249,15 +249,15 @@ public class StockIndicatorAPI {
 	 * Bandwidth = (Upper BB - Lower BB) / Middle BB
 	 * See the following wiki for the definition of bollinger bands.
 	 * http://zh.wikipedia.org/wiki/%E5%B8%83%E6%9E%97%E5%B8%A6
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @param k
 	 * @return An array that lists the bandwidth indicator.
 	 */
-	public static double[] getBollingerBandsBandwidth(StockCandleArray stockCandleArray, int period, int k) {
-		double[] bandwidth = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() < period) {
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+	public static double[] getBollingerBandsBandwidth(CandleList stockCandleList, int period, int k) {
+		double[] bandwidth = new double[stockCandleList.size()];
+		if (stockCandleList.size() < period) {
+			for (int i = 0; i < stockCandleList.size(); i++) {
 				bandwidth[i] = StockIndicatorConst.NAN;
 			}
 			return bandwidth;
@@ -266,8 +266,8 @@ public class StockIndicatorAPI {
 		for (int i = 0; i < period - 1; i++) {
 			bandwidth[i] = StockIndicatorConst.NAN;
 		}
-		double[][] bollingerBands = getBollingerBands(stockCandleArray, period, k);
-		for (int i = period - 1; i < stockCandleArray.size(); i++) {
+		double[][] bollingerBands = getBollingerBands(stockCandleList, period, k);
+		for (int i = period - 1; i < stockCandleList.size(); i++) {
 			bandwidth[i] = (bollingerBands[0][i] - bollingerBands[2][i]) * 100.0 / bollingerBands[1][i];
 		}
 		return bandwidth;
@@ -278,7 +278,7 @@ public class StockIndicatorAPI {
 	 * http://en.wikipedia.org/wiki/MACD
 	 * For trading, when the divergence turns from negative to positive or positive to negative, it may be
 	 * indicating a new trend has begun.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param shortPeriod By default it is 12 days (2 weeks in the past that Saturday was still a workday)
 	 * @param longPeriod By default it is 26 days (1 month in the past)
 	 * @param macdAveragePeriod By default it is 9 days
@@ -288,18 +288,18 @@ public class StockIndicatorAPI {
 	 *   macd[2][i] (divergence) = (MACD - signal)
 	 * 
 	 */
-	public static double[][] getMACD(StockCandleArray stockCandleArray, int shortPeriod, int longPeriod, int macdAveragePeriod) {
-		double[] emaShort = getExponentialMovingAverage(stockCandleArray, shortPeriod);
-		double[] emaLong = getExponentialMovingAverage(stockCandleArray, longPeriod);
-		double[] emaDiff = new double[stockCandleArray.size()];
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+	public static double[][] getMACD(CandleList stockCandleList, int shortPeriod, int longPeriod, int macdAveragePeriod) {
+		double[] emaShort = getExponentialMovingAverage(stockCandleList, shortPeriod);
+		double[] emaLong = getExponentialMovingAverage(stockCandleList, longPeriod);
+		double[] emaDiff = new double[stockCandleList.size()];
+		for (int i = 0; i < stockCandleList.size(); i++) {
 			emaDiff[i] = emaShort[i] - emaLong[i];
 		}
 		
 		double[] macdSignal = getExponentialMovingAverage(emaDiff, macdAveragePeriod);
 		
-		double[][] macd = new double[3][stockCandleArray.size()];
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+		double[][] macd = new double[3][stockCandleList.size()];
+		for (int i = 0; i < stockCandleList.size(); i++) {
 			macd[0][i] = emaDiff[i];
 			macd[1][i] = macdSignal[i];
 			macd[2][i] = emaDiff[i] - macdSignal[i];
@@ -308,15 +308,15 @@ public class StockIndicatorAPI {
 		return macd;		
 	}
 	
-	public static double[] getMACDNormalized(StockCandleArray stockCandleArray, int shortPeriod, int longPeriod, int macdAveragePeriod) {
-//		double[] emaLong = getExponentialMovingAverage(stockCandleArray, longPeriod);
-		double[][] macd = getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
+	public static double[] getMACDNormalized(CandleList stockCandleList, int shortPeriod, int longPeriod, int macdAveragePeriod) {
+//		double[] emaLong = getExponentialMovingAverage(stockCandleList, longPeriod);
+		double[][] macd = getMACD(stockCandleList, shortPeriod, longPeriod, macdAveragePeriod);
 		//The min/max period is temporarily set as long period. This can be adjusted if needed.
 		double[] macdMin = getMin(macd[2], longPeriod);
 		double[] macdMax = getMax(macd[2], longPeriod);
-		double[] macdNormalized = new double[stockCandleArray.size()];
+		double[] macdNormalized = new double[stockCandleList.size()];
 		
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+		for (int i = 0; i < stockCandleList.size(); i++) {
 			if (macdMax[i] != macdMin[i]) {
 				macdNormalized[i] = (macd[2][i] - macdMin[i]) * 100.0 / (macdMax[i] - macdMin[i]);
 			}
@@ -363,28 +363,28 @@ public class StockIndicatorAPI {
 
 	/**
 	 * Return the distance in percentage from the current close price to the EMA line. 
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return
 	 */
-	public static double[] getExponentialMovingAverageDistance(StockCandleArray stockCandleArray, int period) {
-		double[] ema = getExponentialMovingAverage(stockCandleArray, period);
-		double[] emaDistance = new double[stockCandleArray.size()];
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			emaDistance[i] = (stockCandleArray.getClose(i) - ema[i]) * 100.0 / ema[i]; 
+	public static double[] getExponentialMovingAverageDistance(CandleList stockCandleList, int period) {
+		double[] ema = getExponentialMovingAverage(stockCandleList, period);
+		double[] emaDistance = new double[stockCandleList.size()];
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			emaDistance[i] = (stockCandleList.getClose(i) - ema[i]) * 100.0 / ema[i]; 
 		}
 		return emaDistance;		
 	}
 	
 	/**
 	 * Return an array of volume from stock candle array.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @return
 	 */
-	public static long[] getVolume(StockCandleArray stockCandleArray) {
-		long[] volume = new long[stockCandleArray.size()];
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			volume[i] = stockCandleArray.getVolume(i);
+	public static long[] getVolume(CandleList stockCandleList) {
+		long[] volume = new long[stockCandleList.size()];
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			volume[i] = stockCandleList.getVolume(i);
 		}
 		return volume;
 	}

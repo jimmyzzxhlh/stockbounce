@@ -6,7 +6,7 @@ package stock;
  * @author Dongyue Xue
  *
  */
-public class StockDayTradingDistribution {
+public class DayTradingDistribution {
 	private static final double BASE_DAY_TRADING_RATE = 0.45;
 	private static final int DELTA = 60;
 	private static final double AVERAGE_DAY_TRADING_RATE = 0.50;
@@ -16,7 +16,7 @@ public class StockDayTradingDistribution {
 	
 	private static double dayTradingRates[] = null;
 	
-	private StockDayTradingDistribution() {
+	private DayTradingDistribution() {
 			
 	}
 	

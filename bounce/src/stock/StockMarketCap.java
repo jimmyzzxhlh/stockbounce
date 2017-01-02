@@ -15,44 +15,25 @@ public class StockMarketCap {
 	private static HashMap<String, Double> map;
 	public static boolean returnAllSymbols = false;  //Set to true if we do not want to ignore symbols that have market capitalization
 	                                                 //equal to 0 or outstanding shares equal to 0. Use this flag to download oustanding shares CSV.
-	
-	private StockMarketCap() {
-		
-	}
+	private StockMarketCap() {}
 	
 	
 	/**
 	 * Get market capitalization. The definition is
 	 * Market Capitalization = Outstanding shares * current close price (should it be average?)
 	 * @param symbol Symbol of the stock
-	 * @param stockCandleArray Stock Candle Array. Only use the last close price for now.
+	 * @param stockCandleList Stock Candle Array. Only use the last close price for now.
 	 * @return A double indicating market capitalization
 	 */
-	public static double getMarketCapFromSharesOutstanding(String symbol, StockCandleArray stockCandleArray) {
-		if (stockCandleArray.size() <= 0) return 0;
-		return getMarketCapFromSharesOutstanding(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));		
+	public static double getMarketCapFromOutstandingShares(String symbol, CandleList stockCandleList) {
+		if (stockCandleList.size() <= 0) return 0;
+		return getMarketCapFromOutstandingShares(symbol, stockCandleList.getClose(stockCandleList.size() - 1));		
 	}
 	
-	public static double getMarketCapFromSharesOutstanding(String symbol, double currentClose) {
-		HashMap<String, Long> sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
-		long sharesOutstanding = sharesOutstandingMap.get(symbol);
-		return currentClose * sharesOutstanding; 		
+	public static double getMarketCapFromOutstandingShares(String symbol, double currentClose) {
+		return currentClose * OutstandingShares.getOutstandingShares(symbol); 		
 	}
 	
-	
-	/**
-	 * This is deprecated. To get the current market capitalization, we can simply read from
-	 * the company list file.
-	 */
-//	public static double getMarketCap(String symbol) {
-//		HashMap<String, Long> sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
-//		if (!sharesOutstandingMap.containsKey(symbol)) return 0;
-//		long sharesOutstanding = sharesOutstandingMap.get(symbol).longValue();
-//		HashMap<String, Double> previousCloseMap = StockPreviousCloseMap.getMap();
-//		if (!previousCloseMap.containsKey(symbol)) return 0;
-//		double previousClose = previousCloseMap.get(symbol).doubleValue();
-//		return previousClose * sharesOutstanding;
-//	}
 	
 	/**
 	 * Get market capitalization given a symbol.
@@ -78,66 +59,64 @@ public class StockMarketCap {
 	 */
 	private static void setMap() {
 		map = new HashMap<String, Double>();
-		setMap(Exchange.NASDAQ);
-		setMap(Exchange.NYSE);		
+		try {
+			setMap(Exchange.NASDAQ);
+			setMap(Exchange.NYSE);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
 	 * Set mapping between symbol and the market capitalization for one stock exchange.
 	 */
-	private static void setMap(Exchange exchange) {
-		String filename = StockExchange.getCompanyListFilename(exchange);
+	private static void setMap(Exchange exchange) throws Exception {
+		String filename = ExchangeUtil.getCompanyListFilename(exchange);
 		
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			String line;
-			int lineNumber = 0;
-			while ((line = br.readLine()) != null) {
-				lineNumber++;
-				//Ignore the first line as it is a header.
-				if (lineNumber == 1) continue;
-				//Split the data
-				String data[] = StockUtil.splitCSVLine(line);
-				String symbol = data[0];
-				String marketCapStr = data[3];
-				double marketCap = -1;
-				//Check market capitalization. If not greater than 0 then ignore the symbol.
-				//Do the check only when returnAllSymbols = false.
-				if (!returnAllSymbols) {					
-					if (marketCapStr.equals("n/a")) continue;
-					//If there is no shares outstanding at all then ignore.
-					HashMap<String, Long> sharesOutStandingMap = StockSharesOutstandingMap.getMap();
-					if (!sharesOutStandingMap.containsKey(symbol) || (sharesOutStandingMap.get(symbol) <= 0)) {
-	//					System.out.println(symbol + " does not have shares outstanding data.");
-						continue;					
-					}
-					if (marketCapStr.startsWith("$")) marketCapStr = marketCapStr.substring(1);
-					int coefficient = 1;
-					if (marketCapStr.endsWith("K")) {
-						coefficient = 1000;	
-						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
-					}
-					else if (marketCapStr.endsWith("M")) {
-						coefficient = 1000000;
-						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);					
-					}
-					else if (marketCapStr.endsWith("B")) {
-						coefficient = 1000000000;
-						marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
-					}
-					marketCap = Double.parseDouble(marketCapStr) * coefficient;
-					
+		BufferedReader br = new BufferedReader(new FileReader(filename));
+		String line;
+		int lineNumber = 0;
+		while ((line = br.readLine()) != null) {
+			lineNumber++;
+			//Ignore the first line as it is a header.
+			if (lineNumber == 1) continue;
+			//Split the data
+			String data[] = StockUtil.splitCSVLine(line);
+			String symbol = data[0];
+			String marketCapStr = data[3];
+			double marketCap = -1;
+			//Check market capitalization. If not greater than 0 then ignore the symbol.
+			//Do the check only when returnAllSymbols = false.
+			if (!returnAllSymbols) {					
+				if (marketCapStr.equals("n/a")) continue;
+				//If there is no shares outstanding at all then ignore.
+				if (OutstandingShares.getOutstandingShares(symbol) <= 0) { 
+//					System.out.println(symbol + " does not have shares outstanding data.");
+					continue;					
 				}
-				if (marketCap > 0) {
-					map.put(symbol, marketCap);
+				if (marketCapStr.startsWith("$")) marketCapStr = marketCapStr.substring(1);
+				int coefficient = 1;
+				if (marketCapStr.endsWith("K")) {
+					coefficient = 1000;	
+					marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
 				}
+				else if (marketCapStr.endsWith("M")) {
+					coefficient = 1000000;
+					marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);					
+				}
+				else if (marketCapStr.endsWith("B")) {
+					coefficient = 1000000000;
+					marketCapStr = marketCapStr.substring(0, marketCapStr.length() - 1);
+				}
+				marketCap = Double.parseDouble(marketCapStr) * coefficient;
+				
 			}
-			br.close();
-			
+			if (marketCap > 0) {
+				map.put(symbol, marketCap);
+			}
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}	
+		br.close();
 	}
 
 
@@ -146,16 +125,16 @@ public class StockMarketCap {
 	 * Return true if the symbol is a large market capitalization stock.
 	 * This is computed based on the last close price and the shares outstanding.
 	 * @param symbol
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @return
 	 */
-	public static boolean isLargeMarketCapFromSharesOutstanding(String symbol, StockCandleArray stockCandleArray) {
-		if (stockCandleArray.size() <= 0) return false;
-		return isLargeMarketCapFromSharesOutstanding(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
+	public static boolean isLargeMarketCapFromoutstandingShares(String symbol, CandleList stockCandleList) {
+		if (stockCandleList.size() <= 0) return false;
+		return isLargeMarketCapFromoutstandingShares(symbol, stockCandleList.getClose(stockCandleList.size() - 1));
 	}
 	
-	public static boolean isLargeMarketCapFromSharesOutstanding(String symbol, double currentClose) {
-		double marketCap = getMarketCapFromSharesOutstanding(symbol, currentClose);
+	public static boolean isLargeMarketCapFromoutstandingShares(String symbol, double currentClose) {
+		double marketCap = getMarketCapFromOutstandingShares(symbol, currentClose);
 		if (marketCap >= StockConst.LARGE_MARKET_CAP_MIN) return true;
 		return false;
 	}
@@ -169,16 +148,16 @@ public class StockMarketCap {
 	/**
 	 * Return true if the symbol is a middle market capitalization stock.
 	 * @param symbol
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @return
 	 */
-	public static boolean isMiddleMarketCapFromSharesOutstanding(String symbol, StockCandleArray stockCandleArray) {
-		if (stockCandleArray.size() <= 0) return false;
-		return isMiddleMarketCapFromSharesOutstanding(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
+	public static boolean isMiddleMarketCapFromoutstandingShares(String symbol, CandleList stockCandleList) {
+		if (stockCandleList.size() <= 0) return false;
+		return isMiddleMarketCapFromoutstandingShares(symbol, stockCandleList.getClose(stockCandleList.size() - 1));
 	}
 	
-	public static boolean isMiddleMarketCapFromSharesOutstanding(String symbol, double currentClose) {
-		double marketCap = getMarketCapFromSharesOutstanding(symbol, currentClose);
+	public static boolean isMiddleMarketCapFromoutstandingShares(String symbol, double currentClose) {
+		double marketCap = getMarketCapFromOutstandingShares(symbol, currentClose);
 		if ((marketCap >= StockConst.MIDDLE_MARKET_CAP_MIN) && (marketCap <= StockConst.MIDDLE_MARKET_CAP_MAX)) return true;
 		return false;
 	}
@@ -192,16 +171,16 @@ public class StockMarketCap {
 	/**
 	 * Return true if the symbol is a small market capitalization stock.
 	 * @param symbol
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @return
 	 */
-	public static boolean isSmallMarketCapFromSharesOutstanding(String symbol, StockCandleArray stockCandleArray) {
-		if (stockCandleArray.size() <= 0) return false;
-		return isSmallMarketCapFromSharesOutstanding(symbol, stockCandleArray.getClose(stockCandleArray.size() - 1));
+	public static boolean isSmallMarketCapFromoutstandingShares(String symbol, CandleList stockCandleList) {
+		if (stockCandleList.size() <= 0) return false;
+		return isSmallMarketCapFromoutstandingShares(symbol, stockCandleList.getClose(stockCandleList.size() - 1));
 	}
 	
-	public static boolean isSmallMarketCapFromSharesOutstanding(String symbol, double currentClose) {
-		double marketCap = getMarketCapFromSharesOutstanding(symbol, currentClose);
+	public static boolean isSmallMarketCapFromoutstandingShares(String symbol, double currentClose) {
+		double marketCap = getMarketCapFromOutstandingShares(symbol, currentClose);
 		if ((marketCap >= StockConst.SMALL_MARKET_CAP_MIN) && (marketCap <= StockConst.SMALL_MARKET_CAP_MAX)) return true;
 		return false;
 	}

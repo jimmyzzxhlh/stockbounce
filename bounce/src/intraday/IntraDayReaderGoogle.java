@@ -54,14 +54,14 @@ public class IntraDayReaderGoogle {
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
 		File file = new File(StockConst.INTRADAY_DIRECTORY_PATH_GOOGLE + symbol + ".txt");
-		MultiDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(file);
-		for (int i = 0; i < mdStockCandleArray.size(); i++) {
+		MultiDaysCandleList mdstockCandleList = getIntraDaystockCandleList(file);
+		for (int i = 0; i < mdstockCandleList.size(); i++) {
 			long volumeDay = 0;
-			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-			for (int j = 0; j < idStockCandleArray.size(); j++) {
-				volumeDay += idStockCandleArray.get(j).getVolume();
+			IntraDaystockCandleList idstockCandleList = mdstockCandleList.get(i);
+			for (int j = 0; j < idstockCandleList.size(); j++) {
+				volumeDay += idstockCandleList.get(j).getVolume();
 			}
-			System.out.println(idStockCandleArray.getTimestamp() + " " + volumeDay);
+			System.out.println(idstockCandleList.getTimestamp() + " " + volumeDay);
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class IntraDayReaderGoogle {
 	 * @param line
 	 * @return
 	 */
-	private static IntraDayStockCandle getIntraDayStockCandle(String line) {
+	private static IntraDayCandle getIntraDayStockCandle(String line) {
 		String data[] = line.split(",");
 		int interval = -1;
 		if (data[0].startsWith("a")) {
@@ -89,7 +89,7 @@ public class IntraDayReaderGoogle {
 			interval = Integer.parseInt(data[0]);			
 		}
 		if (!isValidInterval(interval)) return null;
-		IntraDayStockCandle idStockCandle = new IntraDayStockCandle();
+		IntraDayCandle idStockCandle = new IntraDayCandle();
 		idStockCandle.setInterval(interval);
 		idStockCandle.setClose(Double.parseDouble(data[1]));
 		idStockCandle.setHigh(Double.parseDouble(data[2]));
@@ -107,10 +107,10 @@ public class IntraDayReaderGoogle {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getIntraDayStockCandleArray(File file) throws Exception {
+	public static MultiDaysCandleList getIntraDaystockCandleList(File file) throws Exception {
 		//Create an object of multi-days stock candle array.
 		String symbol = StockUtil.getSymbolFromFile(file);
-		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
+		MultiDaysCandleList mdstockCandleList = new MultiDaysCandleList(symbol);
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
 		//Skip the first few lines until we hit the first day that needs to be processed.
@@ -119,15 +119,15 @@ public class IntraDayReaderGoogle {
 		}
 		
 		while (line != null) {
-			IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
+			IntraDaystockCandleList idstockCandleList = new IntraDaystockCandleList();
 			//Process the first intraday stock candle, which has the timestamp.
 			Timestamp ts = getTimestamp(line);
-			idStockCandleArray.setTimeStamp(ts);
-			idStockCandleArray.setSymbol(symbol);
-			IntraDayStockCandle idStockCandle = null;
+			idstockCandleList.setTimeStamp(ts);
+			idstockCandleList.setSymbol(symbol);
+			IntraDayCandle idStockCandle = null;
 			idStockCandle = getIntraDayStockCandle(line);
 			if (idStockCandle != null) {
-				idStockCandleArray.add(idStockCandle);
+				idstockCandleList.add(idStockCandle);
 			}
 			else {
 				System.out.println(symbol + " has invalid interval: " + line);
@@ -141,7 +141,7 @@ public class IntraDayReaderGoogle {
 				}
 				idStockCandle = getIntraDayStockCandle(line);
 				if (idStockCandle != null) {
-					idStockCandleArray.add(idStockCandle);
+					idstockCandleList.add(idStockCandle);
 				}
 				else {
 					System.out.println(symbol + " has invalid interval: " + line);
@@ -149,13 +149,13 @@ public class IntraDayReaderGoogle {
 				}					
 			}
 			//Set open, close, high, low attributes for the current day.
-			idStockCandleArray.setOpen();
-			idStockCandleArray.setClose();
-			idStockCandleArray.setHigh();
-			idStockCandleArray.setLow();
-			mdStockCandleArray.add(idStockCandleArray);
+			idstockCandleList.setOpen();
+			idstockCandleList.setClose();
+			idstockCandleList.setHigh();
+			idstockCandleList.setLow();
+			mdstockCandleList.add(idstockCandleList);
 		}
-		return mdStockCandleArray;
+		return mdstockCandleList;
 	}
 	
 	/**
@@ -174,14 +174,14 @@ public class IntraDayReaderGoogle {
 		for (File file : directory.listFiles()) {
 			String symbol = StockUtil.getSymbolFromFile(file);
 //			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
-			MultiDaysStockCandleArray mdStockCandleArray = getIntraDayStockCandleArray(file);
+			MultiDaysCandleList mdstockCandleList = getIntraDaystockCandleList(file);
 			double estimatedTotalCapital = 0;
 			double realTotalCapital = 0;
-			for (int i = 0; i < mdStockCandleArray.size(); i++) {
-				IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-				double averagePrice = (idStockCandleArray.getOpen() + idStockCandleArray.getClose() + idStockCandleArray.getHigh() + idStockCandleArray.getLow()) * 0.25;
-				estimatedTotalCapital += averagePrice * idStockCandleArray.getVolume();
-				realTotalCapital += idStockCandleArray.getTotalCapital();				
+			for (int i = 0; i < mdstockCandleList.size(); i++) {
+				IntraDaystockCandleList idstockCandleList = mdstockCandleList.get(i);
+				double averagePrice = (idstockCandleList.getOpen() + idstockCandleList.getClose() + idstockCandleList.getHigh() + idstockCandleList.getLow()) * 0.25;
+				estimatedTotalCapital += averagePrice * idstockCandleList.getVolume();
+				realTotalCapital += idstockCandleList.getTotalCapital();				
 			}
 			double errorTotalCapital = (estimatedTotalCapital - realTotalCapital) / realTotalCapital * 100;
 			System.out.println(symbol + " " + StockUtil.getRoundDecimals(errorTotalCapital, 5) + "%");
@@ -216,7 +216,7 @@ public class IntraDayReaderGoogle {
 //			}
 //			
 //			while (line != null) {
-//				ArrayList<IntraDayStockCandle> idStockCandleArray = new ArrayList<IntraDayStockCandle>();
+//				ArrayList<IntraDayStockCandle> idstockCandleList = new ArrayList<IntraDayStockCandle>();
 //				double open,close,high,low;
 //				open = close = high = low = 0;
 //				//Process the first stock candle
@@ -224,7 +224,7 @@ public class IntraDayReaderGoogle {
 //				IntraDayStockCandle idStockCandle = null;
 //				idStockCandle = getIntraDayStockCandle(line);
 //				if (idStockCandle != null) {
-//					idStockCandleArray.add(idStockCandle);
+//					idstockCandleList.add(idStockCandle);
 //					//Initialize open/high/low.
 //					open = idStockCandle.getOpen();
 //					high = idStockCandle.getHigh();
@@ -241,7 +241,7 @@ public class IntraDayReaderGoogle {
 //					}
 //					idStockCandle = getIntraDayStockCandle(line);
 //					if (idStockCandle != null) {
-//						idStockCandleArray.add(idStockCandle);
+//						idstockCandleList.add(idStockCandle);
 //						if (idStockCandle.getHigh() > high) high = idStockCandle.getHigh();
 //						if (idStockCandle.getLow() < low) low = idStockCandle.getLow();
 //					}
@@ -262,8 +262,8 @@ public class IntraDayReaderGoogle {
 //					continue;
 //				}
 //				
-//				for (int i = 0; i < idStockCandleArray.size(); i++) {
-//					idStockCandle = idStockCandleArray.get(i);
+//				for (int i = 0; i < idstockCandleList.size(); i++) {
+//					idStockCandle = idstockCandleList.get(i);
 //					intervalCount[idStockCandle.getInterval()]++;
 //					if (Math.abs(idStockCandle.getLow() - low) < 0.01) {
 //						if (close > open) {

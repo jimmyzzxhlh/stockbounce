@@ -15,8 +15,8 @@ import javax.swing.JPanel;
 
 import paint.upperindicator.AverageCostUpperIndicator;
 import stock.StockAPI;
-import stock.StockCandle;
-import stock.StockCandleArray;
+import stock.DailyCandle;
+import stock.CandleList;
 import stock.StockEnum.StockCandleDataType;
 import util.StockUtil;
 
@@ -60,8 +60,8 @@ public class StockChartPanel extends JPanel {
 	
 	private AverageCostUpperIndicator averageCostUpperIndicator;
 	
-	private StockCandleArray stockCandleArray;
-	private StockCandleArray normalizedStockCandleArray;
+	private CandleList stockCandleList;
+	private CandleList normalizedstockCandleList;
 	
 	public StockChartPanel() {
 		//Add mouse motion listener for displaying the current stock candle's information on the top.
@@ -99,13 +99,13 @@ public class StockChartPanel extends JPanel {
 			averageCostUpperIndicator = null;
 		}
 			
-		if (stockCandleArray != null) { 
-			stockCandleArray.destroy();
-			stockCandleArray = null;
+		if (stockCandleList != null) { 
+			stockCandleList.destroy();
+			stockCandleList = null;
 		}
-		if (normalizedStockCandleArray != null) {
-			normalizedStockCandleArray.destroy();
-			normalizedStockCandleArray = null;
+		if (normalizedstockCandleList != null) {
+			normalizedstockCandleList.destroy();
+			normalizedstockCandleList = null;
 		}		
 	}
 	
@@ -199,7 +199,7 @@ public class StockChartPanel extends JPanel {
 		if (!isXWithinChart(x)) return;
 		x = x - StockGUIConst.CHART_LEFT_BORDER_DISTANCE;
 		int index = getIndexFromTranslatedX(x);
-		StockCandle stockCandle = stockCandleArray.get(index);
+		DailyCandle stockCandle = stockCandleList.get(index);
 //		System.out.println(x + " " + index);
 		stockCandleInfoPanel.setStockCandle(stockCandle);
 		stockCandleInfoPanel.repaint();
@@ -264,30 +264,30 @@ public class StockChartPanel extends JPanel {
 		return endDateIndex;
 	}
 	
-	public StockCandleArray getStockCandleArray() {
-		return stockCandleArray;
+	public CandleList getstockCandleList() {
+		return stockCandleList;
 	}
 	
-	public boolean initializeStockCandleArray(boolean readFile) {
+	public boolean initializestockCandleList(boolean readFile) {
 		if (readFile) {
-			this.stockCandleArray = StockAPI.getStockCandleArrayYahoo(symbol);
+			this.stockCandleList = StockAPI.getstockCandleListYahoo(symbol);
 		}
-		if (stockCandleArray == null) {
+		if (stockCandleList == null) {
 			StockGUIUtil.showWarningMessageDialog("Symbol " + symbol + " is not valid.", "Invalid Symbol");
 			return false;
 		}
-		startDateIndex = stockCandleArray.getDateIndex(startDate, true);
-		endDateIndex = stockCandleArray.getDateIndex(endDate, true);
+		startDateIndex = stockCandleList.getDateIndex(startDate, true);
+		endDateIndex = stockCandleList.getDateIndex(endDate, true);
 		//Update the start date and end date since they can be invalid or on holidays.
-		startDate = stockCandleArray.getDate(startDateIndex);
-		endDate = stockCandleArray.getDate(endDateIndex);
+		startDate = stockCandleList.getDate(startDateIndex);
+		endDate = stockCandleList.getDate(endDateIndex);
 		settingsPanel.updateDates(startDate, endDate);
 		daysTotal = endDateIndex - startDateIndex + 1;
 		return true;
 	}
 	
 	public boolean hasChart() {
-		return (stockCandleArray != null);
+		return (stockCandleList != null);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -319,8 +319,8 @@ public class StockChartPanel extends JPanel {
 		stockCandleBodyWidth = stockCandleTotalWidth - stockCandleDistanceWidth;
 		chartHeight = getPanelHeight() - StockGUIConst.CHART_TOP_BORDER_DISTANCE - StockGUIConst.CHART_BOTTOM_BORDER_DISTANCE;
 		
-		maxHigh = stockCandleArray.getMaxStockPrice(startDateIndex, daysTotal, StockCandleDataType.HIGH);
-		minLow = stockCandleArray.getMinStockPrice(startDateIndex, daysTotal, StockCandleDataType.LOW);
+		maxHigh = stockCandleList.getMaxStockPrice(startDateIndex, daysTotal, StockCandleDataType.HIGH);
+		minLow = stockCandleList.getMinStockPrice(startDateIndex, daysTotal, StockCandleDataType.LOW);
 		priceUnit = getPriceUnit(maxHigh - minLow);
 		if (priceUnit < 0) {
 			StockGUIUtil.showWarningMessageDialog("Cannot determine the right price unit for the chart grids.", "Price Unit Error");
@@ -333,8 +333,8 @@ public class StockChartPanel extends JPanel {
 		xUnit = stockCandleTotalWidth;
 		
 		//Normalize stock candle array.
-		normalizedStockCandleArray = new StockCandleArray(stockCandleArray);
-		normalizedStockCandleArray.normalizeStockCandle(chartHeight, minPriceOnGrid, maxPriceOnGrid, startDateIndex, endDateIndex);
+		normalizedstockCandleList = new CandleList(stockCandleList);
+		normalizedstockCandleList.normalizeStockCandle(chartHeight, minPriceOnGrid, maxPriceOnGrid, startDateIndex, endDateIndex);
 		
 		String maxPriceOnGridStr = Double.toString(StockUtil.getRoundTwoDecimals(maxPriceOnGrid));
 		priceLabelWidth = (int) Math.round(StockGUIUtil.getStringWidth(g2, StockGUIConst.PRICE_LABEL_FONT, maxPriceOnGridStr)) + 1;
@@ -383,8 +383,8 @@ public class StockChartPanel extends JPanel {
 			boolean drawVerticalLine = false;
 			if ((i == startDateIndex) || (i == endDateIndex)) drawVerticalLine = true;
 			else {
-				int thisMonth = StockGUIUtil.getMonth(stockCandleArray.getDate(i));
-				int previousMonth = StockGUIUtil.getMonth(stockCandleArray.getDate(i - 1));
+				int thisMonth = StockGUIUtil.getMonth(stockCandleList.getDate(i));
+				int previousMonth = StockGUIUtil.getMonth(stockCandleList.getDate(i - 1));
 				if (thisMonth != previousMonth) {
 					drawVerticalLine = true;
 				}
@@ -419,7 +419,7 @@ public class StockChartPanel extends JPanel {
 		g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		for (int i = startDateIndex; i <= endDateIndex; i++) {
-			StockCandlePaint stockCandlePaint = new StockCandlePaint(normalizedStockCandleArray.get(i));
+			StockCandlePaint stockCandlePaint = new StockCandlePaint(normalizedstockCandleList.get(i));
 			stockCandlePaint.setGraphics2D(g2);
 			stockCandlePaint.setBodyWidth(stockCandleBodyWidth);
 			stockCandlePaint.setX(getTranslatedXFromIndex(i));

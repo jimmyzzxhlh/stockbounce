@@ -4,12 +4,12 @@ import java.awt.Graphics2D;
 
 import paint.StockGUIConst;
 import paint.StockLowerIndicatorPanel;
-import stock.StockCandleArray;
+import stock.CandleList;
 
 public abstract class LowerIndicatorAbstract {
 
 	protected StockLowerIndicatorPanel lowerIndicatorPanel;
-	protected StockCandleArray stockCandleArray;
+	protected CandleList stockCandleList;
 	protected int startDateIndex;
 	protected int endDateIndex;
 	protected Graphics2D g2Input;
@@ -21,10 +21,10 @@ public abstract class LowerIndicatorAbstract {
 		
 	}
 	
-	public LowerIndicatorAbstract(Graphics2D g2Input, StockLowerIndicatorPanel lowerIndicatorPanel, StockCandleArray stockCandleArray, int startDateIndex, int endDateIndex) {
+	public LowerIndicatorAbstract(Graphics2D g2Input, StockLowerIndicatorPanel lowerIndicatorPanel, CandleList stockCandleList, int startDateIndex, int endDateIndex) {
 		this.g2Input = g2Input;
 		this.lowerIndicatorPanel = lowerIndicatorPanel;
-		this.stockCandleArray = stockCandleArray;
+		this.stockCandleList = stockCandleList;
 		this.startDateIndex = startDateIndex;
 		this.endDateIndex = endDateIndex;
 		chartWidth = lowerIndicatorPanel.getPanelWidth() - StockGUIConst.LOWER_INDICATOR_LEFT_BORDER_DISTANCE - StockGUIConst.LOWER_INDICATOR_RIGHT_BORDER_DISTANCE;
@@ -39,7 +39,7 @@ public abstract class LowerIndicatorAbstract {
 	}
 	
 	private boolean hasChart() {
-		return (stockCandleArray != null);
+		return (stockCandleList != null);
 	}
 	
 	protected abstract void paintBackgroundLines();

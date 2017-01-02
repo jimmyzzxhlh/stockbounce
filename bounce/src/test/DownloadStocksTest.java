@@ -6,13 +6,12 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 import download.StockDataMerge;
 import download.StockDownload;
 import indicator.StockAverageCostIndicator;
-import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayStockCandleArray;
 import stock.StockAPI;
 import stock.StockConst;
 import stock.StockEnum.Country;
@@ -227,8 +226,8 @@ public class DownloadStocksTest {
 	private static void cleanUpBadDataOne() {
 		String filename = "20150217.txt";
 		File directory = new File(StockConst.INTRADAY_DIRECTORY_PATH_YAHOO);
-		ArrayList<String> symbolList = StockAPI.getUSSymbolList();
-		ArrayList<String> allSymbolList = StockAPI.getAllUSSymbolList();
+		List<String> symbolList = StockAPI.getUSSymbolList();
+		List<String> allSymbolList = StockAPI.getAllUSSymbolList();
 		for (File subDirectory : directory.listFiles()) {
 			String symbol = subDirectory.getName();
 			boolean delete = false;

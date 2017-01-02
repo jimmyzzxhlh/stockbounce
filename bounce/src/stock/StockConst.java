@@ -3,7 +3,7 @@ package stock;
 public class StockConst {
 	public static final String STOCK_CSV_DIRECTORY_PATH = "D:\\zzx\\Stock\\CSV\\";
 	public static final String SNAPSHOT_DIRECTORY_PATH = "D:\\zzx\\Stock\\Snapshots\\";
-	public static final String SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\SharesOutstanding.csv";
+	public static final String SHARES_OUTSTANDING_FILENAME = "D:\\zzx\\Stock\\outstandingShares.csv";
 	public static final String PREVIOUS_CLOSE_FILENAME = "D:\\zzx\\Stock\\PreviousClose.csv";
 	public static final String TURNOVER_RATE_DISTRIBUTION_FILENAME = "D:\\zzx\\Stock\\TurnoverRateDistribution.csv";
 	public static final int TURNOVER_RATE_DISTRIBUTION_ARRAY_LENGTH = 1001;
@@ -52,7 +52,7 @@ public class StockConst {
 	
 	public static final int INTRADAY_DEFAULT_SLEEP_TIME = 300;
 	
-	public static final double LONG_DAY_PERCENTAGE = 0.01;
+	public static final double LONG_DAY_PERCENTAGE = 0.005;
 	
 	
 	//Earnings related

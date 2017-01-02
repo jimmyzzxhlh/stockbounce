@@ -16,7 +16,7 @@ import stock.StockEnum.StockCandleClass;
  * (10000, 3000)
  * (10100, 2000)
  * (10200, 1500)
- * Notice that the price is multiplied by 100 and rounded.
+ * Notice that the prices above are multiplied by 100 and rounded up.
  * To estimate the number of shares for a possible price, we do the following:
  * 1. Identify the candle class. For example, the candle can be a white long.
  * 2. Get the average interval where low and high appears. This is changed based on candle class.
@@ -110,7 +110,7 @@ public class IntraDayPriceVolumeMap {
 	// Given intraday candles, get price-volume map
 	// For each intraday candle: calculate the average of high,low,open, and close; add the volume to the map
 	// Normalized to actual intraday volume
-	public static HashMap<Integer, Long> getMap(IntraDayStockCandleArray intraDayCandleArray, long intraDayVolume) {
+	public static HashMap<Integer, Long> getMap(IntraDaystockCandleList intraDayCandleArray, long intraDayVolume) {
 		HashMap<Integer, Long> map = new HashMap<Integer, Long>(); 
 		long filedVolume = 0;
 		for (int j = 0; j < intraDayCandleArray.size(); j++){
@@ -118,7 +118,7 @@ public class IntraDayPriceVolumeMap {
 		}
 		double nom = intraDayVolume / filedVolume;
 		for (int i = 0; i < intraDayCandleArray.size(); i++){
-			IntraDayStockCandle intraDayCandle = intraDayCandleArray.get(i);
+			IntraDayCandle intraDayCandle = intraDayCandleArray.get(i);
 			//Actual price * 100
 			int price = (int)Math.round((intraDayCandle.high +intraDayCandle.low +intraDayCandle.open + intraDayCandle.close) * 100.0 / 4.0);
 			if (!map.containsKey(price)){

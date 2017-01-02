@@ -2,11 +2,11 @@ package download;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
+import java.util.List;
 
+import stock.ExchangeUtil;
 import stock.StockAPI;
 import stock.StockEnum.Exchange;
-import stock.StockExchange;
 import util.StockFileWriter;
 import util.StockUtil;
 
@@ -19,7 +19,7 @@ public class StockDataMerge {
 	
 	public static void mergeAllData(Exchange exchange) throws Exception {
 		
-		File dir = new File(StockExchange.getIntraDayDirectory(exchange));
+		File dir = new File(ExchangeUtil.getIntraDayDirectory(exchange));
 		//File dir = new File("D:\\zzx\\Stock\\IntraDayTest\\");
 		String newDir = "D:\\zzx\\Stock\\IntraDayTest\\";
 		StockUtil.createNewDirectory(newDir);
@@ -70,10 +70,10 @@ public class StockDataMerge {
 	}
 	
 	public static boolean mergeOneIntraDayData(Exchange exchange, String symbol, String dateString) throws Exception {
-		String outputFileName = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\" + symbol + ".txt";
+		String outputFileName = ExchangeUtil.getIntraDayDirectory(exchange) + symbol + "\\" + symbol + ".txt";
 		//Pass true parameter to append file instead of overwrite the file!
 		StockFileWriter sfw = new StockFileWriter(outputFileName, true);
-		String intraDayFileName = StockExchange.getIntraDayDirectory(exchange) + symbol + "\\" + dateString + ".txt";
+		String intraDayFileName = ExchangeUtil.getIntraDayDirectory(exchange) + symbol + "\\" + dateString + ".txt";
 		File intraDayFile = new File(intraDayFileName);
 		if (!intraDayFile.exists()) {
 			System.err.println("File not found: " + intraDayFileName);
@@ -116,11 +116,11 @@ public class StockDataMerge {
 	}
 	
 	public static void mergeOneIntraDayData(Exchange exchange, String dateString) throws Exception {
-		ArrayList<String> symbolList = StockAPI.getSymbolListFromExchange(exchange);
+		List<String> symbolList = StockAPI.getSymbolListFromExchange(exchange);
 		int success = 0;
 		int failure = 0;
 		for (String symbol : symbolList) {
-			File symbolDirectory = new File(StockExchange.getIntraDayDirectory(exchange, symbol));
+			File symbolDirectory = new File(ExchangeUtil.getIntraDayDirectory(exchange, symbol));
 			if (!symbolDirectory.isDirectory()) {
 				System.err.println(symbolDirectory.getAbsolutePath() + " is not a directory.");
 				continue;

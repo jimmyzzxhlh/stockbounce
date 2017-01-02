@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 import util.StockFileWriter;
 import util.StockUtil;
-import yahoo.YahooParser;
 
 public class StockTurnoverRateDistribution {
 	private static double[] distribution = null;
@@ -50,28 +49,19 @@ public class StockTurnoverRateDistribution {
 	 */
 	public static void writeTurnoverRateDistribution() {
 		File directory = new File(StockConst.STOCK_CSV_DIRECTORY_PATH);
-		HashMap<String, Long> sharesOutstandingMap = null;
-		sharesOutstandingMap = StockAPI.getSharesOutstandingMap();
-		if (sharesOutstandingMap == null) {
-			System.err.println("Cannot get the shares outstanding map.");
-			return;		
-		}
 		//Count how many times that the turnover rate appears.
 		int[] turnoverRateDistributionCount = new int[1001];
 		int totalCandles = 0;
 		for (File csvFile : directory.listFiles()) {
 			String symbol = StockUtil.getSymbolFromFile(csvFile);
-			long sharesOutstanding = 0;
-			if (sharesOutstandingMap.containsKey(symbol)) {
-				sharesOutstanding = sharesOutstandingMap.get(symbol).longValue();
-			}
-			if (sharesOutstanding <= 0) {
+			long outstandingShares = OutstandingShares.getOutstandingShares(symbol);
+			if (outstandingShares <= 0) {
 				System.out.println(symbol + " does not have outstanding shares data, ignored.");
 				continue;
 			}
-			StockCandleArray stockCandleArray;
+			CandleList stockCandleList;
 			try {
-				stockCandleArray = StockAPI.getStockCandleArrayYahoo(csvFile);
+				stockCandleList = StockAPI.getstockCandleListYahoo(csvFile);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -79,12 +69,12 @@ public class StockTurnoverRateDistribution {
 				return;
 			}
 			//Right now we are only dealing with large market capitalization stock.
-			if (!StockMarketCap.isLargeMarketCapFromSharesOutstanding(symbol, stockCandleArray)) continue;
-			totalCandles += stockCandleArray.size();
-			for (int i = 0; i < stockCandleArray.size(); i++) {
-				long volume = stockCandleArray.getVolume(i);
+			if (!StockMarketCap.isLargeMarketCapFromoutstandingShares(symbol, stockCandleList)) continue;
+			totalCandles += stockCandleList.size();
+			for (int i = 0; i < stockCandleList.size(); i++) {
+				long volume = stockCandleList.getVolume(i);
 				double rate = volume * 1000.0;
-				rate = rate / sharesOutstanding;
+				rate = rate / outstandingShares;
 				if (rate > 1000) rate = 1000;
 				turnoverRateDistributionCount[(int) Math.round(rate)]++; 
 			}		

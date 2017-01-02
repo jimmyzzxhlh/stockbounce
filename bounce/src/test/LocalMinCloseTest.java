@@ -5,7 +5,7 @@ import indicator.StockGain;
 import java.io.File;
 
 import stock.StockAPI;
-import stock.StockCandleArray;
+import stock.CandleList;
 import stock.StockConst;
 
 /**
@@ -36,20 +36,20 @@ public class LocalMinCloseTest {
 		
 		for (File csvFile : directory.listFiles()) {
 			System.out.println("Reading File: " + csvFile.getName());
-			StockCandleArray stockCandleArray = StockAPI.getStockCandleArrayYahoo(csvFile);
-			double[] stockGain = StockGain.getStockGain(stockCandleArray);
+			CandleList stockCandleList = StockAPI.getstockCandleListYahoo(csvFile);
+			double[] stockGain = StockGain.getStockGain(stockCandleList);
 			stockGainTotal += stockGain.length;
 			
-			boolean[] stockFlag = new boolean[stockCandleArray.size()];
-			for (int i = 0; i < stockCandleArray.size(); i++) {
+			boolean[] stockFlag = new boolean[stockCandleList.size()];
+			for (int i = 0; i < stockCandleList.size(); i++) {
 				if (stockGain[i] >= 20) {
 					stockGainNum++;
 				}
-				if (isMinClose(stockCandleArray, i)) {
-//				if (isMinCloseBefore(stockCandleArray, i)) {
+				if (isMinClose(stockCandleList, i)) {
+//				if (isMinCloseBefore(stockCandleList, i)) {
 					minCloseNum++;
 					boolean hasStockGain = false;
-					for (int j = i; j < Math.min(i + PERIOD / 2, stockCandleArray.size()); j++) {
+					for (int j = i; j < Math.min(i + PERIOD / 2, stockCandleList.size()); j++) {
 						if (stockFlag[j]) continue;
 						stockFlag[j] = true;
 						if (stockGain[j] >= 20) {
@@ -61,7 +61,7 @@ public class LocalMinCloseTest {
 				}
 			}
 			
-			stockCandleArray = null;
+			stockCandleList = null;
 		}
 		System.out.println("Total Stock Gain: " + stockGainTotal);
 		System.out.println("Stock Gain >= 20: " + stockGainNum + ", Percentage: " + stockGainNum * 1.0 / stockGainTotal);
@@ -72,22 +72,22 @@ public class LocalMinCloseTest {
 		
 	}
 	
-	public static boolean isMinClose(StockCandleArray stockCandleArray, int index) {
+	public static boolean isMinClose(CandleList stockCandleList, int index) {
 		if (index < PERIOD) return false;
-		if (index + PERIOD >= stockCandleArray.size()) return false;
-		double currentClose = stockCandleArray.getClose(index) * (1 - PERCENTAGE);
+		if (index + PERIOD >= stockCandleList.size()) return false;
+		double currentClose = stockCandleList.getClose(index) * (1 - PERCENTAGE);
 		for (int i = index - PERIOD; i <= index + PERIOD; i++) {
 			if (i == index) continue;
-			if (stockCandleArray.getClose(i) < currentClose) return false;
+			if (stockCandleList.getClose(i) < currentClose) return false;
 		}
 		return true;
 	}
 	
-	public static boolean isMinCloseBefore(StockCandleArray stockCandleArray, int index) {
+	public static boolean isMinCloseBefore(CandleList stockCandleList, int index) {
 		if (index < PERIOD) return false;
-		double currentClose = stockCandleArray.getClose(index) * (1 - PERCENTAGE);
+		double currentClose = stockCandleList.getClose(index) * (1 - PERCENTAGE);
 		for (int i = index - PERIOD; i < index; i++) {
-			if (stockCandleArray.getClose(i) < currentClose) return false;
+			if (stockCandleList.getClose(i) < currentClose) return false;
 		}
 		return true;
 	}

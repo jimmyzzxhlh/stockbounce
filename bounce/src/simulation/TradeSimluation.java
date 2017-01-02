@@ -1,14 +1,14 @@
 package simulation;
 
-import intraday.IntraDayStockCandle;
-import intraday.MultiDaysStockCandleArray;
-
-import java.util.Date;
 import java.util.HashMap;
 
+import org.joda.time.LocalDate;
+
+import intraday.IntraDayCandle;
+import intraday.MultiDaysCandleList;
+import stock.CandleList;
+import stock.DailyCandle;
 import stock.StockAPI;
-import stock.StockCandle;
-import stock.StockCandleArray;
 import stock.StockEnum.StockOrderType;
 
 public class TradeSimluation {
@@ -22,16 +22,16 @@ public class TradeSimluation {
 	//Store all the daily stock candle array for each symbol.
 	//Notice that this hashmap (and also the intraday stock candle array) may become very big.
 	//We can consider destroy the stock candle array once we have cleared the position for the symbol. 
-	private HashMap<String, StockCandleArray> stockCandleArrayMap;
+	private HashMap<String, CandleList> stockCandleListMap;
 	
 	//Store all the intraday stock candle array for each symbol.
-	private HashMap<String, MultiDaysStockCandleArray> mdStockCandleArrayMap;
+	private HashMap<String, MultiDaysCandleList> mdstockCandleListMap;
 	
 	public TradeSimluation() {
 		portfolio = new Portfolio();
 		pendingOrdersMap = new HashMap<String, StockOrder>();
-		stockCandleArrayMap = new HashMap<String, StockCandleArray>();
-		mdStockCandleArrayMap = new HashMap<String, MultiDaysStockCandleArray>();
+		stockCandleListMap = new HashMap<String, CandleList>();
+		mdstockCandleListMap = new HashMap<String, MultiDaysCandleList>();
 	}
 	
 	
@@ -47,20 +47,20 @@ public class TradeSimluation {
 		
 		//We destory the stock candle array objects here as we are assuming that we created
 		//new objects instead of passing the stock candle array objects from a different source (such as GUI).
-		if (stockCandleArrayMap != null) {
-			for (StockCandleArray stockCandleArray : stockCandleArrayMap.values()) {
-				stockCandleArray.destroy();
+		if (stockCandleListMap != null) {
+			for (CandleList stockCandleList : stockCandleListMap.values()) {
+				stockCandleList.destroy();
 			}
-			stockCandleArrayMap.clear();
-			stockCandleArrayMap = null;
+			stockCandleListMap.clear();
+			stockCandleListMap = null;
 		}
 		
-		if (mdStockCandleArrayMap != null) {
-			for (MultiDaysStockCandleArray mdStockCandleArray : mdStockCandleArrayMap.values()) {
-				mdStockCandleArray.destroy();
+		if (mdstockCandleListMap != null) {
+			for (MultiDaysCandleList mdstockCandleList : mdstockCandleListMap.values()) {
+				mdstockCandleList.destroy();
 			}
-			mdStockCandleArrayMap.clear();
-			mdStockCandleArrayMap = null;
+			mdstockCandleListMap.clear();
+			mdstockCandleListMap = null;
 		}
 	}
 	
@@ -80,16 +80,16 @@ public class TradeSimluation {
 	
 	private void updatePortfolio(String symbol, StockOrder order) {
 		portfolio.updatePosition(order);
-		readStockCandleArray(symbol);
+		readstockCandleList(symbol);
 	}
 	
-	private void readStockCandleArray(String symbol) {
-		if (!stockCandleArrayMap.containsKey(symbol)) { 
-			StockCandleArray stockCandleArray = StockAPI.getStockCandleArrayYahoo(symbol);
-			stockCandleArrayMap.put(symbol, stockCandleArray);
+	private void readstockCandleList(String symbol) {
+		if (!stockCandleListMap.containsKey(symbol)) { 
+			CandleList stockCandleList = StockAPI.getstockCandleListYahoo(symbol);
+			stockCandleListMap.put(symbol, stockCandleList);
 		}
 		
-		//Same for mdStockCandleArray
+		//Same for mdstockCandleList
 	}
 	
 	
@@ -119,8 +119,8 @@ public class TradeSimluation {
 	
 	
 	
-	public double getFloatingProfit(String symbol, Date date) {
-		double currentPrice = stockCandleArrayMap.get(symbol).getClose(date);
+	public double getFloatingProfit(String symbol, LocalDate date) {
+		double currentPrice = stockCandleListMap.get(symbol).getClose(date);
 		return portfolio.getFloatingProfit(symbol, currentPrice);
 	}
 	
@@ -132,7 +132,7 @@ public class TradeSimluation {
 	 * If the order is in opened status, check if the order can be closed by automatic stop loss / take profit.
 	 * @param idStockCandle
 	 */
-	public void process(IntraDayStockCandle idStockCandle) {
+	public void process(IntraDayCandle idStockCandle) {
 		
 	}
 	
@@ -142,7 +142,7 @@ public class TradeSimluation {
 	 * If the order is in opened status, check if the order can be closed by automatic stop loss / take profit.
 	 * @param stockCandle
 	 */
-	public void process(StockCandle stockCandle) {
+	public void process(DailyCandle stockCandle) {
 		
 	}
 	

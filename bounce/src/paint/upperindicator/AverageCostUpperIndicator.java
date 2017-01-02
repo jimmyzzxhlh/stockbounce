@@ -8,7 +8,7 @@ import java.awt.Graphics2D;
 import paint.StockChartPanel;
 import paint.StockGUIConst;
 import paint.StockGUIUtil;
-import stock.StockCandleArray;
+import stock.CandleList;
 
 public class AverageCostUpperIndicator {
 
@@ -45,30 +45,30 @@ public class AverageCostUpperIndicator {
 		return isShown;
 	}
 	
-	public void setIndicatorArray(StockCandleArray stockCandleArray) throws Exception {
+	public void setIndicatorArray(CandleList stockCandleList) throws Exception {
 		//If we are passing in exactly the same symbol then do not update and recompute the indicator again.
 		//Notice that this has a few assumptions;
 		//1. We are always reading in a full daily stock candle array.
 		//2. We have already computed the indicator value for all the dates in the stock candle array.
-		if (stockCandleArray.getSymbol().equals(symbol)) {
+		if (stockCandleList.getSymbol().equals(symbol)) {
 			return;
 		}
 		if (indicator != null) {
 			indicator.destroy();
 			indicator = null;
 		}
-		indicator = new StockAverageCostIndicator(stockCandleArray);
+		indicator = new StockAverageCostIndicator(stockCandleList);
 		indicatorArray = indicator.getAverageCostArray();
 //		for (int i = 0; i < indicatorArray.length; i++) {
-//			System.out.println(StockUtil.formatDate(stockCandleArray.getDate(i)) + " " + indicatorArray[i]);
+//			System.out.println(StockUtil.formatDate(stockCandleList.getDate(i)) + " " + indicatorArray[i]);
 //		}
 	}
 
 	public void paintIndicator(Graphics2D g2) {
 		//g2 should already be translated.
 //		System.out.println("indicator repainting");
-		double[] xArray = new double[stockChartPanel.getStockCandleArray().size()];
-		double[] yArray = new double[stockChartPanel.getStockCandleArray().size()];
+		double[] xArray = new double[stockChartPanel.getstockCandleList().size()];
+		double[] yArray = new double[stockChartPanel.getstockCandleList().size()];
 		//Get half of the stock candle body width and apply it to the X coordinate, so that the indicator is drawn at the
 		//middle instead of drawn at the left side of the stock candle.
 		double stockCandleBodyWidthHalf = stockChartPanel.getStockCandleBodyWidth() * 0.5;

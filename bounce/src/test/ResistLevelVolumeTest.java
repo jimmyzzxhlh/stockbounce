@@ -2,8 +2,7 @@ package test;
 
 import java.text.DecimalFormat;
 
-import stock.StockCandle;
-import stock.StockCandleArray;
+import stock.CandleList;
 import stock.StockConst;
 import util.StockUtil;
 import yahoo.YahooParser;
@@ -19,15 +18,14 @@ public class ResistLevelVolumeTest {
 	}
 	
 	public void testChart() throws Exception {
-		StockCandleArray stockCandleArray = YahooParser.readCSVFile(CSV_FILENAME, MAX_CANDLE);
+		CandleList candleList = YahooParser.readCSVFile(CSV_FILENAME, MAX_CANDLE);
 		double maxPrice = 0;
 		double minPrice = 1e10;
 		
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+		for (int i = 0; i < candleList.size(); i++) {
 			//Get maximum and minimum price
-			StockCandle stockCandle = stockCandleArray.get(i);
-			if (stockCandle.high > maxPrice) maxPrice = stockCandle.high;
-			if (stockCandle.low < minPrice) minPrice = stockCandle.low;
+			maxPrice = Double.max(maxPrice, candleList.getHigh(i));
+			minPrice = Double.min(minPrice, candleList.getLow(i));
 		}
 
 		double intervalRange = StockUtil.getRoundTwoDecimals(maxPrice / INTERVAL_DENOMINATOR);
@@ -44,11 +42,10 @@ public class ResistLevelVolumeTest {
 		}
 		//for (int i = 0; i < intervalNum; i++) System.out.print(intervalPriceArray[i] + " ");
 		
-		for (int i = stockCandleArray.size() - 1; i >= 0; i--) {
-			StockCandle stockCandle = stockCandleArray.get(i);
-			double high = stockCandle.high;
-			double low = stockCandle.low;
-			int volumeSplit = (int)(stockCandle.volume * 1.0 / StockUtil.getIntervalNum(low, high, intervalRange));
+		for (int i = candleList.size() - 1; i >= 0; i--) {
+			double high = candleList.getHigh(i);
+			double low = candleList.getLow(i);
+			int volumeSplit = (int)(candleList.getVolume(i) * 1.0 / StockUtil.getIntervalNum(low, high, intervalRange));
 			for (int j = 0; j < intervalPriceArray.length; j++) {
 				if (intervalPriceArray[j] < low) continue;
 				if (intervalPriceArray[j] > high) break;

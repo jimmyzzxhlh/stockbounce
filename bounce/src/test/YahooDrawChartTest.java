@@ -3,7 +3,7 @@ package test;
 import javax.swing.WindowConstants;
 
 import paint.StockFrame;
-import stock.StockCandleArray;
+import stock.CandleList;
 import yahoo.YahooParser;
 
 public class YahooDrawChartTest {
@@ -25,19 +25,19 @@ public class YahooDrawChartTest {
 	 */
 	private static void drawChart() throws Exception {
 		StockFrame stockFrame;
-		StockCandleArray stockCandleArray;
+		CandleList candleList;
 		
-		stockCandleArray = YahooParser.readCSVFile(symbol, MAX_CANDLES);
-		stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.get(i).toString());
+		candleList = YahooParser.readCSVFile(symbol, MAX_CANDLES);
+		candleList.normalizeStockCandle(FRAME_HEIGHT);
+		for (int i = 0; i < candleList.size(); i++) {
+			System.out.println(candleList.get(i).toString());
 		}
 		
-		int frameWidth = (stockCandleArray.getStockCandleArray().size() + 1) * 5;
+		int frameWidth = (candleList.size() + 1) * 5;
 		stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT + 100);
 		stockFrame.candleDays = CANDLE_DAYS;
 		stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
-		stockFrame.stockCandleArray = stockCandleArray.getStockCandleArray();
+		stockFrame.candleList = candleList;
 		stockFrame.setVisible(true);
 		stockFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}

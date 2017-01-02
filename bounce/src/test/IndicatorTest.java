@@ -1,17 +1,18 @@
 package test;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.joda.time.LocalDate;
+
 import indicator.StockGain;
 import indicator.StockIndicatorAPI;
 import indicator.StockIndicatorArray;
 import indicator.StockIndicatorConst;
 import indicator.StockIndicatorParser;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import stock.StockCandle;
-import stock.StockCandleArray;
+import stock.CandleList;
+import stock.DailyCandle;
 import stock.StockConst;
 import yahoo.YahooParser;
 
@@ -23,7 +24,7 @@ public class IndicatorTest {
 	
 	public static void main(String args[]) {
 //		testSimpleMovingAverageFakeData();
-//		testRSI();
+		testRSI();
 //		testExponentialMovingAverage();
 //		testStandardDeviation();
 //		testBollingerBands();
@@ -31,79 +32,65 @@ public class IndicatorTest {
 //		testEMACoefficient();
 //		testMin();
 //		testMax();
-		testWriteIndicatorCSV();
+//		testWriteIndicatorCSV();
 //		testReadIndicatorCSV();
 	}
-	
-	private static void testSimpleMovingAverageFakeData() {
-		StockCandleArray stockCandleArray = new StockCandleArray();
-		for (int i = 0; i < 100; i++) {
-			StockCandle stockCandle = new StockCandle();
-			stockCandle.close = i;
-			stockCandleArray.add(stockCandle);
-		}
-		double[] movingAverage = StockIndicatorAPI.getSimpleMovingAverage(stockCandleArray, 10);
-		for (int i = 0; i < 100; i++) {
-			System.out.println(i + ": " + movingAverage[i]);
-		}
-	}
+
 	
 //	private static void testSimpleMovingAverageRealData() {
 //		final String filename = StockConst.STOCK_CSV_DIRECTORY_PATH + "CAMT.csv";
 //		final int maxCandle = 200;
-//		StockCandleArray stockCandleArray = YahooParser.readCSVFile(filename, maxCandle);
+//		stockCandleList stockCandleList = YahooParser.readCSVFile(filename, maxCandle);
 //				
 //	}
 	
 	private static void testRSI() {		
 		int period = 14;
-		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
-		double[] rsi = StockIndicatorAPI.getRSI(stockCandleArray, period);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(rsi[i]));
+		CandleList stockCandleList = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		double[] rsi = StockIndicatorAPI.getRSI(stockCandleList, period);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			System.out.println(stockCandleList.getInstant(i) + ": " + df.format(rsi[i]));
 		}
 	}
 	
 	private static void testExponentialMovingAverage() {
-		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		CandleList stockCandleList = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int period = 20;
-		double[] ema = StockIndicatorAPI.getExponentialMovingAverage(stockCandleArray, period);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(ema[i]));
+		double[] ema = StockIndicatorAPI.getExponentialMovingAverage(stockCandleList, period);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			System.out.println(stockCandleList.getInstant(i) + ": " + df.format(ema[i]));
 		}
 	}
 	
 	private static void testStandardDeviation() {
-		StockCandleArray stockCandleArray = new StockCandleArray();
-		stockCandleArray.add(createStockCandle(2));
-		stockCandleArray.add(createStockCandle(4));
-		stockCandleArray.add(createStockCandle(4));
-		stockCandleArray.add(createStockCandle(4));
-		stockCandleArray.add(createStockCandle(5));
-		stockCandleArray.add(createStockCandle(5));
-		stockCandleArray.add(createStockCandle(7));
-		stockCandleArray.add(createStockCandle(9));
-		double[] sd = StockIndicatorAPI.getStandardDeviation(stockCandleArray, 8);
+		CandleList stockCandleList = new CandleList("TESTSYMBOL", 1000000);
+		stockCandleList.add(createStockCandle(2));
+		stockCandleList.add(createStockCandle(4));
+		stockCandleList.add(createStockCandle(4));
+		stockCandleList.add(createStockCandle(4));
+		stockCandleList.add(createStockCandle(5));
+		stockCandleList.add(createStockCandle(5));
+		stockCandleList.add(createStockCandle(7));
+		stockCandleList.add(createStockCandle(9));
+		double[] sd = StockIndicatorAPI.getStandardDeviation(stockCandleList, 8);
 		for (int i = 0; i < sd.length; i++) {
 			System.out.println(i + ": " + sd[i]);
 		}
 	}
 	
-	private static StockCandle createStockCandle(double data) {
-		StockCandle stockCandle = new StockCandle();
-		stockCandle.close = data;
-		return stockCandle;
+	private static DailyCandle createStockCandle(double data) {
+		return new DailyCandle(new LocalDate(), data, data, data, data, 1000000, data);		
 	}
 	
 	public static void testBollingerBands() {
-		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		CandleList stockCandleList = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int period = 20;
 		int k = 2;
-		double[][] bb = StockIndicatorAPI.getBollingerBands(stockCandleArray, period, k);
-		double[] percentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleArray, period, k);
-		double[] bandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleArray, period, k);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[1][i]) + " " + df.format(bb[2][i]) + " " + df.format(percentB[i]) + " " + df.format(bandwidth[i]));
+		double[][] bb = StockIndicatorAPI.getBollingerBands(stockCandleList, period, k);
+		double[] percentB = StockIndicatorAPI.getBollingerBandsPercentB(stockCandleList, period, k);
+		double[] bandwidth = StockIndicatorAPI.getBollingerBandsBandwidth(stockCandleList, period, k);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			System.out.println(stockCandleList.getInstant(i) + ": " + df.format(bb[0][i]) + " " + df.format(bb[1][i]) + " " + df.format(bb[2][i]) + " " + df.format(percentB[i]) + " " + df.format(bandwidth[i]));
 		}
 		
 		
@@ -111,14 +98,14 @@ public class IndicatorTest {
 	
 	public static void testMACD() {
 		System.out.println("Testing MACD...");
-		StockCandleArray stockCandleArray = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
+		CandleList stockCandleList = YahooParser.readCSVFile(FILENAME, MAX_CANDLE);
 		int shortPeriod = 12;
 		int longPeriod = 26;
 		int macdAveragePeriod = 9;
-		double[][] macd = StockIndicatorAPI.getMACD(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
-		double[] macdNormalized = StockIndicatorAPI.getMACDNormalized(stockCandleArray, shortPeriod, longPeriod, macdAveragePeriod);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			System.out.println(stockCandleArray.getDate(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]) + " " + df.format(macdNormalized[i]));
+		double[][] macd = StockIndicatorAPI.getMACD(stockCandleList, shortPeriod, longPeriod, macdAveragePeriod);
+		double[] macdNormalized = StockIndicatorAPI.getMACDNormalized(stockCandleList, shortPeriod, longPeriod, macdAveragePeriod);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			System.out.println(stockCandleList.getInstant(i) + ": " + df.format(macd[0][i]) + " " + df.format(macd[1][i]) + " " + df.format(macd[2][i]) + " " + df.format(macdNormalized[i]));
 		}
 	}
 	

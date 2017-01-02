@@ -1,13 +1,12 @@
 package stock;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import intraday.IntraDayReaderGoogle;
 import intraday.IntraDayReaderYahoo;
 import intraday.IntraDayVolumeDistribution;
-import intraday.MultiDaysStockCandleArray;
+import intraday.MultiDaysCandleList;
 import stock.StockEnum.Exchange;
 import yahoo.YahooParser;
 
@@ -23,7 +22,7 @@ public class StockAPI {
 	 * outstanding shares data.
 	 * @return Array list of string that contains symbols.
 	 */
-	public static ArrayList<String> getUSSymbolList() {
+	public static List<String> getUSSymbolList() {
 		return StockSymbolList.getUSSymbolList();
 	}
 	
@@ -31,21 +30,21 @@ public class StockAPI {
 	 * Get all the symbols from the company list file. Use this function ONLY when downloading outstanding shares CSV.
 	 * @return
 	 */
-	public static ArrayList<String> getAllUSSymbolList() {
+	public static List<String> getAllUSSymbolList() {
 		return StockSymbolList.getAllUSSymbolList();
 	}
 	
 	
-	public static ArrayList<String> getSSESymbolList() {
+	public static List<String> getSSESymbolList() {
 		return StockSymbolList.getSSESymbolList();
 	}
 	
-	public static ArrayList<String> getSZSESymbolList() {
+	public static List<String> getSZSESymbolList() {
 		return StockSymbolList.getSZSESymbolList();
 		
 	}
 	
-	public static ArrayList<String> getSymbolListFromExchange(Exchange exchange) {
+	public static List<String> getSymbolListFromExchange(Exchange exchange) {
 		return StockSymbolList.getSymbolListFromExchange(exchange);
 	}
 	
@@ -55,8 +54,8 @@ public class StockAPI {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayGoogle(File file) throws Exception {
-		return IntraDayReaderGoogle.getIntraDayStockCandleArray(file);
+	public static MultiDaysCandleList getIntraDaystockCandleListGoogle(File file) throws Exception {
+		return IntraDayReaderGoogle.getIntraDaystockCandleList(file);
 	}
 	
 	/**
@@ -66,8 +65,8 @@ public class StockAPI {
 	 * @return See description
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getIntraDayStockCandleArrayYahoo(Exchange exchange, String symbol) throws Exception {
-		return IntraDayReaderYahoo.getMultipleDaysStockCandleArray(exchange, symbol);
+	public static MultiDaysCandleList getIntraDaystockCandleListYahoo(Exchange exchange, String symbol) throws Exception {
+		return IntraDayReaderYahoo.getMultipleDaysstockCandleList(exchange, symbol);
 	}
 	
 	/**
@@ -88,8 +87,8 @@ public class StockAPI {
 	 * Used to calculate turnover rate as well as market capitalization.
 	 * @return
 	 */
-	public static HashMap<String, Long> getSharesOutstandingMap() {
-		return StockSharesOutstandingMap.getMap();
+	public static long getOutstandingShares(String symbol) {
+		return OutstandingShares.getOutstandingShares(symbol);
 	}
 
 	/**
@@ -97,7 +96,7 @@ public class StockAPI {
 	 * @param symbol Symbol of the stock
 	 * @return A stock candle array represents daily stock candles.
 	 */
-	public static StockCandleArray getStockCandleArrayYahoo(String symbol) {
+	public static CandleList getstockCandleListYahoo(String symbol) {
 		return YahooParser.readCSVFile(symbol);
 	}
 	
@@ -106,7 +105,7 @@ public class StockAPI {
 	 * @param file
 	 * @return
 	 */
-	public static StockCandleArray getStockCandleArrayYahoo(File file) {
+	public static CandleList getstockCandleListYahoo(File file) {
 		return YahooParser.readCSVFile(file);
 	}
 

@@ -1,6 +1,6 @@
 package indicator;
 
-import stock.StockCandleArray;
+import stock.CandleList;
 
 public class StockGain {
 	
@@ -12,16 +12,16 @@ public class StockGain {
 	 * We assume that we will enter a long position at the open price of the start day.
 	 * If we need the gain of the short position, then we just need to return the negative number
 	 * of the gain for the long position.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param index Start day 
 	 * @param period Number of days evaluated from the start day (including the start day).
 	 * @return
 	 */
-	private static double getGainEMA(StockCandleArray stockCandleArray, int index, int period) {
+	private static double getGainEMA(CandleList stockCandleList, int index, int period) {
 //		if (period < 1) return 0;
 //		double[] gainCoefficient = new double[period];
 //		for (int i = index; i < index + period; i++) {
-//			gain[i - index] = (stockCandleArray.getClose(i) - open) / open;
+//			gain[i - index] = (stockCandleList.getClose(i) - open) / open;
 //		}
 //		double[] gainEMA = StockIndicator.getExponentialMovingAverage(gain, period);
 //		return gainEMA[period - 1];
@@ -30,54 +30,54 @@ public class StockGain {
 	
 	/**
 	 * NOT USED.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param index
 	 * @param period
 	 * @return
 	 */
-	public static double getLongGainEMA(StockCandleArray stockCandleArray, int index, int period) {
-		return getGainEMA(stockCandleArray, index, period);
+	public static double getLongGainEMA(CandleList stockCandleList, int index, int period) {
+		return getGainEMA(stockCandleList, index, period);
 	}
 	
 	/**
 	 * NOT USED.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param index
 	 * @param period
 	 * @return
 	 */
-	public static double getShortGainEMA(StockCandleArray stockCandleArray, int index, int period) {
-		return -getGainEMA(stockCandleArray, index, period);
+	public static double getShortGainEMA(CandleList stockCandleList, int index, int period) {
+		return -getGainEMA(stockCandleList, index, period);
 	}
 	
 	/**
 	 * Calculate percentage stock gains, assuming stock is bought at the next day's opening price.
-	 * @param stockCandleArray
+	 * @param stockCandleList
 	 * @param period
 	 * @return array of stock gains, with the last <period> entries being 0.
 	 */
-	public static double[] getStockGain(StockCandleArray stockCandleArray, int period) {
-		double[] stockGains = new double[stockCandleArray.size()];
-		if (stockCandleArray.size() <= period) return stockGains;
+	public static double[] getStockGain(CandleList stockCandleList, int period) {
+		double[] stockGains = new double[stockCandleList.size()];
+		if (stockCandleList.size() <= period) return stockGains;
 		
 		//Right now we are using the exponential moving average coefficients to calculate the expected gain value.
 		//May need to adjust the coefficient in the future. 
 		double[] coef = StockGain.getExponentialMovingAverageCoefficient(period);
 		
 		//Calculate gains
-		for (int i = 0; i < stockCandleArray.size() - period; i++) {
+		for (int i = 0; i < stockCandleList.size() - period; i++) {
 			for (int j = 0; j < period; j++) {
-				stockGains[i] += stockCandleArray.getClose(i + j + 1) * coef[j];
+				stockGains[i] += stockCandleList.getClose(i + j + 1) * coef[j];
 			}	
 			//convert to percentage gain. Notice that we start with the open price of the next day.
-			stockGains[i] = (stockGains[i] / stockCandleArray.getOpen(i + 1) - 1) * 100.0; 
+			stockGains[i] = (stockGains[i] / stockCandleList.getOpen(i + 1) - 1) * 100.0; 
 		}
 
 		return stockGains;
 	}
 	
-	public static double[] getStockGain(StockCandleArray stockCandleArray) {
-		return getStockGain(stockCandleArray, StockIndicatorConst.STOCK_GAIN_PERIOD);
+	public static double[] getStockGain(CandleList stockCandleList) {
+		return getStockGain(stockCandleList, StockIndicatorConst.STOCK_GAIN_PERIOD);
 	}
 	
 	/**

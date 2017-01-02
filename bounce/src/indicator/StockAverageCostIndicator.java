@@ -1,21 +1,20 @@
 package indicator;
 
-import intraday.IntraDayReaderYahoo;
-import intraday.IntraDayPriceVolumeMap;
-import intraday.IntraDayStockCandleArray;
-import intraday.MultiDaysStockCandleArray;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
+import intraday.IntraDayPriceVolumeMap;
+import intraday.IntraDaystockCandleList;
+import intraday.MultiDaysCandleList;
+import stock.CandleList;
+import stock.DayTradingDistribution;
 import stock.StockAPI;
 import stock.StockCandle;
-import stock.StockCandleArray;
 import stock.StockConst;
-import stock.StockDayTradingDistribution;
 import stock.StockEnum.Exchange;
 import stock.StockMarketCap;
 import stock.StockSellRate;
@@ -30,8 +29,8 @@ import yahoo.YahooParser;
  */
 public class StockAverageCostIndicator {
 
-	private StockCandleArray stockCandleArray;
-	private MultiDaysStockCandleArray mdStockCandleArray;
+	private CandleList stockCandleList;
+	private MultiDaysCandleList mdstockCandleList;
 	private ArrayList<HashMap<Integer, Long>> priceVolumeMapArray;
 	private double[] dayTradingDistribution;
 	private double[] sellRates;
@@ -42,8 +41,8 @@ public class StockAverageCostIndicator {
 	 * @param file
 	 */
 	public StockAverageCostIndicator(File file) throws Exception {
-		stockCandleArray = StockAPI.getStockCandleArrayYahoo(file);
-		symbol = stockCandleArray.getSymbol();
+		stockCandleList = StockAPI.getstockCandleListYahoo(file);
+		symbol = stockCandleList.getSymbol();
 		setMapping();
 	}
 	
@@ -53,28 +52,28 @@ public class StockAverageCostIndicator {
 	 */
 	public StockAverageCostIndicator(String symbol) throws Exception {
 		this.symbol = symbol;
-		stockCandleArray = YahooParser.readCSVFile(symbol);
+		stockCandleList = YahooParser.readCSVFile(symbol);
 		setMapping();
 	}
 	
-	public StockAverageCostIndicator(StockCandleArray stockCandleArray) throws Exception {
-		this.symbol = stockCandleArray.getSymbol();
+	public StockAverageCostIndicator(CandleList stockCandleList) throws Exception {
+		this.symbol = stockCandleList.getSymbol();
 		//Create a new copy of the stock candle array. This is to prevent null error when
 		//we destory the object. The stock candle array object may be used by other objects (such as GUI).
 		//In most of the cases, the outter functions only need the average cost information from
 		//this class, so we should be able to destroy most of the private objects.
-		this.stockCandleArray = new StockCandleArray(stockCandleArray);
+		this.stockCandleList = new CandleList(stockCandleList);
 		setMapping();
 	}
 	
 	public void destroy() {
-		if (stockCandleArray != null) {
-			stockCandleArray.destroy();
-			stockCandleArray = null;
+		if (stockCandleList != null) {
+			stockCandleList.destroy();
+			stockCandleList = null;
 		}
-		if (mdStockCandleArray != null) {
-			mdStockCandleArray.destroy();
-			mdStockCandleArray = null;
+		if (mdstockCandleList != null) {
+			mdstockCandleList.destroy();
+			mdstockCandleList = null;
 		}
 		if (priceVolumeMapArray != null) {
 			priceVolumeMapArray.clear();
@@ -92,11 +91,11 @@ public class StockAverageCostIndicator {
 	 * @return
 	 */
 	public int size() {
-		return stockCandleArray.size();
+		return stockCandleList.size();
 	}
 	
-	public StockCandleArray getStockCandleArray() {
-		return stockCandleArray;
+	public CandleList getstockCandleList() {
+		return stockCandleList;
 	}
 	
 	/**
@@ -109,30 +108,30 @@ public class StockAverageCostIndicator {
 		//Set price volume mapping
 		priceVolumeMapArray = new ArrayList<HashMap<Integer, Long>>();
 		//TODO - Should replace the hard-coded exchange
-		mdStockCandleArray = StockAPI.getIntraDayStockCandleArrayYahoo(Exchange.NASDAQ, symbol);
-		for (int i = 0; i < stockCandleArray.size(); i++) {
-			StockCandle stockCandle = stockCandleArray.get(i);
-			long intraDayVolume = stockCandle.getVolume();
-			IntraDayStockCandleArray idStockCandleArray = null;
+		mdstockCandleList = StockAPI.getIntraDaystockCandleListYahoo(Exchange.NASDAQ, symbol);
+		for (int i = 0; i < stockCandleList.size(); i++) {
+			StockCandle candle = stockCandleList.get(i);
+			long intraDayVolume = candle.getVolume();
+			IntraDaystockCandleList idstockCandleList = null;
 			//Try to use intraday data for the price / volume mapping if needed.
 			if (StockConst.USE_INTRADAY_DATA) {
-				idStockCandleArray = mdStockCandleArray.get(stockCandle.getDate());
+				idstockCandleList = mdstockCandleList.get(candle.getDate());
 			}
-			//If idStockCandleArray is null then we either do not have the intraday data or
+			//If idstockCandleList is null then we either do not have the intraday data or
 			//we are not using the intraday data.
-			if (idStockCandleArray != null){
-				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(idStockCandleArray, intraDayVolume);
+			if (idstockCandleList != null){
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(idstockCandleList, intraDayVolume);
 				priceVolumeMapArray.add(priceVolumeMap);
 //				System.out.println("Reading " + symbol + "-" + stockCandle.getDate().toString());
 			}
 			else {
-				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(stockCandle);	
+				HashMap<Integer, Long> priceVolumeMap = IntraDayPriceVolumeMap.getMap(candle);	
 				priceVolumeMapArray.add(priceVolumeMap);
 			}		
 		}
 		
 		//Set day trading distribution
-		dayTradingDistribution = StockDayTradingDistribution.getDayTradingDistribution();
+		dayTradingDistribution = DayTradingDistribution.getDayTradingDistribution();
 		
 		//Set daily sell rate mapping
 		sellRates = StockSellRate.getSellRates();
@@ -162,7 +161,7 @@ public class StockAverageCostIndicator {
 		HashMap<Integer, Long> priceVolumeMap = new HashMap<Integer, Long>(); 
 		for (int i = index; i >= Math.max(0, index - StockIndicatorConst.MAX_SELL_PERIOD + 1); i--) {
 			int lookbackDays = index - i;
-			double turnoverRate = stockCandleArray.getTurnoverRate(i);
+			double turnoverRate = stockCandleList.getTurnoverRate(i);
 			int turnoverRateInt = (int) Math.round(turnoverRate * 1000);
 			if (turnoverRateInt > 1000) turnoverRateInt = 1000;
 			
@@ -202,8 +201,8 @@ public class StockAverageCostIndicator {
 	}
 	
 	public double[] getAverageCostArray() {
-		double averageCostArray[] = new double[stockCandleArray.size()];
-		for (int i = 0; i < stockCandleArray.size(); i++) {
+		double averageCostArray[] = new double[stockCandleList.size()];
+		for (int i = 0; i < stockCandleList.size(); i++) {
 			averageCostArray[i] = getAverageCost(i);
 		}
 		return averageCostArray;
@@ -220,11 +219,11 @@ public class StockAverageCostIndicator {
 	 */
 	public boolean isReverseUp(int index) {
 		if (index <= 0) return false;
-		Date date = stockCandleArray.getDate(index);
-		double previousClose = stockCandleArray.getClose(index - 1);
+		Date date = stockCandleList.getDate(index);
+		double previousClose = stockCandleList.getClose(index - 1);
 		double previousAverageCost = getAverageCost(index - 1);
 		double previousAverageCostDiff = (previousClose - previousAverageCost) / previousClose;
-		double close = stockCandleArray.getClose(index);
+		double close = stockCandleList.getClose(index);
 		double averageCost = getAverageCost(index);
 		double averageCostDiff = (close - averageCost) / close;
 //		if (date.equals(StockUtil.parseDate("20130909"))) { 
@@ -244,7 +243,7 @@ public class StockAverageCostIndicator {
 	public ArrayList<Integer> getReverseUpDatesIndex() {
 		ArrayList<Integer> dateIndexList = new ArrayList<Integer>();
 		//Start with the second day as we need the previous close price to calculate the difference.
-		for (int i = 1; i < stockCandleArray.size(); i++) {
+		for (int i = 1; i < stockCandleList.size(); i++) {
 			if (isReverseUp(i)) {
 				dateIndexList.add(i);
 			}
@@ -284,7 +283,7 @@ public class StockAverageCostIndicator {
 		sfw.close();		
 	}
 	
-	public static void analyzeIndicatorReverseUp(StockFileWriter sfw, ArrayList<String> symbolList) throws Exception {
+	public static void analyzeIndicatorReverseUp(StockFileWriter sfw, List<String> symbolList) throws Exception {
 		int symbolCount = 0;
 		for (String symbol : symbolList) {
 			if (!StockMarketCap.isLargeMarketCap(symbol)) continue;
@@ -292,8 +291,8 @@ public class StockAverageCostIndicator {
 			symbolCount++;
 			System.out.println(symbol);
 			StockAverageCostIndicator indicator = new StockAverageCostIndicator(symbol);
-			StockCandleArray stockCandleArray = indicator.getStockCandleArray();
-			if (indicator.isReverseUp(stockCandleArray.size() - 1)) {
+			CandleList stockCandleList = indicator.getstockCandleList();
+			if (indicator.isReverseUp(stockCandleList.size() - 1)) {
 				sfw.writeLine(symbol);
 			}
 			if (symbolCount % 50 == 0) {

@@ -7,8 +7,8 @@ import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import stock.StockCandle;
-import stock.StockEarningsDate;
+import stock.DailyCandle;
+import stock.EarningsDate;
 import util.StockUtil;
 
 /**
@@ -19,7 +19,7 @@ import util.StockUtil;
 @SuppressWarnings("serial")
 public class StockCandleInfoPanel extends JPanel {
 	
-	private StockCandle stockCandle;
+	private DailyCandle stockCandle;
 	
 	public StockCandleInfoPanel() {
 		this.setPreferredSize(new Dimension(getPanelWidth(), getPanelHeight()));
@@ -27,7 +27,7 @@ public class StockCandleInfoPanel extends JPanel {
 		this.setOpaque(false);
 	}
 	
-	public void setStockCandle(StockCandle stockCandle) {
+	public void setStockCandle(DailyCandle stockCandle) {
 		this.stockCandle = stockCandle;
 	}
 	
@@ -36,7 +36,7 @@ public class StockCandleInfoPanel extends JPanel {
 //		g.drawString("Stock candle info panel", 500, 50);
 		if (stockCandle != null) {
 			paintStockCandleInfo(g);
-			StockEarningsDate stockEarningsDate = stockCandle.getNextEarningsDate();
+			EarningsDate stockEarningsDate = stockCandle.getNextEarningsDate();
 			if ((stockEarningsDate != null) && (stockEarningsDate.getDate().equals(stockCandle.getDate()))) {
 				paintEarningsDateInfo(g, stockEarningsDate);			
 			}
@@ -64,11 +64,11 @@ public class StockCandleInfoPanel extends JPanel {
 		g.drawString(sb.toString(), 10, 30);
 	}
 	
-	private void paintEarningsDateInfo(Graphics g, StockEarningsDate stockEarningsDate) {
+	private void paintEarningsDateInfo(Graphics g, EarningsDate stockEarningsDate) {
 		g.drawString(stockEarningsDate.toStringForGUI(), 10, 60);
 	}
 	
-	private void paintNextEarningsDateInfo(Graphics g, StockEarningsDate stockEarningsDate) {
+	private void paintNextEarningsDateInfo(Graphics g, EarningsDate stockEarningsDate) {
 		if (stockEarningsDate == null) {
 			g.drawString("Next Earnings Date: N/A" , 10, 60);
 		}

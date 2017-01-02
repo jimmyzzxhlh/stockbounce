@@ -10,8 +10,8 @@ import java.text.SimpleDateFormat;
 import javax.imageio.ImageIO;
 
 import paint.StockFrame;
+import stock.CandleList;
 import stock.StockCandle;
-import stock.StockCandleArray;
 import stock.StockConst;
 
 public class YahooDrawPattern {
@@ -32,36 +32,34 @@ public class YahooDrawPattern {
 	 * Read a chart CSV file and draw the chart.
 	 * @throws Exception
 	 */
-	public void drawChart(StockCandleArray stockAllArray) throws Exception {
-		
+	public void drawChart(CandleList inputCandleList) throws Exception {
 		if (patternIndex == -1) return;
 		
-		StockCandleArray stockCandleArray = new StockCandleArray();
-		stockCandleArray.setSymbol(stockAllArray.getSymbol());
+		CandleList candleList = new CandleList(inputCandleList);
 		int startIndex = (patternIndex-WIDTH > 0) ? (patternIndex - WIDTH) : 0;
-		int endIndex = (patternIndex + WIDTH < stockAllArray.getStockCandleArray().size()) ? (patternIndex+WIDTH) : stockAllArray.getStockCandleArray().size() - 1;
+		int endIndex = (patternIndex + WIDTH < candleList.size()) ? (patternIndex+WIDTH) : candleList.size() - 1;
 		patternIndex = patternIndex - startIndex;
 		
 		for (int index = startIndex; index <= endIndex; index++){
-			stockCandleArray.add(stockAllArray.get(index));
+			candleList.add(candleList.get(index));
 		}
 		
 		int frameWidth;
-		String symbol = stockCandleArray.getSymbol();
+		String symbol = candleList.getSymbol();
 
-		stockCandleArray.sortByDate();
-		stockCandleArray.normalizeStockCandle(FRAME_HEIGHT);
+		candleList.sortByDate();
+		candleList.normalizeStockCandle(FRAME_HEIGHT);
 		
-		frameWidth = (stockCandleArray.getStockCandleArray().size() + 1) * 5;
+		frameWidth = (candleList.size() + 1) * 5;
 		stockFrame = new StockFrame(frameWidth, FRAME_HEIGHT);
 		stockFrame.candleDays = CANDLE_DAYS;
 		stockFrame.candleDaysOffset = CANDLE_DAYS_OFFSET;
-		stockFrame.stockCandleArray = stockCandleArray.getStockCandleArray();
+		stockFrame.candleList = candleList;
 		stockFrame.setIndex(patternIndex);
 		
-		StockCandle indexedStockCandle = stockCandleArray.get(patternIndex);
+		StockCandle indexedStockCandle = candleList.get(patternIndex);
 		DateFormat df = new SimpleDateFormat("MM-dd-yyyy");
-		String date = df.format(indexedStockCandle.date);
+		String date = df.format(indexedStockCandle.getInstant());
 		String path = StockConst.SNAPSHOT_DIRECTORY_PATH + symbol + "_" + date+".png";
 		
 		//Create the directory if the path does not exist.

@@ -1,9 +1,9 @@
 package test;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import stock.StockSymbolList;
 import stock.StockEnum.Exchange;
+import stock.StockSymbolList;
 
 public class SymbolTest {
 	public static void main(String args[]) {
@@ -12,7 +12,7 @@ public class SymbolTest {
 	}
 	
 	private static void testPrintingSymbol() {
-		ArrayList<String> symbolList = StockSymbolList.getSymbolListFromExchange(Exchange.NYSE);
+		List<String> symbolList = StockSymbolList.getSymbolListFromExchange(Exchange.NYSE);
 		for (String symbol : symbolList) {
 			System.out.println(symbol);
 		}

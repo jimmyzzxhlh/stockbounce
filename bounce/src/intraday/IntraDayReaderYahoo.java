@@ -9,7 +9,7 @@ import java.util.Date;
 
 import stock.StockConst;
 import stock.StockEnum.Exchange;
-import stock.StockExchange;
+import stock.ExchangeUtil;
 import util.StockUtil;
 
 public class IntraDayReaderYahoo {
@@ -63,7 +63,7 @@ public class IntraDayReaderYahoo {
 	 * @param line
 	 * @return
 	 */
-	private static IntraDayStockCandle getIntraDayStockCandle(String line) {
+	private static IntraDayCandle getIntraDayStockCandle(String line) {
 		String data[] = line.split(",");
 		Timestamp ts;
 		if (data.length <= 5) {
@@ -78,7 +78,7 @@ public class IntraDayReaderYahoo {
 //			System.err.println("Interval invalid for: " + line);
 //			return null;
 //		}
-		IntraDayStockCandle idStockCandle = new IntraDayStockCandle();
+		IntraDayCandle idStockCandle = new IntraDayCandle();
 		idStockCandle.setInterval(interval);
 		idStockCandle.setClose(Double.parseDouble(data[1]));
 		idStockCandle.setHigh(Double.parseDouble(data[2]));
@@ -96,36 +96,36 @@ public class IntraDayReaderYahoo {
 	 * @return
 	 * @throws Exception
 	 */
-	public static MultiDaysStockCandleArray getMultipleDaysStockCandleArray(Exchange exchange, String symbol) throws Exception {
+	public static MultiDaysCandleList getMultipleDaysstockCandleList(Exchange exchange, String symbol) throws Exception {
 		//Redirect to a different function if we already have the combined data.
 		if (StockConst.INTRADAY_IS_DATA_COMBINED) {
-			return getMultipleDaysStockCandleArrayCombined(exchange, symbol);
+			return getMultipleDaysstockCandleListCombined(exchange, symbol);
 		}		
 		//Create an object of multi-days stock candle array.
-		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
+		MultiDaysCandleList mdstockCandleList = new MultiDaysCandleList(symbol);
 		//Read from a folder
-		File directory = new File(StockExchange.getIntraDayDirectory(exchange, symbol));
+		File directory = new File(Exchange.getIntraDayDirectory(exchange, symbol));
 		for (File file : directory.listFiles()) {
 			System.out.println(file.getAbsolutePath());
-			IntraDayStockCandleArray idStockCandleArray = getIntraDayStockCandleArray(symbol, file);
-			mdStockCandleArray.add(idStockCandleArray);
+			IntraDaystockCandleList idstockCandleList = getIntraDaystockCandleList(symbol, file);
+			mdstockCandleList.add(idstockCandleList);
 			
 		}
 		//Sort by dates.
-		mdStockCandleArray.sortByDate();
-		return mdStockCandleArray;
+		mdstockCandleList.sortByDate();
+		return mdstockCandleList;
 	}
 	
-	private static MultiDaysStockCandleArray getMultipleDaysStockCandleArrayCombined(Exchange exchange, String symbol) throws Exception {
+	private static MultiDaysCandleList getMultipleDaysstockCandleListCombined(Exchange exchange, String symbol) throws Exception {
 		//Create an object of multi-days stock candle array.
-		MultiDaysStockCandleArray mdStockCandleArray = new MultiDaysStockCandleArray(symbol);
+		MultiDaysCandleList mdstockCandleList = new MultiDaysCandleList(symbol);
 		//Read from a particular file
-		File file = new File(StockExchange.getIntraDayMergedFilePath(exchange, symbol));
+		File file = new File(Exchange.getIntraDayMergedFilePath(exchange, symbol));
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = br.readLine();
 		
 		while (line != null) {
-			IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
+			IntraDaystockCandleList idstockCandleList = new IntraDaystockCandleList();
 			//Start with processing the date.
 			//Date, time zone, gmt offset have a "#" at the beginning
 			Date date = StockUtil.parseDate(line.substring(1));   			
@@ -133,35 +133,35 @@ public class IntraDayReaderYahoo {
 			String timeZone = line.substring(1);
 			line = br.readLine();
 			int gmtOffset = Integer.parseInt(line.substring(1));
-			idStockCandleArray.setDate(date);
-			idStockCandleArray.setTimeZone(timeZone);
-			idStockCandleArray.setGmtOffset(gmtOffset);
-			idStockCandleArray.setSymbol(symbol);
+			idstockCandleList.setDate(date);
+			idstockCandleList.setTimeZone(timeZone);
+			idstockCandleList.setGmtOffset(gmtOffset);
+			idstockCandleList.setSymbol(symbol);
 			line = br.readLine();
 			if (line == null) {
 				System.err.println("No intraday data is found for " + symbol + " on " + StockUtil.formatDate(date));
 				break;
 			}
 			//Store the first time stamp as the general timestamp for the intraday stock candle array
-			idStockCandleArray.setTimeStamp(getTimestamp(line));			
+			idstockCandleList.setTimeStamp(getTimestamp(line));			
 			//Process the data			
 			while (line != null) {
-				IntraDayStockCandle idStockCandle = getIntraDayStockCandle(line);
+				IntraDayCandle idStockCandle = getIntraDayStockCandle(line);
 				if (idStockCandle != null) {
-					idStockCandleArray.add(idStockCandle);
+					idstockCandleList.add(idStockCandle);
 				}
 				line = br.readLine();
 			}
 			//Set open, close, high, low attributes for the current day.
-			idStockCandleArray.setOpen();
-			idStockCandleArray.setClose();
-			idStockCandleArray.setHigh();
-			idStockCandleArray.setLow();
+			idstockCandleList.setOpen();
+			idstockCandleList.setClose();
+			idstockCandleList.setHigh();
+			idstockCandleList.setLow();
 			//Add the intraday stock candle array to multiple one
-			mdStockCandleArray.add(idStockCandleArray);			
+			mdstockCandleList.add(idstockCandleList);			
 		}
 		br.close();
-		return mdStockCandleArray;
+		return mdstockCandleList;
 	}
 	
 	
@@ -172,7 +172,7 @@ public class IntraDayReaderYahoo {
 	 * @return
 	 * @throws Exception
 	 */
-	public static IntraDayStockCandleArray getIntraDayStockCandleArray(String symbol, File file) throws Exception {
+	public static IntraDaystockCandleList getIntraDaystockCandleList(String symbol, File file) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
 		//Skip the first few lines until we hit the first timestamp that needs to be processed.
@@ -187,17 +187,17 @@ public class IntraDayReaderYahoo {
 			throw new Exception();		
 			
 		}
-		IntraDayStockCandleArray idStockCandleArray = new IntraDayStockCandleArray();
+		IntraDaystockCandleList idstockCandleList = new IntraDaystockCandleList();
 		Date date = StockUtil.parseDate(StockUtil.getFilenameWithoutExtension(file.getName()));
-		idStockCandleArray.setDate(date);
-		//Store the first timestamp in idStockCandleArray. Usually it should be 8:30 AM in the morning.
-		idStockCandleArray.setTimeStamp(getTimestamp(line));
-		idStockCandleArray.setSymbol(symbol);
+		idstockCandleList.setDate(date);
+		//Store the first timestamp in idstockCandleList. Usually it should be 8:30 AM in the morning.
+		idstockCandleList.setTimeStamp(getTimestamp(line));
+		idstockCandleList.setSymbol(symbol);
 		while (line != null) {
 			//Process the first intraday stock candle, which has the timestamp.
-			IntraDayStockCandle idStockCandle = getIntraDayStockCandle(line);
+			IntraDayCandle idStockCandle = getIntraDayStockCandle(line);
 			if (idStockCandle != null) {
-				idStockCandleArray.add(idStockCandle);
+				idstockCandleList.add(idStockCandle);
 			}			
 			else {
 				br.close();
@@ -206,23 +206,23 @@ public class IntraDayReaderYahoo {
 			line = br.readLine();
 		}
 		//Set open, close, high, low attributes for the current day.
-		idStockCandleArray.setOpen();
-		idStockCandleArray.setClose();
-		idStockCandleArray.setHigh();
-		idStockCandleArray.setLow();
+		idstockCandleList.setOpen();
+		idstockCandleList.setClose();
+		idstockCandleList.setHigh();
+		idstockCandleList.setLow();
 		br.close();
-		return idStockCandleArray;
+		return idstockCandleList;
 	}
 	
-	public static IntraDayStockCandleArray getIntraDayStockCandleArray(Exchange exchange, String symbol, String dateString) throws Exception {
-		String filepath = StockExchange.getIntraDayDirectory(exchange, symbol)  + dateString + ".txt";
+	public static IntraDaystockCandleList getIntraDaystockCandleList(Exchange exchange, String symbol, String dateString) throws Exception {
+		String filepath = Exchange.getIntraDayDirectory(exchange, symbol)  + dateString + ".txt";
 		File file = new File(filepath);	
 		if (!file.exists()) {
 			System.err.println("Intra day file " + dateString + ".txt does not exist for " + symbol);
 			throw new Exception();
 		}
 		
-		return getIntraDayStockCandleArray(symbol, file);
+		return getIntraDaystockCandleList(symbol, file);
 	}
 	/*******************************Below are testing functions for the intraday reader********************************/
 	/**
@@ -232,14 +232,14 @@ public class IntraDayReaderYahoo {
 	 */
 	public static void printDailyVolumeForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(Exchange.NASDAQ, symbol);
-		for (int i = 0; i < mdStockCandleArray.size(); i++) {
+		MultiDaysCandleList mdstockCandleList = getMultipleDaysstockCandleList(Exchange.NASDAQ, symbol);
+		for (int i = 0; i < mdstockCandleList.size(); i++) {
 			long volumeDay = 0;
-			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-			for (int j = 0; j < idStockCandleArray.size(); j++) {
-				volumeDay += idStockCandleArray.get(j).getVolume();
+			IntraDaystockCandleList idstockCandleList = mdstockCandleList.get(i);
+			for (int j = 0; j < idstockCandleList.size(); j++) {
+				volumeDay += idstockCandleList.get(j).getVolume();
 			}
-			System.out.println(idStockCandleArray.getTimestamp() + " " + volumeDay);
+			System.out.println(idstockCandleList.getTimestamp() + " " + volumeDay);
 		}
 	}
 	
@@ -250,13 +250,13 @@ public class IntraDayReaderYahoo {
 	 */
 	public static void printDailyPriceForSingleStock() throws Exception {
 		String symbol = "GOOG";
-		MultiDaysStockCandleArray mdStockCandleArray = getMultipleDaysStockCandleArray(Exchange.NASDAQ, symbol);
+		MultiDaysCandleList mdstockCandleList = getMultipleDaysstockCandleList(Exchange.NASDAQ, symbol);
 		System.out.println("Date Time Open High Low Close");
-		for (int i = 0; i < mdStockCandleArray.size(); i++) {
-			IntraDayStockCandleArray idStockCandleArray = mdStockCandleArray.get(i);
-			System.out.println(idStockCandleArray.getTimestamp() + " " + StockUtil.getRoundTwoDecimals(idStockCandleArray.getOpen()) + " " 
-				  +	StockUtil.getRoundTwoDecimals(idStockCandleArray.getHigh()) + " " + StockUtil.getRoundTwoDecimals(idStockCandleArray.getLow()) + " "
-				  + StockUtil.getRoundTwoDecimals(idStockCandleArray.getClose()));
+		for (int i = 0; i < mdstockCandleList.size(); i++) {
+			IntraDaystockCandleList idstockCandleList = mdstockCandleList.get(i);
+			System.out.println(idstockCandleList.getTimestamp() + " " + StockUtil.getRoundTwoDecimals(idstockCandleList.getOpen()) + " " 
+				  +	StockUtil.getRoundTwoDecimals(idstockCandleList.getHigh()) + " " + StockUtil.getRoundTwoDecimals(idstockCandleList.getLow()) + " "
+				  + StockUtil.getRoundTwoDecimals(idstockCandleList.getClose()));
 			
 		}
 	}

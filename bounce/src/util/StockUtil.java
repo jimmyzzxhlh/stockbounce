@@ -12,6 +12,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -310,6 +311,16 @@ public class StockUtil {
 	public static String formatLocalDate(LocalDate localDate) {
 		if (localDate == null) return null;
 		return localDate.toString(dateTimeFormatter);
+	}
+	
+	/**
+	 * Format a price with two decimals.
+	 * @param price
+	 * @return
+	 */
+	public static String formatPrice(double price) {
+		DecimalFormat decimalFormat = new DecimalFormat("#.00");
+		return decimalFormat.format(price);
 	}
 	
 	/**

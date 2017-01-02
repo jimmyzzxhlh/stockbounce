@@ -3,6 +3,7 @@ package pattern;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import stock.CandleList;
 import stock.StockCandle;
 import stock.StockEnum.StockCandleDataType;
 import stock.StockEnum.TrendCalculationMethod;
@@ -115,19 +116,11 @@ public class StockPattern {
 	private static final int BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER = BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER;
 	private static final int BEARISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER = BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER;
 	
-	private ArrayList<StockCandle> stockCandleArray;
+	private CandleList candleList;
 	
 	private String symbol;
 	
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-	
-	public ArrayList<StockCandle> getstockCandleArray() {
-		return stockCandleArray;
-	}
-
-	public void setstockCandleArray(ArrayList<StockCandle> stockCandleArray) {
-		this.stockCandleArray = stockCandleArray;
-	}
 	
 	public String getSymbol() {
 		return symbol;
@@ -145,15 +138,15 @@ public class StockPattern {
 	
 	/**
 	 * Constructor. The stock candle array should always be normalized!
-	 * Call static function stockCandleArray.normalizeStockCandle for normalization.
-	 * @param stockCandleArray
+	 * Call static function stockCandleList.normalizeStockCandle for normalization.
+	 * @param stockCandleList
 	 */
-	public StockPattern(ArrayList<StockCandle> stockCandleArray) {
-		this.stockCandleArray = stockCandleArray;
+	public StockPattern(CandleList stockCandleList) {
+		this.candleList = stockCandleList;
 	}
 	
 	public String getDate(int index) {
-		return dateFormat.format(stockCandleArray.get(index).date);
+		return dateFormat.format(candleList.getInstant(index));
 	}
 	
 	/**
@@ -180,10 +173,10 @@ public class StockPattern {
 				break;			
 			}
 			for (int i = start; i < end; i++) {				
-				if (dataType == StockCandleDataType.OPEN) lr.data.add(stockCandleArray.get(i).getOpen());
-				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
-				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
-				else if (dataType == StockCandleDataType.LOW) lr.data.add(stockCandleArray.get(i).getLow());			
+				if (dataType == StockCandleDataType.OPEN) lr.data.add(candleList.get(i).getOpen());
+				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(candleList.get(i).getClose());
+				else if (dataType == StockCandleDataType.HIGH) lr.data.add(candleList.get(i).getHigh());
+				else if (dataType == StockCandleDataType.LOW) lr.data.add(candleList.get(i).getLow());			
 			}		
 			slope = lr.getSlope();
 			if (slope < TREND_UP_SLOPE) return false;			
@@ -216,10 +209,10 @@ public class StockPattern {
 			}
 		
 			for (int i = start; i <= end; i++) {
-				if (dataType == StockCandleDataType.OPEN) lr.data.add(stockCandleArray.get(i).getOpen());
-				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(stockCandleArray.get(i).getClose());
-				else if (dataType == StockCandleDataType.HIGH) lr.data.add(stockCandleArray.get(i).getHigh());
-				else if (dataType == StockCandleDataType.LOW) lr.data.add(stockCandleArray.get(i).getLow());			
+				if (dataType == StockCandleDataType.OPEN) lr.data.add(candleList.get(i).getOpen());
+				else if (dataType == StockCandleDataType.CLOSE) lr.data.add(candleList.get(i).getClose());
+				else if (dataType == StockCandleDataType.HIGH) lr.data.add(candleList.get(i).getHigh());
+				else if (dataType == StockCandleDataType.LOW) lr.data.add(candleList.get(i).getLow());			
 			}
 			
 			switch (TREND_CALCULATION_METHOD) {
@@ -241,7 +234,7 @@ public class StockPattern {
 	 * @see isWhite(stockCandle)
 	 */
 	public boolean isWhite(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isWhite(stockCandle);
 	}
@@ -254,14 +247,14 @@ public class StockPattern {
 	 * @return true if the current candle is a white candle.
 	 */
 	public boolean isWhite(StockCandle stockCandle) {
-		return ((stockCandle.close > stockCandle.open) ? true : false);
+		return ((stockCandle.getClose() > stockCandle.getOpen()) ? true : false);
 	}
 	
 	/**
 	 * @see isBlack(stockCandle)
 	 */
 	public boolean isBlack(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isBlack(stockCandle);
 	}
@@ -274,14 +267,14 @@ public class StockPattern {
 	 * @return true if the current candle is a black candle.
 	 */
 	public boolean isBlack(StockCandle stockCandle) {
-		return ((stockCandle.close < stockCandle.open) ? true : false);
+		return ((stockCandle.getClose() < stockCandle.getOpen()) ? true : false);
 	}
 	
 	/**
 	 * @see isWhiteLongDay(stockCandle)
 	 */
 	public boolean isWhiteLongDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isWhiteLongDay(stockCandle);		
 	}
@@ -304,7 +297,7 @@ public class StockPattern {
 	 * @see isBlackLongDay(stockCandle)
 	 */
 	public boolean isBlackLongDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isBlackLongDay(stockCandle);
 	}
@@ -327,7 +320,7 @@ public class StockPattern {
 	 * @see isWhiteShortDay(stockCandle)
 	 */
 	public boolean isWhiteShortDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isWhiteShortDay(stockCandle);
 	}
@@ -350,7 +343,7 @@ public class StockPattern {
 	 * @see isBlackShortDay(stockCandle)
 	 */
 	public boolean isBlackShortDay(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isBlackShortDay(stockCandle);
 	}
@@ -373,7 +366,7 @@ public class StockPattern {
 	 * @see isWhiteMarubozu(stockCandle)
 	 */
 	public boolean isWhiteMarubozu(int index, StockCandleDataType... dataTypes) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isWhiteMarubozu(stockCandle, dataTypes);
 	}
@@ -409,7 +402,7 @@ public class StockPattern {
 	 * @see isBlackMarubozu(stockCandle)
 	 */
 	public boolean isBlackMarubozu(int index, StockCandleDataType... dataTypes) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isBlackMarubozu(stockCandle, dataTypes);
 	}
@@ -445,7 +438,7 @@ public class StockPattern {
 	 * @see isDoji(stockCandle)
 	 */
 	public boolean isDoji(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;		
 		return isDoji(stockCandle);
 	}
@@ -487,7 +480,7 @@ public class StockPattern {
 	 * @return True if the candle is a long legged doji (长腿十字线).
 	 */
 	public boolean isLongLeggedDoji(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		if (!isDoji(stockCandle)) return false;
 		if (stockCandle.getTotalLength() >= LONG_LEGGED_DOJI_MIN_TOTAL_LENGTH) return true;
@@ -498,7 +491,7 @@ public class StockPattern {
      * @see isDojiStar(stockCandle)
 	 */
 	public boolean isDojiStar(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isDojiStar(stockCandle);	
 	}
@@ -538,7 +531,7 @@ public class StockPattern {
 	 * @return True if the candle is a gravestone doji (墓碑十字线).
 	 */
 	public boolean isGravestoneDoji(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		if (!isDoji(stockCandle)) return false;
 		if ((stockCandle.getUpperShadowLength() >= GRAVESTONE_DOJI_MIN_UPPER_SHADOW_LENGTH) 
@@ -561,7 +554,7 @@ public class StockPattern {
 	 * @return True if the candle is a dragonfly doji (蜻蜓十字线).
 	 */
 	public boolean isDragonflyDoji(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		if (!isDoji(stockCandle)) return false;
 		if ((stockCandle.getUpperShadowLength() <= DRAGONFLY_DOJI_MAX_UPPER_SHADOW_LENGTH) 
@@ -593,18 +586,49 @@ public class StockPattern {
 	public boolean isStar(int index) {
 		StockCandle currentStockCandle, previousStockCandle;
 		if (index < 1) return false;
-		currentStockCandle = stockCandleArray.get(index);
+		currentStockCandle = candleList.get(index);
 		if (currentStockCandle.getBodyLength() > STAR_MAX_BODY_LENGTH) return false;
-		previousStockCandle = stockCandleArray.get(index - 1);
-		if (StockCandle.getGapLength(previousStockCandle, currentStockCandle) >= STAR_MIN_GAP_LENGTH) return true;
+		previousStockCandle = candleList.get(index - 1);
+		if (getGapLength(previousStockCandle, currentStockCandle) >= STAR_MIN_GAP_LENGTH) return true;
 		return false;
 	}
+	
+	/**
+	 * Return the gap between two adjacent stock prices.
+	 * Use open / close price to compute the gap.
+	 * Gap above example (向上跳空):
+	 * 
+	 *    ■
+	 *    ■
+	 * 
+	 * |
+	 * □
+	 * □
+	 * □
+	 * □
+	 * |
+	 * 
+	 * Here the gap length will be 3.
+	 * @param lastStockCandle Last stock price object.
+	 * @param currentStockCandle Current stock price object.
+	 * @return
+	 */
+	public static double getGapLength(StockCandle lastStockCandle, StockCandle currentStockCandle) {
+		if (lastStockCandle.getClose() > lastStockCandle.getOpen()) {
+			if (currentStockCandle.getOpen() > lastStockCandle.getClose()) return currentStockCandle.getOpen() - lastStockCandle.getClose();
+		}
+		else {
+			if (currentStockCandle.getOpen() < lastStockCandle.getClose()) return lastStockCandle.getClose() - currentStockCandle.getOpen();
+		}
+		return 0;
+	}
+	
 	
 	/**
 	 * @see isPaperUmbrella(stockCandle)
 	 */
 	public boolean isPaperUmbrella(int index) {
-		StockCandle stockCandle = stockCandleArray.get(index);
+		StockCandle stockCandle = candleList.get(index);
 		if (stockCandle == null) return false;
 		return isPaperUmbrella(stockCandle);
 	}
@@ -793,17 +817,17 @@ public class StockPattern {
 	public boolean isBullishEngulfing(int index, boolean engulfShadows) {
 		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isWhite(currentStockCandle)) return false;
 		if (isWhiteShortDay(currentStockCandle)) return false; //Should it be replaced by long day check?
 		if (!isBlack(previousStockCandle)) return false;
 		if (engulfShadows) {
-			if (!((currentStockCandle.open < previousStockCandle.low) && (currentStockCandle.close > previousStockCandle.high))) return false;
+			if (!((currentStockCandle.getOpen() < previousStockCandle.getLow()) && (currentStockCandle.getClose() > previousStockCandle.getHigh()))) return false;
 		}
 		else {
-			if (!((currentStockCandle.open < previousStockCandle.close) && (currentStockCandle.close > previousStockCandle.open))) return false;
+			if (!((currentStockCandle.getOpen() < previousStockCandle.getClose()) && (currentStockCandle.getClose() > previousStockCandle.getOpen()))) return false;
 		}
 		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
 		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
@@ -846,17 +870,17 @@ public class StockPattern {
 	public boolean isBearishEngulfing(int index, boolean engulfShadows) {
 		if (index < ENGULF_MIN_TREND_CANDLE_NUMBER) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isBlack(currentStockCandle)) return false;
 		if (isBlackShortDay(currentStockCandle)) return false; //Should it be replaced by long day check?
 		if (!isWhite(previousStockCandle)) return false;
 		if (engulfShadows) {
-			if (!((currentStockCandle.open > previousStockCandle.high) && (currentStockCandle.close < previousStockCandle.low))) return false;
+			if (!((currentStockCandle.getOpen() > previousStockCandle.getHigh()) && (currentStockCandle.getClose() < previousStockCandle.getLow()))) return false;
 		}
 		else {
-			if (!((currentStockCandle.open > previousStockCandle.close) && (currentStockCandle.close < previousStockCandle.open))) return false;
+			if (!((currentStockCandle.getOpen() > previousStockCandle.getClose()) && (currentStockCandle.getClose() < previousStockCandle.getOpen()))) return false;
 		}
 		if (previousStockCandle.getBodyLength() > ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * currentStockCandle.getBodyLength()) return false;
 		if (currentStockCandle.getVolume() < Math.round(ENGULF_SECOND_DAY_VOLUME_MIN_PERCENTAGE * previousStockCandle.getVolume())) return false;
@@ -889,8 +913,8 @@ public class StockPattern {
 	public boolean isThreeOutsideUp(int index, boolean engulfShadows) {
 		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
 		StockCandle currentCandle, previousCandle;
-		currentCandle = stockCandleArray.get(index);
-		previousCandle = stockCandleArray.get(index - 1);
+		currentCandle = candleList.get(index);
+		previousCandle = candleList.get(index - 1);
 		if ((currentCandle == null) || (previousCandle == null)) return false;
 		if (!isWhite(currentCandle)) return false;
 		if (currentCandle.getClose() <= previousCandle.getClose()) return false;
@@ -921,8 +945,8 @@ public class StockPattern {
 	public boolean isThreeOutsideDown(int index, boolean engulfShadows) {
 		if (index < 2) return false;  //Theoretically, index should >= ENGULF_MIN_TREND_CANDLE_NUMBER + 2
 		StockCandle currentCandle, previousCandle;
-		currentCandle = stockCandleArray.get(index);
-		previousCandle = stockCandleArray.get(index - 1);
+		currentCandle = candleList.get(index);
+		previousCandle = candleList.get(index - 1);
 		if ((currentCandle == null) || (previousCandle == null)) return false;
 		if (!isBlack(currentCandle)) return false;
 		if (currentCandle.getClose() >= previousCandle.getClose()) return false;
@@ -956,16 +980,16 @@ public class StockPattern {
 	public boolean isBullishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
 		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
 		StockCandle currentCandle, previousCandle;
-		currentCandle = stockCandleArray.get(index);
-		previousCandle = stockCandleArray.get(index - 1);
+		currentCandle = candleList.get(index);
+		previousCandle = candleList.get(index - 1);
 		if ((currentCandle == null) || (previousCandle == null)) return false;
 		if (!isBlackLongDay(previousCandle)) return false;
 		if (!isWhite(currentCandle)) return false;
 		if (haramiShadows) {
-			if (!((previousCandle.open > currentCandle.high) && (previousCandle.close < currentCandle.low))) return false;
+			if (!((previousCandle.getOpen() > currentCandle.getHigh()) && (previousCandle.getClose() < currentCandle.getLow()))) return false;
 		}
 		else {
-			if (!((previousCandle.open > currentCandle.close) && (previousCandle.close < currentCandle.open))) return false;
+			if (!((previousCandle.getOpen() > currentCandle.getClose()) && (previousCandle.getClose() < currentCandle.getOpen()))) return false;
 		}
 		if (haramiDoji) {
 			if (!isDoji(currentCandle)) return false;
@@ -973,7 +997,7 @@ public class StockPattern {
 		else {
 			if (previousCandle.getBodyLength() * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE < currentCandle.getBodyLength()) return false;
 		}
-		if (currentCandle.volume <= previousCandle.volume) return false;
+		if (currentCandle.getVolume() <= previousCandle.getVolume()) return false;
 		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendDown(start, index - 1)) return true;
 		return false;
@@ -1007,16 +1031,16 @@ public class StockPattern {
 	public boolean isBearishHarami(int index, boolean haramiShadows, boolean haramiDoji) {
 		if (index < 1) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 1
 		StockCandle currentCandle, previousCandle;
-		currentCandle = stockCandleArray.get(index);
-		previousCandle = stockCandleArray.get(index - 1);
+		currentCandle = candleList.get(index);
+		previousCandle = candleList.get(index - 1);
 		if ((currentCandle == null) || (previousCandle == null)) return false;
 		if (!isWhiteLongDay(previousCandle)) return false;
 		if (!isBlack(currentCandle)) return false;
 		if (haramiShadows) {
-			if (!((previousCandle.open < currentCandle.low) && (previousCandle.close > currentCandle.high))) return false;
+			if (!((previousCandle.getOpen() < currentCandle.getLow()) && (previousCandle.getClose() > currentCandle.getHigh()))) return false;
 		}
 		else {
-			if (!((previousCandle.open < currentCandle.close) && (previousCandle.close > currentCandle.open))) return false;
+			if (!((previousCandle.getOpen() < currentCandle.getClose()) && (previousCandle.getClose() > currentCandle.getOpen()))) return false;
 		}
 		if (haramiDoji) {
 			if (!isDoji(currentCandle)) return false;
@@ -1024,7 +1048,7 @@ public class StockPattern {
 		else {
 			if (previousCandle.getBodyLength() * HARAMI_SECOND_DAY_BODY_LENGTH_MAX_PERCENTAGE < currentCandle.getBodyLength()) return false;
 		}
-		if (currentCandle.volume > HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE * previousCandle.volume) return false;
+		if (currentCandle.getVolume() > HARAMI_SECOND_DAY_VOLUME_MAX_PERCENTAGE * previousCandle.getVolume()) return false;
 		int start = index - HARAMI_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendUp(start, index - 1)) return true;
 		return false;
@@ -1055,11 +1079,11 @@ public class StockPattern {
 	public boolean isThreeInsideUp(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
 		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
 		StockCandle currentCandle, secondPreviousCandle;
-		currentCandle = stockCandleArray.get(index);
-		secondPreviousCandle = stockCandleArray.get(index - 2);
+		currentCandle = candleList.get(index);
+		secondPreviousCandle = candleList.get(index - 2);
 		if ((currentCandle == null) || (secondPreviousCandle == null)) return false;
 		if (!isWhite(currentCandle)) return false;
-		if (currentCandle.close <= secondPreviousCandle.open) return false;
+		if (currentCandle.getClose() <= secondPreviousCandle.getOpen()) return false;
 		if (isBullishHarami(index - 1, haramiShadows, haramiDoji)) return true;
 		return false;
 	}
@@ -1089,11 +1113,11 @@ public class StockPattern {
 	public boolean isThreeInsideDown(int index, boolean haramiShadows, boolean haramiCross, boolean haramiDoji) {
 		if (index < 2) return false;  //Theoritically, index should >= HARAMI_MIN_TREND_CANDLE_NUMBER + 2
 		StockCandle currentCandle, secondPreviousCandle;
-		currentCandle = stockCandleArray.get(index);
-		secondPreviousCandle = stockCandleArray.get(index - 2);
+		currentCandle = candleList.get(index);
+		secondPreviousCandle = candleList.get(index - 2);
 		if ((currentCandle == null) || (secondPreviousCandle == null)) return false;
 		if (!isBlack(currentCandle)) return false;
-		if (currentCandle.close > secondPreviousCandle.open) return false;
+		if (currentCandle.getClose() > secondPreviousCandle.getOpen()) return false;
 		if (isBearishHarami(index - 1, haramiShadows, haramiDoji)) return true;
 		return false;
 	}
@@ -1122,7 +1146,7 @@ public class StockPattern {
 	public boolean isInvertedHammer(int index) {
 		StockCandle stockCandle;
 		if (index <= INVERTED_HAMMER_MIN_TREND_CANDLE_NUMBER) return false;
-		stockCandle = stockCandleArray.get(index);
+		stockCandle = candleList.get(index);
 		if (stockCandle.getBodyLength() > INVERTED_HAMMER_MAX_BODY_LENGTH) return false;
 		if (stockCandle.getUpperShadowLength() < INVERTED_HAMMER_MIN_UPPER_SHADOW_LENGTH) return false;
 		if (stockCandle.getLowerShadowLength() > INVERTED_HAMMER_MAX_LOWER_SHADOW_LENGTH) return false;
@@ -1160,7 +1184,7 @@ public class StockPattern {
 	public boolean isShootingStar(int index) {
 		StockCandle stockCandle;
 		if (index <= SHOOTING_STAR_MIN_TREND_CANDLE_NUMBER) return false;
-		stockCandle = stockCandleArray.get(index);
+		stockCandle = candleList.get(index);
 		if (stockCandle.getBodyLength() > SHOOTING_STAR_MAX_BODY_LENGTH) return false;
 		if (stockCandle.getUpperShadowLength() < SHOOTING_STAR_MIN_UPPER_SHADOW_LENGTH) return false;
 		if (stockCandle.getLowerShadowLength() > SHOOTING_STAR_MAX_LOWER_SHADOW_LENGTH) return false;
@@ -1183,8 +1207,8 @@ public class StockPattern {
 	public boolean hasGapUp(int index, boolean useShadows) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		return hasGapUp(previousStockCandle, currentStockCandle, useShadows);		
 	}
@@ -1247,14 +1271,14 @@ public class StockPattern {
 		double gapTop, gapBottom;
 		gapTop = gapBottom = 0;
 		if (useShadows) {
-			gapTop = currentStockCandle.low;
-			gapBottom = previousStockCandle.high;
+			gapTop = currentStockCandle.getLow();
+			gapBottom = previousStockCandle.getHigh();
 		}
 		else {
-			if (isWhite(currentStockCandle)) gapTop = currentStockCandle.open;
-			if (isBlack(currentStockCandle)) gapTop = currentStockCandle.close;
-			if (isWhite(previousStockCandle)) gapBottom = previousStockCandle.close;
-			if (isBlack(previousStockCandle)) gapBottom = previousStockCandle.open;
+			if (isWhite(currentStockCandle)) gapTop = currentStockCandle.getOpen();
+			if (isBlack(currentStockCandle)) gapTop = currentStockCandle.getClose();
+			if (isWhite(previousStockCandle)) gapBottom = previousStockCandle.getClose();
+			if (isBlack(previousStockCandle)) gapBottom = previousStockCandle.getOpen();
 		}
 		if (gapTop >= gapBottom + GAP_UP_MIN_LENGTH) return true;
 		return false;
@@ -1274,8 +1298,8 @@ public class StockPattern {
 	public boolean hasGapDown(int index, boolean useShadows) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		return hasGapDown(previousStockCandle, currentStockCandle, useShadows);	
 	}
@@ -1336,14 +1360,14 @@ public class StockPattern {
 		double gapTop, gapBottom;
 		gapTop = gapBottom = 0;
 		if (useShadows) {
-			gapBottom = currentStockCandle.high;
-			gapTop = previousStockCandle.low;
+			gapBottom = currentStockCandle.getHigh();
+			gapTop = previousStockCandle.getLow();
 		}
 		else {
-			if (isWhite(currentStockCandle)) gapBottom = currentStockCandle.close;
-			if (isBlack(currentStockCandle)) gapBottom = currentStockCandle.open;
-			if (isWhite(previousStockCandle)) gapTop = previousStockCandle.open;
-			if (isBlack(previousStockCandle)) gapTop = previousStockCandle.close;
+			if (isWhite(currentStockCandle)) gapBottom = currentStockCandle.getClose();
+			if (isBlack(currentStockCandle)) gapBottom = currentStockCandle.getOpen();
+			if (isWhite(previousStockCandle)) gapTop = previousStockCandle.getOpen();
+			if (isBlack(previousStockCandle)) gapTop = previousStockCandle.getClose();
 		}
 		if (gapTop >= gapBottom + GAP_DOWN_MIN_LENGTH) return true;
 		return false;	
@@ -1372,10 +1396,10 @@ public class StockPattern {
 	public double getJump(int index) {
 		if (index < 1) return 0;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return 0;
-		return currentStockCandle.open - previousStockCandle.close;
+		return currentStockCandle.getOpen() - previousStockCandle.getClose();
 	}
 	
 
@@ -1404,12 +1428,12 @@ public class StockPattern {
 	public boolean isPiercingLine(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isBlackLongDay(previousStockCandle)) return false;
-		if (currentStockCandle.open >= previousStockCandle.low) return false;
-		if (currentStockCandle.close <= previousStockCandle.close + previousStockCandle.getBodyLength() * PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE) return false;
+		if (currentStockCandle.getOpen() >= previousStockCandle.getLow()) return false;
+		if (currentStockCandle.getClose() <= previousStockCandle.getClose() + previousStockCandle.getBodyLength() * PIERCING_LINE_MIN_BODY_LENGTH_PERCENTAGE) return false;
 		int start = index - PIERCING_LINE_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendDown(start, index - 1)) return true;
 		return false;
@@ -1440,12 +1464,12 @@ public class StockPattern {
 	public boolean isDarkCloudCover(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isWhiteLongDay(previousStockCandle)) return false;
-		if (currentStockCandle.open <= previousStockCandle.high) return false;
-		if (currentStockCandle.close >= previousStockCandle.close - previousStockCandle.getBodyLength() * DARK_CLOUD_COVER_MIN_BODY_LENGTH_PERCENTAGE) return false;
+		if (currentStockCandle.getOpen() <= previousStockCandle.getHigh()) return false;
+		if (currentStockCandle.getClose() >= previousStockCandle.getClose() - previousStockCandle.getBodyLength() * DARK_CLOUD_COVER_MIN_BODY_LENGTH_PERCENTAGE) return false;
 		int start = index - DARK_CLOUD_COVER_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendUp(start, index - 1)) return true;
 		return false;
@@ -1476,8 +1500,8 @@ public class StockPattern {
 	public boolean isBullishDojiStar(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isBlackLongDay(previousStockCandle)) return false;
 		if (!isDojiStar(currentStockCandle)) return false;
@@ -1513,8 +1537,8 @@ public class StockPattern {
 	public boolean isBearishDojiStar(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isWhiteLongDay(previousStockCandle)) return false;
 		if (!isDojiStar(currentStockCandle)) return false;
@@ -1561,9 +1585,9 @@ public class StockPattern {
 	public boolean isMorningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isBlackLongDay(secondPreviousStockCandle)) return false;
 		if (isDojiStar || isAbandonBaby) {
@@ -1575,7 +1599,7 @@ public class StockPattern {
 		if (!hasGapDown(secondPreviousStockCandle, previousStockCandle, isAbandonBaby)) return false;
 		if (!isWhiteLongDay(currentStockCandle)) {
 			if (!isWhite(currentStockCandle)) return false;
-			if (currentStockCandle.close <= secondPreviousStockCandle.open - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
+			if (currentStockCandle.getClose() <= secondPreviousStockCandle.getOpen() - MORNING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
 				return false;
 		}
 		int start = index - MORNING_STAR_MIN_TREND_CANDLE_NUMBER - 1;
@@ -1620,9 +1644,9 @@ public class StockPattern {
 	public boolean isEveningStar(int index, boolean isDojiStar, boolean isAbandonBaby) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
 		if (isDojiStar || isAbandonBaby) {
@@ -1634,7 +1658,7 @@ public class StockPattern {
 		if (!hasGapUp(secondPreviousStockCandle, previousStockCandle, isAbandonBaby)) return false;
 		if (!isBlackLongDay(currentStockCandle)) {
 			if (!isBlack(currentStockCandle)) return false;
-			if (currentStockCandle.close >= secondPreviousStockCandle.close - EVENING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
+			if (currentStockCandle.getClose() >= secondPreviousStockCandle.getClose() - EVENING_STAR_MIN_BODY_LENGTH_PERCENTAGE * secondPreviousStockCandle.getBodyLength())
 				return false;
 		}
 		int start = index - EVENING_STAR_MIN_TREND_CANDLE_NUMBER - 1;
@@ -1660,9 +1684,9 @@ public class StockPattern {
 	public boolean isBullishTriStar(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!(isDoji(currentStockCandle) && isDoji(previousStockCandle) && (isDoji(secondPreviousStockCandle)))) return false;
 		if (!(hasGapUp(previousStockCandle, currentStockCandle) && (hasGapDown(secondPreviousStockCandle, previousStockCandle)))) return false;
@@ -1689,9 +1713,9 @@ public class StockPattern {
 	public boolean isBearishTriStar(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!(isDoji(currentStockCandle) && isDoji(previousStockCandle) && (isDoji(secondPreviousStockCandle)))) return false;
 		if (!(hasGapDown(previousStockCandle, currentStockCandle) && (hasGapUp(secondPreviousStockCandle, previousStockCandle)))) return false;
@@ -1728,13 +1752,13 @@ public class StockPattern {
 	public boolean isUpsideGapTwoCrows(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
 		if (!(isBlack(previousStockCandle) && isBlack(currentStockCandle))) return false;
-		if (!((currentStockCandle.open > previousStockCandle.open) && (currentStockCandle.close < previousStockCandle.close)
+		if (!((currentStockCandle.getOpen() > previousStockCandle.getOpen()) && (currentStockCandle.getClose() < previousStockCandle.getClose())
 	       && (currentStockCandle.getBodyLength() >= UPSIDE_GAP_TWO_CROWS_ENGULF_FIRST_DAY_BODY_LENGTH_MAX_PERCENTAGE * previousStockCandle.getBodyLength()))) return false;
 		if (!(hasGapUp(secondPreviousStockCandle, previousStockCandle) && hasGapUp(secondPreviousStockCandle, currentStockCandle))) return false;
 		int start = index - UPSIDE_GAP_TWO_CROWS_MIN_TREND_CANDLE_NUMBER - 1;
@@ -1768,12 +1792,12 @@ public class StockPattern {
 	public boolean isBullishMeetingLine(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isWhiteLongDay(currentStockCandle)) return false;
 		if (!isBlackLongDay(previousStockCandle)) return false;
-		if (Math.abs(currentStockCandle.close - previousStockCandle.close) > BULLISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
+		if (Math.abs(currentStockCandle.getClose() - previousStockCandle.getClose()) > BULLISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
 		int start = index - BULLISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendDown(start, index - 1)) return true;
 		return false;
@@ -1805,12 +1829,12 @@ public class StockPattern {
 	public boolean isBearishMeetingLine(int index) {
 		if (index < 1) return false;
 		StockCandle currentStockCandle, previousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
 		if ((currentStockCandle == null) || (previousStockCandle == null)) return false;
 		if (!isBlackLongDay(currentStockCandle)) return false;
 		if (!isWhiteLongDay(previousStockCandle)) return false;
-		if (Math.abs(currentStockCandle.close - previousStockCandle.close) > BEARISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
+		if (Math.abs(currentStockCandle.getClose() - previousStockCandle.getClose()) > BEARISH_MEETING_LINE_MAX_CLOSE_DIFF) return false;
 		int start = index - BEARISH_MEETING_LINE_MIN_TREND_CANDLE_NUMBER;
 		if (isTrendUp(start, index - 1)) return true;
 		return false;
@@ -1843,7 +1867,7 @@ public class StockPattern {
 	 */
 	public boolean isBullishBeltHold(int index) {
 		StockCandle currentStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
+		currentStockCandle = candleList.get(index);
 		if (currentStockCandle == null) return false;
 		if (!isWhiteLongDay(currentStockCandle)) return false;
 		if (!isWhiteMarubozu(currentStockCandle, StockCandleDataType.OPEN)) return false;
@@ -1881,7 +1905,7 @@ public class StockPattern {
 	 */
 	public boolean isBearishBeltHold(int index) {
 		StockCandle currentStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
+		currentStockCandle = candleList.get(index);
 		if (currentStockCandle == null) return false;
 		if (!isBlackLongDay(currentStockCandle)) return false;
 		if (!isBlackMarubozu(currentStockCandle, StockCandleDataType.OPEN)) return false;
@@ -1917,14 +1941,14 @@ public class StockPattern {
 	public boolean isUniqueThreeRiverBottom(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isBlackLongDay(secondPreviousStockCandle)) return false;
 		if (!isBlackShortDay(previousStockCandle)) return false;
-		if (previousStockCandle.low >= secondPreviousStockCandle.low) return false;
-		if (!((secondPreviousStockCandle.open > previousStockCandle.open) && (secondPreviousStockCandle.close < previousStockCandle.close))) return false;
+		if (previousStockCandle.getLow() >= secondPreviousStockCandle.getLow()) return false;
+		if (!((secondPreviousStockCandle.getOpen() > previousStockCandle.getOpen()) && (secondPreviousStockCandle.getClose() < previousStockCandle.getClose()))) return false;
 		if (!isWhiteShortDay(currentStockCandle)) return false;
 		int start = index - UNIQUE_THREE_RIVER_BOTTOM_MIN_TREND_CANDLE_NUMBER - 1;
 		if (isTrendDown(start, index - 2)) return true;
@@ -1958,13 +1982,13 @@ public class StockPattern {
 	public boolean isThreeWhiteSoldiers(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isWhiteLongDay(currentStockCandle) || !isWhiteLongDay(previousStockCandle) || !isWhiteLongDay(secondPreviousStockCandle)) return false;
-		if (previousStockCandle.open >= secondPreviousStockCandle.close) return false;
-		if (currentStockCandle.open >= previousStockCandle.close) return false;
+		if (previousStockCandle.getOpen() >= secondPreviousStockCandle.getClose()) return false;
+		if (currentStockCandle.getOpen() >= previousStockCandle.getClose()) return false;
 		int start = index - THREE_WHITE_SOLDIERS_MIN_TREND_CANDLE_NUMBER - 2;
 		if (isTrendDown(start, index - 3)) return true;
 		return false;
@@ -1996,9 +2020,9 @@ public class StockPattern {
 	public boolean isAdvanceBlock(int index) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isWhiteLongDay(secondPreviousStockCandle)) return false;
 		if (!isWhite(previousStockCandle) || !isWhite(currentStockCandle)) return false;
@@ -2039,18 +2063,18 @@ public class StockPattern {
 	public boolean isThreeBlackCrows(int index, boolean isIdenticalThreeCrows) {
 		if (index < 2) return false;
 		StockCandle currentStockCandle, previousStockCandle, secondPreviousStockCandle;
-		currentStockCandle = stockCandleArray.get(index);
-		previousStockCandle = stockCandleArray.get(index - 1);
-		secondPreviousStockCandle = stockCandleArray.get(index - 2);
+		currentStockCandle = candleList.get(index);
+		previousStockCandle = candleList.get(index - 1);
+		secondPreviousStockCandle = candleList.get(index - 2);
 		if ((currentStockCandle == null) || (previousStockCandle == null) || (secondPreviousStockCandle == null)) return false;
 		if (!isBlackLongDay(currentStockCandle) || !isBlackLongDay(previousStockCandle) || !isBlackLongDay(secondPreviousStockCandle)) return false;
-		if ((currentStockCandle.close >= previousStockCandle.close) || (previousStockCandle.close >= secondPreviousStockCandle.close)) return false;
+		if ((currentStockCandle.getClose() >= previousStockCandle.getClose()) || (previousStockCandle.getClose() >= secondPreviousStockCandle.getClose())) return false;
 		if ((currentStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH)
 		 || (previousStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH)
 		 || (secondPreviousStockCandle.getLowerShadowLength() > THREE_BLACK_CROWS_MAX_LOWER_SHADOW_LENGTH))
 			return false;
 		if (!isIdenticalThreeCrows) {
-			if ((currentStockCandle.open <= previousStockCandle.close) || (previousStockCandle.open <= secondPreviousStockCandle.close)) return false;
+			if ((currentStockCandle.getOpen() <= previousStockCandle.getClose()) || (previousStockCandle.getOpen() <= secondPreviousStockCandle.getClose())) return false;
 		}
 		int start = index - THREE_BLACK_CROWS_MIN_TREND_CANDLE_NUMBER - 2;
 		if (isTrendUp(start, index - 3)) return true;
@@ -2092,21 +2116,21 @@ public class StockPattern {
 		if (index < BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER - 1) return false;
 		int firstStockCandleIndex = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 1;
 		int secondStockCandleIndex = firstStockCandleIndex + 1;
-		StockCandle firstStockCandle = stockCandleArray.get(firstStockCandleIndex);
-		StockCandle secondStockCandle = stockCandleArray.get(secondStockCandleIndex);
-		StockCandle currentStockCandle = stockCandleArray.get(index);
+		StockCandle firstStockCandle = candleList.get(firstStockCandleIndex);
+		StockCandle secondStockCandle = candleList.get(secondStockCandleIndex);
+		StockCandle currentStockCandle = candleList.get(index);
 		if ((firstStockCandle == null) || (secondStockCandle == null) || (currentStockCandle == null)) return false;
 		if (!isBlackLongDay(firstStockCandle)) return false;
 		if (!isBlack(secondStockCandle)) return false;
 		if (!hasGapDown(firstStockCandle, secondStockCandle)) return false;
 		for (int i = secondStockCandleIndex + 1; i < index; i++) {
-			StockCandle transitionStockCandle = stockCandleArray.get(i);
+			StockCandle transitionStockCandle = candleList.get(i);
 			if (!isBlackShortDay(transitionStockCandle) && !isWhiteShortDay(transitionStockCandle)) return false;
-			if (transitionStockCandle.close > secondStockCandle.open) return false; 
+			if (transitionStockCandle.getClose() > secondStockCandle.getOpen()) return false; 
 		}
-		if (stockCandleArray.get(index - 1).close >= secondStockCandle.close) return false;
+		if (candleList.get(index - 1).getClose() >= secondStockCandle.getClose()) return false;
 		if (!isWhiteLongDay(currentStockCandle)) return false;
-		if (currentStockCandle.close <= secondStockCandle.open) return false;
+		if (currentStockCandle.getClose() <= secondStockCandle.getOpen()) return false;
 		int start = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 3 - BULLISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER;
 		int end = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 2;
 		if (isTrendDown(start, end)) return true;
@@ -2149,21 +2173,21 @@ public class StockPattern {
 		if (index < BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER - 1) return false;
 		int firstStockCandleIndex = index - BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER + 1;
 		int secondStockCandleIndex = firstStockCandleIndex + 1;
-		StockCandle firstStockCandle = stockCandleArray.get(firstStockCandleIndex);
-		StockCandle secondStockCandle = stockCandleArray.get(secondStockCandleIndex);
-		StockCandle currentStockCandle = stockCandleArray.get(index);
+		StockCandle firstStockCandle = candleList.get(firstStockCandleIndex);
+		StockCandle secondStockCandle = candleList.get(secondStockCandleIndex);
+		StockCandle currentStockCandle = candleList.get(index);
 		if ((firstStockCandle == null) || (secondStockCandle == null) || (currentStockCandle == null)) return false;
 		if (!isWhiteLongDay(firstStockCandle)) return false;
 		if (!isWhite(secondStockCandle)) return false;
 		if (!hasGapUp(firstStockCandle, secondStockCandle)) return false;
 		for (int i = secondStockCandleIndex + 1; i < index; i++) {
-			StockCandle transitionStockCandle = stockCandleArray.get(i);
+			StockCandle transitionStockCandle = candleList.get(i);
 			if (!isWhiteShortDay(transitionStockCandle) && !isBlackShortDay(transitionStockCandle)) return false;
-			if (transitionStockCandle.close < secondStockCandle.open) return false; 
+			if (transitionStockCandle.getClose() < secondStockCandle.getOpen()) return false; 
 		}
-		if (stockCandleArray.get(index - 1).close <= secondStockCandle.close) return false;
+		if (candleList.get(index - 1).getClose() <= secondStockCandle.getClose()) return false;
 		if (!isBlackLongDay(currentStockCandle)) return false;
-		if (currentStockCandle.close >= secondStockCandle.open) return false;
+		if (currentStockCandle.getClose() >= secondStockCandle.getOpen()) return false;
 		int start = index - BEARISH_BREAKAWAY_MAX_CANDLE_NUMBER + 3 - BEARISH_BREAKAWAY_MIN_TREND_CANDLE_NUMBER;
 		int end = index - BULLISH_BREAKAWAY_MAX_CANDLE_NUMBER + 2;
 		if (isTrendUp(start, end)) return true;
